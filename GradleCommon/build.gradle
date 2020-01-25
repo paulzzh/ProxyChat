@@ -1,0 +1,188 @@
+import org.apache.tools.ant.DirectoryScanner
+import org.apache.tools.ant.taskdefs.condition.Os
+
+description "Common Gradle Build Script"
+
+def getLatestTag() {
+    return "git rev-list --tags --max-count=1".execute(null, projectDir).text.trim()
+}
+
+if (project.hasProperty("newProjectDir")) {
+    File destiontionDir = new File(newProjectDir)
+
+    task initRepo(type: Exec) {
+        workingDir destiontionDir
+
+        executable "git"
+        args "init"
+    }
+
+    task addSubmodule(type: Exec, dependsOn: initRepo) {
+        workingDir destiontionDir
+
+        executable "git"
+        args "submodule", "add", "https://github.com/AuraDevelopmentTeam/GradleCommon.git"
+
+        ignoreExitValue = true
+    }
+
+    task setGitTag(type: Exec, dependsOn: addSubmodule) {
+        workingDir new File(destiontionDir, "GradleCommon")
+
+        executable "git"
+        args "checkout", "${-> getLatestTag()}"
+    }
+
+    task initGradle(type: Exec) {
+        workingDir destiontionDir
+
+        executable file(Os.isFamily(Os.FAMILY_WINDOWS)? "gradlew.bat" : "gradlew")
+        args "-Dorg.gradle.daemon=false", "--console=plain", "init", "wrapper"
+
+        shouldRunAfter setGitTag
+    }
+
+    task copyTemplateFiles(type: Copy, dependsOn: initGradle) {
+        doFirst {
+            DirectoryScanner.defaultExcludes.each { DirectoryScanner.removeDefaultExclude it }
+            DirectoryScanner.addDefaultExclude "something has to be in here or everything gets excluded"
+        }
+
+        from (projectDir) {
+            include ".gitattributes"
+            include ".gitignore"
+            include ".github/FUNDING.yml"
+        }
+
+        from "template"
+
+        into destiontionDir
+
+        doLast {
+            DirectoryScanner.resetDefaultExcludes()
+        }
+    }
+
+    task addAllFiles(type: Exec, dependsOn: [setGitTag, copyTemplateFiles]) {
+        workingDir destiontionDir
+
+        executable "git"
+        args "add", "-A"
+    }
+
+    task makeGradlewExecutable(type: Exec, dependsOn: addAllFiles) {
+        workingDir destiontionDir
+
+        executable "git"
+        args "update-index", "--chmod=+x", "gradlew"
+    }
+
+    task createFirstCommit(type: Exec, dependsOn: makeGradlewExecutable) {
+        workingDir destiontionDir
+
+        executable "git"
+        args "commit", "-m", "Initial commit!\n\n[ci skip]"
+    }
+
+    task createFirstTag(type: Exec, dependsOn: createFirstCommit) {
+        workingDir destiontionDir
+
+        executable "git"
+        args "tag", "-a", "v0.0.0", "-m", "Project starts!"
+    }
+
+    task addGitHooks(type: Exec, dependsOn: initGradle) {
+        workingDir destiontionDir
+
+        executable file(Os.isFamily(Os.FAMILY_WINDOWS)? "gradlew.bat" : "gradlew")
+        args "-Dorg.gradle.daemon=false", "--console=plain", "addGitHooks"
+
+        shouldRunAfter createFirstTag
+    }
+
+    task createNewProject(dependsOn: [initRepo, addSubmodule, setGitTag, initGradle, copyTemplateFiles, addAllFiles, makeGradlewExecutable, createFirstCommit, createFirstTag, addGitHooks]) {}
+}
+
+task resetChanges(type: Exec) {
+    workingDir projectDir
+
+    executable "git"
+    args "reset", "--hard"
+}
+
+task fetchUpdates(type: Exec, dependsOn: resetChanges) {
+    workingDir projectDir
+
+    executable "git"
+    args "fetch", "--tags"
+}
+
+task checkoutLatestTag(type: Exec, dependsOn: fetchUpdates) {
+    workingDir projectDir
+
+    executable "git"
+    args "checkout", "${-> getLatestTag()}"
+}
+
+task updateTemplateFiles(dependsOn: checkoutLatestTag) {
+    doLast {
+        DirectoryScanner.defaultExcludes.each { DirectoryScanner.removeDefaultExclude it }
+        DirectoryScanner.addDefaultExclude "something has to be in here or everything gets excluded"
+
+        copy {
+            from (project.file("template")) {
+                include ".gitlab-ci.yml"
+                include ".travis.yml"
+            }
+
+            from (project.file(".")) {
+                include ".gitignore"
+                include ".gitattributes"
+                include ".github/FUNDING.yml"
+            }
+
+            into project.file("..")
+        }
+
+        DirectoryScanner.resetDefaultExcludes()
+    }
+}
+
+task updateGradleWrapper1(type: Exec, dependsOn: updateTemplateFiles) {
+    def gradleVersion
+    
+    doFirst {
+        gradleVersion = file("gradle/wrapper/gradle-wrapper.properties").text =~ /(?<=gradle-)\d+(?:\.\d+){1,2}/
+        gradleVersion = gradleVersion.find()? gradleVersion.group() : gradle.gradleVersion
+    }
+    
+    workingDir project.file("..")
+
+    executable file(Os.isFamily(Os.FAMILY_WINDOWS)? "gradlew.bat" : "gradlew")
+    args "-Dorg.gradle.daemon=false", "--console=plain", "wrapper", "--gradle-version=${-> gradleVersion}"
+}
+
+task updateGradleWrapper2(type: Exec, dependsOn: updateGradleWrapper1) {
+    workingDir project.file("..")
+
+    executable file(Os.isFamily(Os.FAMILY_WINDOWS)? "gradlew.bat" : "gradlew")
+    args "-Dorg.gradle.daemon=false", "--console=plain", "wrapper"
+}
+
+task stageUpdate(type: Exec, dependsOn: updateGradleWrapper2) {
+    workingDir project.file("..")
+
+    executable "git"
+    args "add", "GradleCommon", ".gitlab-ci.yml", ".travis.yml", ".gitignore", ".gitattributes", "gradlew", "gradlew.bat", "gradle/wrapper/gradle-wrapper.jar", "gradle/wrapper/gradle-wrapper.properties", ".github/FUNDING.yml"
+}
+
+task commitUpdate(type: Exec, dependsOn: stageUpdate) {
+    workingDir project.file("..")
+
+    executable "git"
+    args "commit", "-m", "Updated Gradle Common"
+
+    ignoreExitValue = true
+}
+
+task updateGradleCommon(dependsOn: [resetChanges, fetchUpdates, checkoutLatestTag, updateTemplateFiles, updateGradleWrapper1, updateGradleWrapper2, stageUpdate, commitUpdate])

@@ -1,0 +1,1434 @@
+// =================================================
+//     ____                                __
+//    /  _/____ ___   ____   ____   _____ / /_ _____
+//    / / / __ `__ \ / __ \ / __ \ / ___// __// ___/
+//  _/ / / / / / / // /_/ // /_/ // /   / /_ (__  )
+// /___//_/ /_/ /_// .___/ \____//_/    \__//____/
+//                /_/
+//
+// =================================================
+
+import static com.xlson.groovycsv.CsvParser.parseCsv
+
+import com.github.spotbugs.SpotBugsTask
+import groovy.json.*
+import io.franzbecker.gradle.lombok.task.DelombokTask
+import java.security.SecureRandom
+import java.util.regex.*
+import java.util.stream.Collectors
+import org.apache.tools.ant.filters.ReplaceTokens
+
+// =============================================================
+//     ____         ____ _         _  __   _
+//    / __ \ ___   / __/(_)____   (_)/ /_ (_)____   ____   _____
+//   / / / // _ \ / /_ / // __ \ / // __// // __ \ / __ \ / ___/
+//  / /_/ //  __// __// // / / // // /_ / // /_/ // / / /(__  )
+// /_____/ \___//_/  /_//_/ /_//_/ \__//_/ \____//_/ /_//____/
+//
+// =============================================================
+
+final String NONE = "none"
+final String BUNGEECORD = "bungeecord"
+final String VELOCITY = "velocity"
+final String SPIGOT = "spigot"
+final String SPONGE = "sponge"
+final String FORGE = "forge"
+final String SPONGEFORGE = "spongeforge"
+final String NUKKIT = "nukkit"
+
+ext {
+    if (project.hasProperty("buildOffset")) {
+        if (buildOffset instanceof String)
+            buildOffset = Integer.parseInt(buildOffset)
+    } else
+        buildOffset = 0
+
+    gitDescription = "git describe --tags --dirty".execute(null, projectDir).text.trim()
+
+    isSnapshot = getBuildType() == "SNAPSHOT"
+    isDev = isSnapshot || getBuildType() == "DEV"
+}
+
+def getBuild() {
+    def commits = "git rev-list --count HEAD".execute(null, projectDir).text.trim()
+
+    return (project.buildOffset + commits.toInteger() + (isSnapshot? 1 : 0)).toString()
+}
+def getBuildType() {
+    if (project.gitDescription.endsWith("dirty"))
+        return "SNAPSHOT"
+    else if(project.gitDescription.contains("-"))
+        return "DEV"
+    else
+        return "RELEASE"
+}
+def getVersion() {
+    def branch = (project.hasProperty("branchName")? branchName : ("git describe --all".execute().text.trim().replaceFirst(".*?/", ""))).replaceAll("/|\\\\", "_")
+    def tempVersion = Arrays.stream(gitDescription.replaceAll("^v|-.*", "").split("\\."), 0, 3).map{num -> Integer.parseInt(num)}.toArray()
+
+    if (isDev) {
+        if (project.hasProperty("major")) {
+            tempVersion[0]++;
+            tempVersion[1] = 0;
+            tempVersion[2] = 0;
+        } else if (project.hasProperty("minor")) {
+            tempVersion[1]++;
+            tempVersion[2] = 0;
+        } else {
+            tempVersion[2]++;
+        }
+    }
+
+    def baseVersion = Arrays.stream(tempVersion).map{num -> Integer.toString(num)}.collect(Collectors.joining(".")) + ".${project.buildNum}"
+
+    if ((branch != "master") && !branch.matches("^v\\d+\\.\\d+.\\d+\$"))
+        baseVersion += "-${branch}"
+
+    if (buildType != "RELEASE")
+        baseVersion += "-${buildType}"
+
+    return baseVersion
+}
+def getChangelog() {
+    try {
+        File file = file("CHANGELOG.md")
+
+        if (!file.exists())
+            return "*No Changelog*"
+
+        Pattern pattern = Pattern.compile("^Version .*?(?= {0,2}\\n{0,3}Version)", Pattern.DOTALL);
+        Matcher match = pattern.matcher(file.text.replaceAll("\r", ""));
+
+        if (match.find())
+            return match.group();
+    } catch(IOException e) {
+        println e
+    }
+
+    return "*No Changelog*";
+}
+def printCoverageText(projectName, coverageInstructions, coverageBranches, coverageLines, coverageComplexity, coverageMethods) {
+    println String.format("Covered %.2f%% of instructions for ${projectName}.", ((double)coverageInstructions[1] / (double)coverageInstructions[0]) * 100.0)
+    println String.format("Covered %.2f%% of branches for ${projectName}.", ((double)coverageBranches[1] / (double)coverageBranches[0]) * 100.0)
+    println String.format("Covered %.2f%% of lines for ${projectName}.", ((double)coverageLines[1] / (double)coverageLines[0]) * 100.0)
+    println String.format("Covered %.2f%% of complexity for ${projectName}.", ((double)coverageComplexity[1] / (double)coverageComplexity[0]) * 100.0)
+    println String.format("Covered %.2f%% of methods for ${projectName}.", ((double)coverageMethods[1] / (double)coverageMethods[0]) * 100.0)
+}
+def signJar(archivePath) {
+    if (project.hasProperty("keyStoreAlias") && project.hasProperty("keyStore") && project.hasProperty("keyStorePass")) {
+        ant.signjar(
+            jar:                  archivePath,
+            alias:                project.keyStoreAlias,
+            keystore:             project.keyStore,
+            storepass:            project.keyStorePass,
+            preservelastmodified: true
+        )
+    } else {
+        println "WARNING!!!\tCannot sign jar!"
+    }
+}
+
+// ==========================================
+//
+//     ____   __               _
+//    / __ \ / /__  __ ____ _ (_)____   _____
+//   / /_/ // // / / // __ `// // __ \ / ___/
+//  / ____// // /_/ // /_/ // // / / /(__  )
+// /_/    /_/ \__,_/ \__, //_//_/ /_//____/
+//                  /____/
+//
+// ==========================================
+
+apply plugin: "java-library"
+apply plugin: "jacoco"
+apply plugin: "maven"
+apply plugin: "maven-publish"
+apply plugin: "signing"
+apply plugin: "eclipse"
+apply plugin: "idea"
+
+// ===============================================
+//
+//    _____        __   __   _
+//   / ___/ ___   / /_ / /_ (_)____   ____ _ _____
+//   \__ \ / _ \ / __// __// // __ \ / __ `// ___/
+//  ___/ //  __// /_ / /_ / // / / // /_/ /(__  )
+// /____/ \___/ \__/ \__//_//_/ /_/ \__, //____/
+//                                 /____/
+//
+// ===============================================
+
+if (!project.hasProperty("type")) {
+    throw new NoSuchElementException("No type is specified!")
+} else if ((type != NONE) && (type != BUNGEECORD) && (type != VELOCITY) && (type != SPIGOT) && (type != SPONGE) && (type != FORGE) && (type != SPONGEFORGE) && (type != NUKKIT)) {
+    throw new IllegalArgumentException("The type \"${type}\" is unknown.\nUse either \"${NONE}\", \"${BUNGEECORD}\", \"${VELOCITY}\", \"${SPIGOT}\", \"${SPONGE}\", \"${FORGE}\", \"${SPONGEFORGE}\" or \"${NUKKIT}\"")
+} else if (!project.hasProperty("pluginId")) {
+    throw new NoSuchElementException("No pluginId is specified!")
+}
+
+ext {
+    // Environment Variables
+    if (System.env.keyStoreAlias != null) keyStoreAlias = System.env.keyStoreAlias
+    if (System.env.keyStore != null) keyStore = System.env.keyStore
+    if (System.env.keyStorePass != null) keyStorePass = System.env.keyStorePass
+    if (System.env.keyId != null) ext."signing.keyId" = System.env.keyId
+    if (System.env.password != null) ext."signing.password" = System.env.password
+    if (System.env.secretKeyRingFile != null) ext."signing.secretKeyRingFile" = System.env.secretKeyRingFile
+    if (System.env.codacyApiToken != null) codacyApiToken = System.env.codacyApiToken
+    if (System.env.oreDeployApiKey != null) ext."oreDeploy.apiKey" = System.env.oreDeployApiKey
+    if (System.env.curseForgeApiKey != null) curseForgeApiKey = System.env.curseForgeApiKey
+    if (System.env.testSecrets != null)
+        testSecrets = System.env.testSecrets
+    else
+        testSecrets = "{}"
+
+    if (!project.hasProperty("pluginName")) pluginName = name
+    if (!project.hasProperty("baseGroup")) baseGroup = "dev.aura"
+
+    buildNum = getBuild()
+    buildType = getBuildType()
+
+    if (project.hasProperty("signJar")) {
+        if (signJar instanceof String)
+            signJar = Boolean.parseBoolean(signJar)
+    } else
+        signJar = false
+    if (project.hasProperty("useStats")) {
+        if (useStats instanceof String)
+            useStats = Boolean.parseBoolean(useStats)
+    } else
+        useStats = (type != NONE) && (type != FORGE) && (type != NUKKIT)
+    if (project.hasProperty("customCharts")) {
+        if (customCharts instanceof String)
+            customCharts = Boolean.parseBoolean(customCharts)
+    } else
+        customCharts = false
+    if (project.hasProperty("useRootValues")) {
+        if (useRootValues instanceof String)
+            useRootValues = Boolean.parseBoolean(useRootValues)
+    } else
+        useRootValues = false
+    if (project.hasProperty("hasApi")) {
+        if (hasApi instanceof String)
+            hasApi = Boolean.parseBoolean(hasApi)
+    } else
+        hasApi = false
+    if (project.hasProperty("enableShadow")) {
+        if (enableShadow instanceof String)
+            enableShadow = Boolean.parseBoolean(enableShadow)
+    } else
+        enableShadow = useStats
+    if (project.hasProperty("enableMockTesting")) {
+        if (enableMockTesting instanceof String)
+            enableMockTesting = Boolean.parseBoolean(enableMockTesting)
+    } else
+        enableMockTesting = false
+
+    shouldSign = project.hasProperty("signing.keyId") && project.hasProperty("signing.password") && project.hasProperty("signing.secretKeyRingFile")
+    baseMainDirResources = ["CHANGELOG", "CHANGELOG.md", "CHANGELOG.txt", "LICENSE", "LICENSE.md", "LICENSE.txt", "README", "README.md", "README.txt"]
+    mainDirResources =
+        fileTree(dir: file(projectDir), includes: baseMainDirResources) + 
+        fileTree(dir: file(rootProject.projectDir), includes: baseMainDirResources)
+
+    // default versions
+
+    if (!project.hasProperty("lombok_version")) lombok_version = "1.18.10"
+    if (!project.hasProperty("lombok_hash")) lombok_hash = "2836e954823bfcbad45e78c18896e3d01058e6f643749810c608b7005ee7b2fa"
+    if (!project.hasProperty("spotBugs_version")) spotBugs_version = "3.1.12"
+    if (!project.hasProperty("mockito_version")) mockito_version = "2.25.1"
+    if (!project.hasProperty("powerMock_version")) powerMock_version = "2.0.0"
+
+    if (!project.hasProperty("bungeecoord_version")) bungeecoord_version = "1.15-SNAPSHOT"
+    if (!project.hasProperty("velocity_version")) velocity_version = "1.0.3-SNAPSHOT"
+    if (!project.hasProperty("spigot_version")) spigot_version = "1.15.1-R0.1-SNAPSHOT"
+    if (!project.hasProperty("sponge_version")) sponge_version = "7.1.0"
+    if (!project.hasProperty("nukkit_version")) nukkit_version = "1.0-SNAPSHOT"
+    if (!project.hasProperty("minecraft_version")) minecraft_version = "1.12.2"
+    if (!project.hasProperty("forge_version")) forge_version = "14.23.5.2768"
+    if (!project.hasProperty("mapping_version")) mapping_version = "stable_39"
+
+    if (!project.hasProperty("bStats_version")) bStats_version = "1.4"
+}
+
+version = getVersion()
+if (description == null) description = "Empty description"
+if (project != rootProject) ext.baseGroup = project.parent.group
+group = "${baseGroup}.${pluginId}".toString()
+
+if (type == FORGE)
+    archivesBaseName += "-${minecraft_version}"
+
+ext {
+    // bStats
+    if (useStats) bStatsName = "bstats-" + ((type == SPIGOT)? "bukkit" : ((type == SPONGEFORGE)? "sponge" : type)) + (customCharts? "" : "-lite")
+
+    // Common Manifest
+    commonManifest = {
+        attributes(
+            "Specification-Title": pluginName,
+            "Specification-Version": version,
+            "Specification-Vendor": "Aura Development Team",
+            "Implementation-Title": pluginName,
+            "Implementation-Version": version,
+            "Implementation-Vendor": "Aura Development Team"
+        )
+    }
+
+    // JSON patterns
+    jsonPatterns = ["mcmod.info", "**/*.json", "**/*.mcmeta"]
+    // PNG patterns
+    pngPatterns = ["**/*.png"]
+
+    // Common POM
+    commonPom = project.pom {
+        def baseProject = useRootValues? rootProject : project
+
+        groupId = group
+        version = version
+        artifactId = archivesBaseName
+        project {
+            name baseProject.archivesBaseName
+            packaging "jar"
+            description baseProject.description
+            url "https://gitlab.aura-dev.team/AuraDev/${rootProject.archivesBaseName}"
+            scm {
+                url "https://gitlab.aura-dev.team/AuraDev/${rootProject.archivesBaseName}"
+                connection "scm:git:git@gitlab.aura-dev.team:AuraDev/${rootProject.archivesBaseName}.git"
+                developerConnection "scm:git:gitlab.aura-dev.team:AuraDev/${rootProject.archivesBaseName}.git"
+            }
+            issueManagement {
+                system "github"
+                url "https://github.com/AuraDevelopmentTeam/${rootProject.archivesBaseName}/issues"
+            }
+            licenses {
+                license {
+                    name "License"
+                    url "https://github.com/AuraDevelopmentTeam/${rootProject.archivesBaseName}/blob/master/LICENSE.md"
+                    distribution "repo"
+                }
+            }
+            developers {
+                developer {
+                    id "brainstone"
+                    name "The_BrainStone"
+                    email "yannick@tedworld.de"
+                    roles {
+                        role "developer"
+                        role "development leader"
+                        role "team leader"
+                    }
+                }
+                developer {
+                    id "shawn_ian"
+                    name "shawn_ian"
+                    roles {
+                        role "former developer"
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ==========================================
+//
+//     ____   __               _
+//    / __ \ / /__  __ ____ _ (_)____   _____
+//   / /_/ // // / / // __ `// // __ \ / ___/
+//  / ____// // /_/ // /_/ // // / / /(__  )
+// /_/    /_/ \__,_/ \__, //_//_/ /_//____/
+//                  /____/
+//
+// ==========================================
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven {
+            name "Gradle-Plugins"
+            url "https://plugins.gradle.org/m2/"
+        }
+        maven {
+            name "forge"
+            url "https://files.minecraftforge.net/maven"
+        }
+    }
+
+    dependencies {
+        classpath "com.xlson.groovycsv:groovycsv:1.3"
+        classpath "com.google.guava:guava:28.1-jre"
+
+        classpath "io.franzbecker:gradle-lombok:3.2.0"
+        classpath "com.github.ben-manes:gradle-versions-plugin:0.27.0"
+        classpath "com.github.spotbugs:spotbugs-gradle-plugin:3.0.0"
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.26.1"
+        classpath "io.freefair.gradle:maven-plugin:4.1.6"
+
+        if (!project.hasProperty("enableShadow") || Boolean.parseBoolean(enableShadow.toString()))
+            classpath "com.github.jengelman.gradle.plugins:shadow:2.0.3"
+
+        if ((type == "sponge") || (type == "spongeforge"))
+            classpath "gradle.plugin.org.spongepowered:spongegradle:0.9.0"
+
+        if ((type == "forge") || (type == "spongeforge")) {
+            classpath "net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT"
+
+            if (project.hasProperty("curseForgeApiKey") || (System.env.curseForgeApiKey != null))
+                classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.1.0"
+        }
+    }
+}
+
+allprojects {
+    buildscript {
+        repositories {
+            jcenter()
+            mavenCentral()
+            maven {
+                name "Gradle-Plugins"
+                url "https://plugins.gradle.org/m2/"
+            }
+            maven {
+                name "forge"
+                url "https://files.minecraftforge.net/maven"
+            }
+        }
+        dependencies {
+            if ((type == "forge") || (type == "spongeforge"))
+                classpath "net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT"
+        }
+    }
+}
+
+apply plugin: io.franzbecker.gradle.lombok.LombokPlugin
+apply plugin: com.github.benmanes.gradle.versions.VersionsPlugin
+apply plugin: com.github.spotbugs.SpotBugsPlugin
+apply plugin: com.diffplug.gradle.spotless.SpotlessPlugin
+apply plugin: io.freefair.gradle.plugins.maven.javadoc.JavadocLinksPlugin
+
+if (enableShadow)
+    apply plugin: com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
+
+if ((type == SPONGE) || (type == SPONGEFORGE)) {
+    apply plugin: org.spongepowered.gradle.meta.MetadataPlugin
+    apply plugin: org.spongepowered.gradle.plugin.SpongePluginPlugin
+
+    if (project.hasProperty("oreDeploy.apiKey"))
+        apply plugin: org.spongepowered.gradle.ore.OreDeployPlugin
+}
+
+if ((type == FORGE) || (type == SPONGEFORGE)) {
+    apply plugin: net.minecraftforge.gradle.user.patcherUser.forge.ForgePlugin
+
+    if (project.hasProperty("curseForgeApiKey"))
+        apply plugin: com.matthewprenger.cursegradle.CurseGradlePlugin
+
+    tasks.remove(sourceJar)
+}
+
+// ==============================================================================
+//
+//    ______               ____ _                             __   _
+//   / ____/____   ____   / __/(_)____ _ __  __ _____ ____ _ / /_ (_)____   ____
+//  / /    / __ \ / __ \ / /_ / // __ `// / / // ___// __ `// __// // __ \ / __ \
+// / /___ / /_/ // / / // __// // /_/ // /_/ // /   / /_/ // /_ / // /_/ // / / /
+// \____/ \____//_/ /_//_/  /_/ \__, / \__,_//_/    \__,_/ \__//_/ \____//_/ /_/
+//                             /____/
+//
+// ==============================================================================
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+Project proj = project
+
+eclipse {
+    classpath {
+        downloadJavadoc = true
+        downloadSources = true
+
+        file {
+            whenMerged { cp ->
+                project.logger.lifecycle "[eclipse] Excluding sourceSet outputs from eclipse dependencies for project '${project.path}'"
+                cp.entries.grep { it.kind == 'lib' }.each { entry ->
+                    rootProject.allprojects { Project project ->
+                          String buildDirPath = project.buildDir.path.replace('\\', '/') + '/'
+                          String entryPath = entry.path
+
+                          if (entryPath.startsWith(buildDirPath)) {
+                              cp.entries.remove entry
+
+                              if (project != proj) {
+                                  boolean projectContainsProjectDep = false
+                                  for (Configuration cfg : proj.configurations) {
+                                    boolean cfgContainsProjectDependency = cfg.allDependencies.withType(ProjectDependency).collect { it.dependencyProject }.contains(project)
+                                    if(cfgContainsProjectDependency) {
+                                        projectContainsProjectDep = true
+                                        break;
+                                    }
+                                }
+                                if (!projectContainsProjectDep) {
+                                    throw new GradleException("The project '${proj.path}' has a dependency to the outputs of project '${project.path}', but not to the project itself. This is not allowed because it will cause compilation in eclipse to behave differently than in gradle.")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    project {
+        name = pluginName
+    }
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
+if ((type == FORGE) || (type == SPONGEFORGE)) {
+    tasks.eclipseClasspath.dependsOn setupDecompWorkspace
+    tasks.ideaModule.dependsOn setupDecompWorkspace
+}
+
+configurations {
+    codacy
+
+    if (enableShadow) {
+        shadowRelocate
+        shadow.extendsFrom shadowRelocate
+        api.extendsFrom shadow
+    }
+
+    testImplementation {
+        transitive = true
+    }
+}
+
+spotbugs {
+    toolVersion = spotBugs_version
+    effort = "max"
+}
+
+spotless {
+    java {
+        File headerFile = file("LICENSE-header.txt")
+        File rootHeaderFile = rootProject.file("LICENSE-header.txt")
+
+        if (headerFile.exists())
+            licenseHeaderFile headerFile
+        else if (rootHeaderFile.exists())
+            licenseHeaderFile rootHeaderFile
+    }
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+
+    maven {
+        name "Aura Dev"
+        url "https://maven.aura-dev.team/repository/auradev-snapshots/"
+    }
+    maven {
+        name "BungeeCord"
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+    maven {
+        name "Velocity"
+        url "https://repo.velocitypowered.com/snapshots/"
+    }
+    maven {
+        name "Spigot"
+        url "https://hub.spigotmc.org/nexus/content/repositories/snapshots"
+    }
+    maven {
+        name "Sponge"
+        url "https://repo.spongepowered.org/maven"
+    }
+    maven {
+        name "Nukkit"
+        url "https://repo.nukkitx.com/maven-snapshots"
+    }
+    maven {
+        name "CodeMC"
+        url "https://repo.codemc.org/repository/maven-public"
+    }
+
+    removeIf {
+        it.name.startsWith('MavenLocal')
+    }
+}
+
+dependencies {
+    if (type == BUNGEECORD) {
+        api "net.md-5:bungeecord-api:${bungeecoord_version}"
+    } else if (type == VELOCITY) {
+        api "com.velocitypowered:velocity-api:${velocity_version}"
+        compile 'org.spongepowered:configurate-yaml:3.6'
+        annotationProcessor "com.velocitypowered:velocity-api:${velocity_version}"
+    } else if (type == SPIGOT) {
+        api "org.spigotmc:spigot-api:${spigot_version}"
+    } else if ((type == SPONGE) || (type == SPONGEFORGE)) {
+        api "org.spongepowered:spongeapi:${sponge_version}"
+    } else if (type == NUKKIT) {
+        api "cn.nukkit:nukkit:${nukkit_version}"
+    }
+
+    if (useStats) {
+        if ((type == SPONGE) || (type == SPONGEFORGE)) {
+            shadow "org.bstats:${bStatsName}:${bStats_version}"
+        } else {
+            shadowRelocate "org.bstats:${bStatsName}:${bStats_version}"
+        }
+    }
+
+    compileOnly "com.github.spotbugs:spotbugs-annotations:${spotBugs_version}"
+
+    testImplementation "junit:junit:4.12"
+    testCompileOnly "com.github.spotbugs:spotbugs-annotations:${spotBugs_version}"
+
+    if (project.hasProperty("codacyApiToken"))
+        codacy "com.codacy:codacy-coverage-reporter:6.0.7"
+
+    if (enableMockTesting) {
+        testImplementation "org.mockito:mockito-core:${mockito_version}"
+        testImplementation "org.powermock:powermock-api-mockito2:${powerMock_version}"
+        testImplementation "org.powermock:powermock-module-junit4:${powerMock_version}"
+    }
+}
+
+if ((type == SPONGE) || (type == SPONGEFORGE)) {
+    sponge {
+        plugin {
+            meta {
+                def baseProject = useRootValues? rootProject : project
+
+                id = baseProject.pluginId
+                name = baseProject.pluginName
+                version = baseProject.version
+                description = baseProject.description
+            }
+        }
+    }
+
+    compileJava {
+        outputs.upToDateWhen { false }
+        doFirst { println() }
+    }
+}
+
+if ((type == FORGE) || (type == SPONGEFORGE)) {
+    minecraft {
+        version = "${minecraft_version}-${forge_version}"
+        runDir = "run"
+        mappings = mapping_version
+        useDepAts = true
+
+        clientJvmArgs += "-Xmx2G"
+        serverJvmArgs += "-Xmx2G"
+    }
+}
+
+lombok {
+    version = lombok_version
+    sha256 = lombok_hash
+}
+
+processResources {
+    def baseProject = useRootValues? rootProject : project
+
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "pluginId", baseProject.pluginId
+    inputs.property "pluginName", baseProject.pluginName
+    inputs.property "version", baseProject.version
+    inputs.property "group", baseProject.group
+    inputs.property "description", baseProject.description
+    inputs.property "buildNum", baseProject.buildNum
+    inputs.property "buildType", baseProject.buildType
+    inputs.property "minecraftVersion", baseProject.minecraft_version
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude "lang"
+        exclude "assets/*/lang"
+        exclude "*.conf"
+        exclude pngPatterns
+        exclude "**/*.ogg"
+
+        expand \
+            "id": baseProject.pluginId,
+            "name": baseProject.pluginName,
+            "version": baseProject.version,
+            "group": baseProject.group,
+            "description": baseProject.description,
+            "build": baseProject.buildNum,
+            "buildType": baseProject.buildType,
+            "minecraftVersion": baseProject.minecraft_version
+    }
+
+    rename "(.+_at.cfg)", "META-INF/\$1"
+
+    // Minify json resources
+    doLast {
+        fileTree(dir: outputs.files.asPath, includes: jsonPatterns).each {
+            File file -> file.text = JsonOutput.toJson(new JsonSlurper().parse(file))
+        }
+    }
+}
+
+task processSources (type: Sync) {
+    def baseProject = useRootValues? rootProject : project
+
+    inputs.property "pluginId", baseProject.pluginId
+    inputs.property "pluginName", baseProject.pluginName
+    inputs.property "version", baseProject.version
+    inputs.property "group", baseProject.group
+    inputs.property "description", baseProject.description
+    inputs.property "buildNum", baseProject.buildNum
+    inputs.property "buildType", baseProject.buildType
+    inputs.property "minecraftVersion", baseProject.minecraft_version
+    ext.outputDir = file("$buildDir/generated-src/main")
+
+    from sourceSets.main.allSource
+    into outputDir
+    filter (ReplaceTokens, tokens: [
+        "id": baseProject.pluginId,
+        "name": baseProject.pluginName,
+        "version": baseProject.version,
+        "group": baseProject.group,
+        "description": baseProject.description,
+        "build": baseProject.buildNum,
+        "buildType": baseProject.buildType,
+        "minecraftVersion": baseProject.minecraft_version
+    ])
+}
+
+if (hasApi) {
+    task processApiSources (type: Sync) {
+        def baseProject = useRootValues? rootProject : project
+
+        inputs.property "pluginId", baseProject.pluginId
+        inputs.property "pluginName", baseProject.pluginName
+        inputs.property "version", baseProject.version
+        inputs.property "group", baseProject.group
+        inputs.property "description", baseProject.description
+        inputs.property "buildNum", baseProject.buildNum
+        inputs.property "buildType", baseProject.buildType
+        inputs.property "minecraftVersion", baseProject.minecraft_version
+        ext.outputDir = file("$buildDir/generated-src/api")
+
+        from sourceSets.api.allSource
+        into outputDir
+        filter (ReplaceTokens, tokens: [
+            "id": baseProject.pluginId,
+            "name": baseProject.pluginName,
+            "version": baseProject.version,
+            "group": baseProject.group,
+            "description": baseProject.description,
+            "build": baseProject.buildNum,
+            "buildType": baseProject.buildType,
+            "minecraftVersion": baseProject.minecraft_version
+        ])
+    }
+}
+
+task processTestSources (type: Sync) {
+    def baseProject = useRootValues? rootProject : project
+
+    inputs.property "pluginId", baseProject.pluginId
+    inputs.property "pluginName", baseProject.pluginName
+    inputs.property "version", baseProject.version
+    inputs.property "group", baseProject.group
+    inputs.property "description", baseProject.description
+    inputs.property "buildNum", baseProject.buildNum
+    inputs.property "buildType", baseProject.buildType
+    inputs.property "minecraftVersion", baseProject.minecraft_version
+    inputs.property "testSecrets", baseProject.testSecrets
+    ext.outputDir = file("$buildDir/generated-src/test")
+
+    from sourceSets.test.allSource
+    into outputDir
+    filter (ReplaceTokens, tokens: [
+        "id": baseProject.pluginId,
+        "name": baseProject.pluginName,
+        "version": baseProject.version,
+        "group": baseProject.group,
+        "description": baseProject.description,
+        "build": baseProject.buildNum,
+        "buildType": baseProject.buildType,
+        "minecraftVersion": baseProject.minecraft_version,
+        "testSecrets": baseProject.testSecrets
+    ])
+}
+
+task delombok(type: DelombokTask, dependsOn: compileJava) {
+    group "build"
+    description "Generates Lombok free Java code from code with Lombok"
+
+    ext.outputDir = file("$buildDir/delombok")
+
+    classpath += project.configurations.compileOnly
+    outputs.dir(outputDir)
+    inputs.dir(processSources.outputDir)
+    args(processSources.outputDir, "-d", outputDir)
+
+    if (hasApi) {
+        inputs.dir(processApiSources.outputDir)
+        args(processApiSources.outputDir, "-d", outputDir)
+
+        dependsOn compileApiJava
+    }
+
+    doLast {
+        fileTree(dir: outputDir, exclude: "**/*.java").forEach{file -> file.delete()}
+    }
+}
+
+compileJava {
+    source = processSources.outputs
+    dependsOn processSources
+}
+
+if (hasApi) {
+    compileApiJava {
+        source = processApiSources.outputs
+        dependsOn processApiSources
+    }
+}
+
+compileTestJava {
+    source = processTestSources.outputs
+    dependsOn processTestSources
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+    options.incremental = true
+    options.deprecation = true
+}
+
+tasks.withType(Jar) {
+    manifest commonManifest
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    if (signJar) {
+        doLast {
+            signJar(jar)
+        }
+    }
+}
+
+jar {
+    from sourceSets.main.output
+    from mainDirResources
+
+    if (hasApi) {
+        from sourceSets.api.output
+
+        dependsOn compileApiJava
+    }
+
+    classifier = enableShadow? "dev" : null
+
+    if ((type == FORGE) || (type == SPONGEFORGE)) {
+        finalizedBy reobfJar
+    }
+}
+
+if (hasApi) {
+    task apiJar(type: Jar, dependsOn: processApiSources) {
+        group "build"
+
+        from sourceSets.api.output
+        from mainDirResources
+
+        classifier = "api"
+        version = jar.version
+    }
+}
+
+task sourceJar (type: Jar, dependsOn: processSources) {
+    group "build"
+
+    from sourceSets.main.allSource
+    from mainDirResources
+
+    if (hasApi) {
+        from sourceSets.api.allSource
+
+        dependsOn processApiSources
+    }
+
+    classifier = "sources"
+    version = jar.version
+}
+
+if (enableShadow) {
+    shadowJar {
+        from sourceSets.main.output
+        from mainDirResources
+
+        if (hasApi) {
+            from sourceSets.api.output
+
+            dependsOn compileApiJava
+        }
+
+        classifier = null
+        version = jar.version
+        configurations = [project.configurations.shadow]
+
+        doFirst {
+            project.configurations.shadowRelocate.incoming.resolutionResult.allComponents {
+                if (it.id instanceof ModuleComponentIdentifier) {
+                    def group = it.id.group.replace("-", "")
+                    relocate(group, "${project.group}.shadow.${group}")
+                }
+            }
+        }
+    }
+
+    if ((type == FORGE) || (type == SPONGEFORGE)) {
+        reobf {
+          	shadowJar {
+          		  mappingType = "SEARGE"
+          	}
+        }
+
+        reobfShadowJar {
+            doLast {
+                signJar(shadowJar)
+            }
+        }
+
+        shadowJar.finalizedBy reobfShadowJar
+    }
+}
+
+if ((type == FORGE) || (type == SPONGEFORGE)) {
+    reobfJar {
+        doLast {
+            signJar(jar)
+        }
+    }
+
+    task deobfJar(type: Jar, dependsOn: compileJava) {
+        from sourceSets.main.output
+        from mainDirResources
+
+        if (hasApi) {
+            from sourceSets.api.output
+
+            dependsOn compileApiJava
+        }
+
+        classifier = "deobf"
+
+        doLast {
+            signJar(deobfJar.archivePath)
+        }
+    }
+}
+
+javadoc {
+    dependsOn delombok
+
+    source = delombok.outputDir
+    classpath = sourceSets.main.compileClasspath
+
+    if (hasApi) {
+        classpath += sourceSets.api.compileClasspath
+    }
+
+    def appName = "${pluginName} - ${version}"
+
+    project.configure(options) {
+        memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
+        charSet = "UTF-8"
+        docTitle = appName
+        windowTitle = appName
+        header = "<b>$appName</b>"
+        author = "true"
+        use = "true"
+        links("https://jd.spongepowered.org/${sponge_version}/")
+    }
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    group "build"
+
+    from javadoc.destinationDir
+
+    classifier = "javadoc"
+    version = jar.version
+}
+
+cleanTest {
+    doLast {
+        file("${projectDir}/run/logs/unit-test.log").delete()
+    }
+}
+
+test {
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: " + descriptor)
+    }
+
+    onOutput { descriptor, event ->
+       logger.lifecycle("Test: " + descriptor + " produced standard out/err: " + event.message )
+    }
+
+    if (gradle.startParameter.isParallelProjectExecutionEnabled()) {
+        maxParallelForks = gradle.startParameter.maxWorkerCount
+    }
+
+    forkEvery = 1
+
+    dependsOn cleanTest
+}
+
+task generateTestReport(type: Zip) {
+    from file("${buildDir}/reports/tests/test")
+    from file("${projectDir}/run/logs/unit-test.log")
+    archiveName "${project.name}-TestReport.zip"
+    destinationDir rootProject.projectDir
+
+    test.finalizedBy generateTestReport
+}
+
+task spotbugs(dependsOn: tasks.withType(SpotBugsTask)) {
+    group "verification"
+    description "Run SpotBugs analysis for all classes"
+
+    check.dependsOn tasks.spotbugs
+}
+
+task generateSpotbugsReport(type: Zip) {
+    from file("${buildDir}/reports/spotbugs")
+    archiveName "${project.name}-SpotbugsReport.zip"
+    destinationDir rootProject.projectDir
+}
+
+tasks.withType(SpotBugsTask) {
+    group "verification"
+
+    reports {
+        xml.enabled false
+        html.enabled true
+    }
+
+    finalizedBy tasks.generateSpotbugsReport
+}
+
+clean.dependsOn cleanGenerateTestReport
+clean.dependsOn cleanGenerateSpotbugsReport
+
+artifacts {
+    archives jar
+    archives sourceJar
+    archives javadocJar
+
+    if (hasApi)
+        archives apiJar
+
+    if (enableShadow)
+        archives shadowJar
+
+    if ((type == FORGE) || (type == SPONGEFORGE))
+        archives deobfJar
+}
+
+signing {
+    required { shouldSign }
+
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            if (shouldSign) {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            }
+
+            if (project.hasProperty("auradev_maven")) {
+                repository(url: "${-> auradev_maven}") {
+                    authentication(userName: project.findProperty("maven_user"), password: project.findProperty("maven_password"))
+                }
+            } else {
+                repository(url: "file://${rootProject.projectDir}/maven")
+            }
+
+            pom = commonPom
+        }
+    }
+}
+
+if (((type == SPONGE) || (type == SPONGEFORGE)) && project.hasProperty("oreDeploy.apiKey")) {
+    oreDeploy {
+        channel = isSnapshot? "alpha" : (isDev? "beta" : "release")
+        recommended = !isDev
+        changelog = file("CHANGELOG.md")
+    }
+}
+
+if (((type == FORGE) || (type == SPONGEFORGE)) && project.hasProperty("curseForgeApiKey") && project.hasProperty("curseforge_project_id")) {
+    curseforge {
+        apiKey = project.hasProperty("curseForgeApiKey")? project.curseForgeApiKey : "empty"
+
+        project {
+            id = curseforge_project_id
+            changelog = file("CHANGELOG.md")
+            changelogType = "markdown"
+            releaseType = isSnapshot? "alpha" : (isDev? "beta" : "release")
+            addGameVersion "${minecraft_version}"
+            addGameVersion "Java 8"
+
+            if (project.hasProperty("curseforge_additional_versions") && !curseforge_additional_versions.isEmpty()) curseforge_additional_versions.split(',').each{ addGameVersion it }
+
+            mainArtifact(jar) {
+                displayName = jar.archiveName.replace(".jar", "")
+            }
+
+            if (hasApi) {
+                addArtifact(apiJar) {
+                    displayName = apiJar.archiveName.replace(".jar", "")
+                    changelog = "*This is a file for mod developers. If you don't know what to do with it, don't use it!*"
+                }
+            }
+
+            addArtifact(deobfJar) {
+                displayName = deobfJar.archiveName.replace(".jar", "")
+                changelog = "*This is a file for mod developers. If you don't know what to do with it, don't use it!*"
+            }
+            addArtifact(sourceJar) {
+                displayName = sourceJar.archiveName.replace(".jar", "")
+                changelog = "*This is a file for mod developers. If you don't know what to do with it, don't use it!*"
+            }
+
+            relations {
+                if (project.hasProperty("curseforge_required_libraries") && !curseforge_required_libraries.isEmpty()) curseforge_required_libraries.split(',').each{ requiredLibrary it }
+                if (project.hasProperty("curseforge_optional_libraries") && !curseforge_optional_libraries.isEmpty()) curseforge_optional_libraries.split(',').each{ optionalLibrary it }
+            }
+        }
+    }
+}
+
+task releaseSnapshot(dependsOn: uploadArchives) {
+    if (((type == SPONGE) || (type == SPONGEFORGE)) && project.hasProperty("oreDeploy.apiKey")) {
+        dependsOn oreDeploy
+    }
+
+    if (((type == FORGE) || (type == SPONGEFORGE)) && project.hasProperty("curseForgeApiKey") && project.hasProperty("curseforge_project_id")) {
+        dependsOn tasks.curseforge
+    }
+}
+
+task release(dependsOn: uploadArchives) {
+    if (((type == SPONGE) || (type == SPONGEFORGE)) && project.hasProperty("oreDeploy.apiKey")) {
+        dependsOn oreDeploy
+    }
+
+    if (((type == FORGE) || (type == SPONGEFORGE)) && project.hasProperty("curseForgeApiKey") && project.hasProperty("curseforge_project_id")) {
+        dependsOn tasks.curseforge
+    }
+}
+
+gradle.taskGraph.whenReady {
+    if (gradle.taskGraph.hasTask(project.release) && (project.hasProperty("auradev_maven") && project.hasProperty("auradev_release_maven"))) {
+        uploadArchives {
+            repositories {
+                mavenDeployer {
+                    repository(url: auradev_release_maven) {
+                        authentication(userName: project.findProperty("maven_user"), password: project.findProperty("maven_password"))
+                    }
+                }
+            }
+        }
+    }
+}
+
+// =====================================================
+//
+//     ______
+//    / ____/____  _   __ ___   _____ ____ _ ____ _ ___
+//   / /    / __ \| | / // _ \ / ___// __ `// __ `// _ \
+//  / /___ / /_/ /| |/ //  __// /   / /_/ // /_/ //  __/
+//  \____/ \____/ |___/ \___//_/    \__,_/ \__, / \___/
+//                                        /____/
+//
+// =====================================================
+
+jacoco {
+    toolVersion = "0.8.1"
+}
+
+jacocoTestReport {
+    reports {
+        csv.enabled true
+        xml.enabled true
+    }
+}
+
+if (project == rootProject) {
+    ext {
+        coverageInstructions = [0, 0]
+        coverageBranches = [0, 0]
+        coverageLines = [0, 0]
+        coverageComplexity = [0, 0]
+        coverageMethods = [0, 0]
+    }
+
+    task printFinalCoverage {
+        doLast {
+            printCoverageText("all projects", coverageInstructions, coverageBranches, coverageLines, coverageComplexity, coverageMethods)
+        }
+    }
+
+    task sendFinalCoverageToCodacy(type: JavaExec) {
+        if (project.hasProperty("codacyApiToken")) {
+            enabled = true
+
+            main = "com.codacy.CodacyCoverageReporter"
+            classpath = configurations.codacy
+            args = [
+                "final",
+                "--project-token",
+                project.codacyApiToken
+            ]
+        } else {
+            enabled = false
+        }
+    }
+}
+
+task generateCoverageReport(type: Zip) {
+    onlyIf { jacocoTestReport.didWork }
+
+    from file("${buildDir}/reports/jacoco/test/html")
+    archiveName "${project.name}-CoverageReport.zip"
+    destinationDir rootProject.projectDir
+
+    jacocoTestReport.finalizedBy generateCoverageReport
+}
+
+task printCoverage(dependsOn: jacocoTestReport) {
+    onlyIf { jacocoTestReport.didWork }
+
+    doLast {
+        def instructions = [0, 0]
+        def branches = [0, 0]
+        def lines = [0, 0]
+        def complexity = [0, 0]
+        def methods = [0, 0]
+
+        for(line in parseCsv(new FileReader(file("${buildDir}/reports/jacoco/test/jacocoTestReport.csv")))) {
+            instructions[0] += Integer.parseInt(line.INSTRUCTION_MISSED) + Integer.parseInt(line.INSTRUCTION_COVERED)
+            instructions[1] += Integer.parseInt(line.INSTRUCTION_COVERED)
+            branches[0] += Integer.parseInt(line.BRANCH_MISSED) + Integer.parseInt(line.BRANCH_COVERED)
+            branches[1] += Integer.parseInt(line.BRANCH_COVERED)
+            lines[0] += Integer.parseInt(line.LINE_MISSED) + Integer.parseInt(line.LINE_COVERED)
+            lines[1] += Integer.parseInt(line.LINE_COVERED)
+            complexity[0] += Integer.parseInt(line.COMPLEXITY_MISSED) + Integer.parseInt(line.COMPLEXITY_COVERED)
+            complexity[1] += Integer.parseInt(line.COMPLEXITY_COVERED)
+            methods[0] += Integer.parseInt(line.METHOD_MISSED) + Integer.parseInt(line.METHOD_COVERED)
+            methods[1] += Integer.parseInt(line.METHOD_COVERED)
+        }
+
+        printCoverageText(project.name, instructions, branches, lines, complexity, methods)
+
+        rootProject.coverageInstructions[0] += instructions[0]
+        rootProject.coverageInstructions[1] += instructions[1]
+        rootProject.coverageBranches[0] += branches[0]
+        rootProject.coverageBranches[1] += branches[1]
+        rootProject.coverageLines[0] += lines[0]
+        rootProject.coverageLines[1] += lines[1]
+        rootProject.coverageComplexity[0] += complexity[0]
+        rootProject.coverageComplexity[1] += complexity[1]
+        rootProject.coverageMethods[0] += methods[0]
+        rootProject.coverageMethods[1] += methods[1]
+    }
+
+    shouldRunAfter generateCoverageReport
+    rootProject.printFinalCoverage.dependsOn printCoverage
+    finalizedBy rootProject.printFinalCoverage
+}
+
+task sendCoverageToCodacy(type: JavaExec) {
+    if (project.hasProperty("codacyApiToken")) {
+        onlyIf { jacocoTestReport.didWork }
+
+        enabled = true
+        dependsOn jacocoTestReport
+        rootProject.sendFinalCoverageToCodacy.dependsOn sendCoverageToCodacy
+        finalizedBy rootProject.sendFinalCoverageToCodacy
+
+        main = "com.codacy.CodacyCoverageReporter"
+        classpath = configurations.codacy
+        args = [
+            "report",
+            "--language",
+            "Java",
+            "--coverage-report",
+            "${buildDir}/reports/jacoco/test/jacocoTestReport.xml",
+            "--project-token",
+            project.codacyApiToken,
+            "--partial"
+        ]
+    } else {
+        enabled = false
+    }
+}
+
+task coverage(dependsOn: [printCoverage, jacocoTestCoverageVerification]) {}
+
+check.dependsOn coverage
+jacocoTestReport.dependsOn test
+jacocoTestCoverageVerification.shouldRunAfter rootProject.printFinalCoverage
+
+clean.dependsOn cleanGenerateCoverageReport
+
+// ==========================================================================
+//
+//    _____                     _         __   ______              __
+//   / ___/ ____   ___   _____ (_)____ _ / /  /_  __/____ _ _____ / /__ _____
+//   \__ \ / __ \ / _ \ / ___// // __ `// /    / /  / __ `// ___// //_// ___/
+//  ___/ // /_/ //  __// /__ / // /_/ // /    / /  / /_/ /(__  )/ ,<  (__  )
+// /____// .___/ \___/ \___//_/ \__,_//_/    /_/   \__,_//____//_/|_|/____/
+//      /_/
+// ==========================================================================
+
+if (project == rootProject) {
+    task gitTag {
+        group "help"
+        description """Tags the current version in git.
+Specify "-Pminor" to update the minor version.
+Specify "-Pmajor" to update the major version."""
+
+        doLast {
+            def tagVersion = Arrays.stream(project.version.split("\\."), 0, 3).collect(Collectors.joining("."))
+
+            exec {
+                executable "git"
+                args "tag", "-a", "v${tagVersion}", "-m", getChangelog().replace("\"", "\\\"")
+            }
+        }
+    }
+
+    task updateGradleCommon(dependsOn: ":GradleCommon:updateGradleCommon") {}
+
+    task addGitHooks(type: Copy) {
+        from "GradleCommon/hooks"
+        into ".git/hooks"
+    }
+}
+
+task formatJson {
+    doLast {
+        sourceSets.main.resources.srcDirs.each {
+            dir -> fileTree(dir: dir, includes: jsonPatterns).each {
+                File file -> file.text = JsonOutput.prettyPrint(file.text) + "\n"
+            }
+        }
+    }
+}
+
+task optimizePng {
+    doLast {
+        sourceSets.main.resources.srcDirs.each {
+            dir -> fileTree(dir: dir, includes: pngPatterns).each { File file ->
+                long size = file.length()
+
+                exec {
+                    executable "optipng"
+                    args "-q", "-o7", "-zm1-9", "-strip", "all", file
+                }
+
+                long newSize = file.length()
+
+                if (newSize < size)
+                    System.out.format "Reduced File size of %s from %d bytes to %d bytes (reduced by %.2f%%)", file, size, newSize, ((double) (size - newSize)) / ((double) size) * 100.0
+            }
+        }
+    }
+}
+
+task checkTranslations {
+    doLast {
+        boolean langs_ok = true
+        Map<String, String> map_en = new LinkedHashMap<String, String>()
+        (file("src/main/resources/assets/${pluginId}/lang/en_US.lang")).eachLine {
+              def (value1, value2) = it.tokenize( '=' )
+              if (value1 == null || value2 == null) {return}
+              map_en.put(value1, value2)
+        }
+
+        file("src/main/resources/assets/${pluginId}/lang/").eachFileMatch( ~".*\\.lang\$" ) { langfile ->
+            if (!langfile.getName().contains("en_US")) {
+      	        Map<String, String> map = new LinkedHashMap<String, String>()
+      	        File outfile = file(langfile.getName() + ".txt")
+      	        Writer outwriter = outfile.newWriter("UTF-8")
+                boolean lang_ok = true
+
+      	        outwriter.write("\n// Additional translations:\n")
+      	        outwriter << langfile.filterLine {
+      	            def (value1, value2) = it.tokenize( "=" )
+      	            if (value1 == null || value2 == null) {return false}
+      	            map.put(value1, value2)
+
+      	            if (map_en.containsKey(value1)) {
+                        return false
+                    } else {
+                        lang_ok = false
+                        return true
+                    }
+      	        }
+
+      	        outwriter.append("\n// Missing translations:\n")
+      	        for (e in map_en) {
+      	            if (!map.containsKey(e.key)) {
+      	                outwriter.append(e.key + "=" + e.value + "\n")
+                        lang_ok = false
+      	            }
+      	        }
+
+                outwriter.close()
+
+                if (lang_ok) {
+                    outfile.delete()
+                } else {
+                    println "Lang file " + langfile.getName() + " is not ok!"
+                    println "Created translation report ${outfile}"
+                    langs_ok = false
+                }
+            }
+        }
+
+        if(!langs_ok)
+            println "\nSome language files are not up to date. See log above!"
+    }
+}
+
+println """Project Info:
+=============
+
+Plugin ID:\t${pluginId}
+Plugin Name:\t${pluginName}
+Description:\t${description}
+Version:\t${version}
+Build:\t\t${buildNum}
+Build Type:\t${buildType}
+Group:\t\t${group}
+
+Settings:
+---------
+
+Type:\t\t${type}
+Use Stats:\t${useStats}
+Custom Charts:\t${customCharts}
+"""
