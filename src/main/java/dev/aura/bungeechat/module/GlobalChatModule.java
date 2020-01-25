@@ -3,7 +3,6 @@ package dev.aura.bungeechat.module;
 import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.command.GlobalChatCommand;
 import dev.aura.bungeechat.listener.GlobalChatListener;
-import net.md_5.bungee.api.ProxyServer;
 
 public class GlobalChatModule extends Module {
   private GlobalChatCommand globalChatCommand;
@@ -19,17 +18,15 @@ public class GlobalChatModule extends Module {
     globalChatCommand = new GlobalChatCommand(this);
     globalChatListener = new GlobalChatListener();
 
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerCommand(BungeeChat.getInstance(), globalChatCommand);
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerListener(BungeeChat.getInstance(), globalChatListener);
+    globalChatCommand.register();
+    BungeeChat.getInstance().getProxy()
+        .getEventManager()
+        .register(BungeeChat.getInstance(), globalChatListener);
   }
 
   @Override
   public void onDisable() {
-    ProxyServer.getInstance().getPluginManager().unregisterCommand(globalChatCommand);
-    ProxyServer.getInstance().getPluginManager().unregisterListener(globalChatListener);
+    globalChatCommand.unregister();
+    BungeeChat.getInstance().getProxy().getEventManager().unregisterListener(BungeeChat.getInstance(), globalChatListener);
   }
 }

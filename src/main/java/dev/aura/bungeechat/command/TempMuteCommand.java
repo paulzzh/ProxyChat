@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.command;
 
+import com.velocitypowered.api.command.CommandSource;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.AccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
@@ -10,7 +11,6 @@ import dev.aura.bungeechat.module.MutingModule;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 import java.util.Optional;
-import net.md_5.bungee.api.CommandSender;
 
 public class TempMuteCommand extends BaseCommand {
   public TempMuteCommand(MutingModule mutingModule) {
@@ -18,7 +18,7 @@ public class TempMuteCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSender sender, String[] args) {
+  public void execute(CommandSource sender, String[] args) {
     if (PermissionManager.hasPermission(sender, Permission.COMMAND_TEMPMUTE)) {
       if (args.length < 2) {
         MessagesService.sendMessage(
@@ -31,7 +31,7 @@ public class TempMuteCommand extends BaseCommand {
           return;
         }
 
-        CommandSender target = BungeecordAccountManager.getCommandSender(targetAccount.get()).get();
+        CommandSource target = BungeecordAccountManager.getCommandSource(targetAccount.get()).get();
 
         if (targetAccount.get().isMuted()) {
           MessagesService.sendMessage(sender, Messages.MUTE_IS_MUTED.get());

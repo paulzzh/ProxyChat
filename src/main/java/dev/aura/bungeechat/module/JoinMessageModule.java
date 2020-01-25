@@ -2,7 +2,6 @@ package dev.aura.bungeechat.module;
 
 import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.listener.JoinMessageListener;
-import net.md_5.bungee.api.ProxyServer;
 
 public class JoinMessageModule extends Module {
   private JoinMessageListener joinMessageListener;
@@ -16,13 +15,13 @@ public class JoinMessageModule extends Module {
   public void onEnable() {
     joinMessageListener = new JoinMessageListener();
 
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerListener(BungeeChat.getInstance(), joinMessageListener);
+    BungeeChat.getInstance().getProxy()
+        .getEventManager()
+        .register(BungeeChat.getInstance(), joinMessageListener);
   }
 
   @Override
   public void onDisable() {
-    ProxyServer.getInstance().getPluginManager().unregisterListener(joinMessageListener);
+    BungeeChat.getInstance().getProxy().getEventManager().unregisterListener(BungeeChat.getInstance(), joinMessageListener);
   }
 }

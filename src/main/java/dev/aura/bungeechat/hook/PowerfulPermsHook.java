@@ -3,12 +3,12 @@ package dev.aura.bungeechat.hook;
 import com.github.cheesesoftware.PowerfulPermsAPI.PermissionManager;
 import com.github.cheesesoftware.PowerfulPermsAPI.PermissionPlayer;
 import com.github.cheesesoftware.PowerfulPermsAPI.PowerfulPermsPlugin;
+import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.hook.BungeeChatHook;
 import dev.aura.bungeechat.api.hook.HookManager;
 import java.util.Objects;
 import java.util.Optional;
-import net.md_5.bungee.api.ProxyServer;
 
 public class PowerfulPermsHook implements BungeeChatHook {
   private final PermissionManager permissionManager;
@@ -16,7 +16,7 @@ public class PowerfulPermsHook implements BungeeChatHook {
   public PowerfulPermsHook() {
     PowerfulPermsPlugin plugin =
         (PowerfulPermsPlugin)
-            ProxyServer.getInstance().getPluginManager().getPlugin("PowerfulPerms");
+            BungeeChat.getInstance().getProxy().getPluginManager().getPlugin("PowerfulPerms").get();
     permissionManager = plugin.getPermissionManager();
   }
 

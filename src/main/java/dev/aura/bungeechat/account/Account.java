@@ -1,5 +1,8 @@
 package dev.aura.bungeechat.account;
 
+import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.ServerConnection;
+import com.velocitypowered.api.proxy.server.ServerInfo;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.enums.ChannelType;
 import dev.aura.bungeechat.permission.Permission;
@@ -16,9 +19,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.connection.Server;
 
 @Data
 @EqualsAndHashCode(of = "uuid")
@@ -31,9 +31,9 @@ public class Account implements BungeeChatAccount {
   private UUID uuid;
 
   @Getter(lazy = true)
-  private final ProxiedPlayer proxiedPlayer =
-      (ProxiedPlayer)
-          BungeecordAccountManager.getCommandSender(this).orElseGet(() -> new DummyPlayer(uuid));
+  private final Player player =
+      (Player)
+          BungeecordAccountManager.getCommandSource(this).orElseGet(() -> new DummyPlayer(uuid));
 
   private ChannelType channelType;
   private boolean vanished;
@@ -52,7 +52,7 @@ public class Account implements BungeeChatAccount {
   private Optional<String> storedPrefix;
   private Optional<String> storedSuffix;
 
-  protected Account(ProxiedPlayer player) {
+  protected Account(Player player) {
     this(player.getUniqueId());
   }
 
@@ -120,7 +120,7 @@ public class Account implements BungeeChatAccount {
     return localSpy;
   }
 
-  public boolean hasIgnored(ProxiedPlayer player) {
+  public boolean hasIgnored(Player player) {
     return hasIgnored(player.getUniqueId());
   }
 
@@ -129,7 +129,7 @@ public class Account implements BungeeChatAccount {
     ignored.add(uuid);
   }
 
-  public void addIgnore(ProxiedPlayer player) {
+  public void addIgnore(Player player) {
     this.addIgnore(player.getUniqueId());
   }
 
@@ -138,23 +138,23 @@ public class Account implements BungeeChatAccount {
     ignored.remove(uuid);
   }
 
-  public void removeIgnore(ProxiedPlayer player) {
+  public void removeIgnore(Player player) {
     this.removeIgnore(player.getUniqueId());
   }
 
   @Override
   public String getName() {
-    return getProxiedPlayer().getName();
+    return getPlayer().getUsername();
   }
 
   @Override
   public String getDisplayName() {
-    return getProxiedPlayer().getDisplayName();
+    return getPlayer().getGameProfile().getName();
   }
 
   @Override
   public int getPing() {
-    return getProxiedPlayer().getPing();
+    return (int) getPlayer().getPing();
   }
 
   @Override
@@ -181,10 +181,9 @@ public class Account implements BungeeChatAccount {
   }
 
   private ServerInfo getServerInfo() {
-    ProxiedPlayer player = getProxiedPlayer();
-    Server server = player.getServer();
+    Player player = getPlayer();
+    Optional<ServerConnection> server = player.getCurrentServer();
 
-    if (server == null) return player.getReconnectServer();
-    else return server.getInfo();
+    return server.map(ServerConnection::getServerInfo).orElse(null);
   }
 }

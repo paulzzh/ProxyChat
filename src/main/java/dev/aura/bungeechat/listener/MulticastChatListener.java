@@ -2,6 +2,9 @@ package dev.aura.bungeechat.listener;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigList;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.player.PlayerChatEvent;
+import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.enums.ChannelType;
@@ -11,13 +14,8 @@ import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.module.BungeecordModuleManager;
 import java.util.List;
 import java.util.stream.Collectors;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.ChatEvent;
-import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.event.EventHandler;
-import net.md_5.bungee.event.EventPriority;
 
-public class MulticastChatListener implements Listener {
+public class MulticastChatListener {
   private final Config serverListsSection =
       BungeecordModuleManager.MULTICAST_CHAT_MODULE.getModuleSection().getConfig("serverLists");
   private final boolean serverListsEnabled = serverListsSection.getBoolean("enabled");
@@ -29,12 +27,12 @@ public class MulticastChatListener implements Listener {
           .map(configValue -> (List<String>) configValue.unwrapped())
           .collect(Collectors.toList());
 
-  @EventHandler(priority = EventPriority.HIGH)
-  public void onPlayerChat(ChatEvent e) {
-    if (e.isCancelled()) return;
-    if (!(e.getSender() instanceof ProxiedPlayer)) return;
+  @Subscribe
+  public void onPlayerChat(PlayerChatEvent e) {
+    if (!e.getResult().isAllowed()) return;
+    if (e.getPlayer() == null) return;
 
-    ProxiedPlayer sender = (ProxiedPlayer) e.getSender();
+    Player sender = e.getPlayer();
     BungeeChatAccount account = BungeecordAccountManager.getAccount(sender).get();
     String message = e.getMessage();
 
@@ -46,7 +44,7 @@ public class MulticastChatListener implements Listener {
   }
 
   private void sendMessageToServers(
-      ProxiedPlayer sender, BungeeChatAccount account, String message) {
+      Player sender, BungeeChatAccount account, String message) {
     for (List<String> group : serverGroups) {
       if (group.contains(account.getServerName())) {
         MessagesService.sendMulticastMessage(new Context(sender, message), group);

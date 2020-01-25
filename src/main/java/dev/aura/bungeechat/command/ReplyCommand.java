@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.command;
 
+import com.velocitypowered.api.command.CommandSource;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.message.Messages;
@@ -7,14 +8,11 @@ import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.module.MessengerModule;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import net.md_5.bungee.api.CommandSender;
 
 public class ReplyCommand extends BaseCommand {
-  private static HashMap<CommandSender, CommandSender> replies;
+  private static HashMap<CommandSource, CommandSource> replies;
 
   public ReplyCommand(MessengerModule messengerModule) {
     super("reply", messengerModule.getModuleSection().getStringList("aliases.reply"));
@@ -26,17 +24,17 @@ public class ReplyCommand extends BaseCommand {
     }
   }
 
-  protected static void setReply(CommandSender sender, CommandSender target) {
+  protected static void setReply(CommandSource sender, CommandSource target) {
     replies.put(sender, target);
     replies.put(target, sender);
   }
 
-  private static CommandSender getReplier(CommandSender player) {
+  private static CommandSource getReplier(CommandSource player) {
     return replies.getOrDefault(player, null);
   }
 
   @Override
-  public void execute(CommandSender sender, String[] args) {
+  public void execute(CommandSource sender, String[] args) {
     if (PermissionManager.hasPermission(sender, Permission.COMMAND_MESSAGE)) {
       if (args.length < 1) {
         MessagesService.sendMessage(
@@ -52,7 +50,7 @@ public class ReplyCommand extends BaseCommand {
           return;
         }
 
-        CommandSender target = BungeecordAccountManager.getCommandSender(targetAccount.get()).get();
+        CommandSource target = BungeecordAccountManager.getCommandSource(targetAccount.get()).get();
 
         if (!targetAccount.get().hasMessangerEnabled()
             && !PermissionManager.hasPermission(sender, Permission.BYPASS_TOGGLE_MESSAGE)) {
@@ -60,7 +58,7 @@ public class ReplyCommand extends BaseCommand {
           return;
         }
 
-        String finalMessage = Arrays.stream(args).collect(Collectors.joining(" "));
+        String finalMessage = String.join(" ", args);
 
         MessagesService.sendPrivateMessage(sender, target, finalMessage);
         ReplyCommand.setReply(sender, target);

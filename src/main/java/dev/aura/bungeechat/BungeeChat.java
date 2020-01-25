@@ -2,6 +2,11 @@ package dev.aura.bungeechat;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.plugin.annotation.DataDirectory;
+import com.velocitypowered.api.proxy.ProxyServer;
 import dev.aura.bungeechat.account.AccountFileStorage;
 import dev.aura.bungeechat.account.AccountSQLStorage;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
@@ -18,7 +23,6 @@ import dev.aura.bungeechat.command.BungeeChatCommand;
 import dev.aura.bungeechat.config.Configuration;
 import dev.aura.bungeechat.hook.DefaultHook;
 import dev.aura.bungeechat.hook.StoredDataHook;
-import dev.aura.bungeechat.hook.metrics.MetricManager;
 import dev.aura.bungeechat.listener.BungeeChatEventsListener;
 import dev.aura.bungeechat.listener.ChannelTypeCorrectorListener;
 import dev.aura.bungeechat.message.MessagesService;
@@ -34,20 +38,23 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 import javax.net.ssl.HttpsURLConnection;
 import lombok.AccessLevel;
 import lombok.Cleanup;
 import lombok.Getter;
 import lombok.Setter;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.plugin.Plugin;
+import net.kyori.text.format.TextColor;
+import org.slf4j.Logger;
 
-public class BungeeChat extends Plugin implements BungeeChatApi {
+@Plugin(id = "bungeechat", name = "BungeeChat", version = "0.1-SNAPSHOT",
+        description = "", authors = {"Jim (NotKatuen)"})
+public class BungeeChat implements BungeeChatApi {
   private static final String storedDataHookName = "storedData";
   private static final String defaultHookName = "default";
   private static final String errorVersion = "error";
@@ -58,21 +65,29 @@ public class BungeeChat extends Plugin implements BungeeChatApi {
   static BungeeChat instance;
 
   private String latestVersion = null;
-  private File configDir;
+
+  @Inject
+  @DataDirectory
+  private Path configDir;
   private File langDir;
-  private BungeeChatCommand bungeeChatCommand;
+
+  private final ProxyServer proxy;
+  private final Logger logger;
+
   private BungeecordAccountManager bungeecordAccountManager;
   private ChannelTypeCorrectorListener channelTypeCorrectorListener;
   private BungeeChatEventsListener bungeeChatEventsListener;
 
-  @Override
-  public void onLoad() {
+  @Inject
+  public BungeeChat(ProxyServer proxy, Logger logger) {
+    this.proxy = proxy;
+    this.logger = logger;
     setInstance(this);
     BungeeChatInstaceHolder.setInstance(instance);
   }
 
-  @Override
-  public void onEnable() {
+  @Subscribe
+  public void onProxyInitialized(ProxyInitializeEvent event) {
     onEnable(true);
   }
 
@@ -103,17 +118,15 @@ public class BungeeChat extends Plugin implements BungeeChatApi {
       AccountManager.setAccountStorage(new AccountFileStorage());
     }
 
-    bungeeChatCommand = new BungeeChatCommand();
+    BungeeChatCommand bungeeChatCommand = new BungeeChatCommand();
     bungeecordAccountManager = new BungeecordAccountManager();
     channelTypeCorrectorListener = new ChannelTypeCorrectorListener();
     bungeeChatEventsListener = new BungeeChatEventsListener();
 
-    ProxyServer.getInstance().getPluginManager().registerCommand(this, bungeeChatCommand);
-    ProxyServer.getInstance().getPluginManager().registerListener(this, bungeecordAccountManager);
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerListener(this, channelTypeCorrectorListener);
-    ProxyServer.getInstance().getPluginManager().registerListener(this, bungeeChatEventsListener);
+    bungeeChatCommand.register();
+    proxy.getEventManager().register(this, bungeecordAccountManager);
+    proxy.getEventManager().register(this, channelTypeCorrectorListener);
+    proxy.getEventManager().register(this, bungeeChatEventsListener);
 
     Config prefixDefaults = Configuration.get().getConfig("PrefixDefaults");
 
@@ -130,28 +143,25 @@ public class BungeeChat extends Plugin implements BungeeChatApi {
     getLatestVersion(true);
 
     if (prinLoadScreen) {
-      MetricManager.sendMetrics(this);
-
       loadScreen();
     }
   }
 
-  @Override
   public void onDisable() {
     HookManager.removeHook(defaultHookName);
     HookManager.removeHook(storedDataHookName);
     ModuleManager.disableModules();
 
-    ProxyServer.getInstance().getPluginManager().unregisterListener(bungeecordAccountManager);
-    ProxyServer.getInstance().getPluginManager().unregisterCommand(bungeeChatCommand);
-    ProxyServer.getInstance().getPluginManager().unregisterListener(channelTypeCorrectorListener);
-    ProxyServer.getInstance().getPluginManager().unregisterListener(bungeeChatEventsListener);
+    proxy.getEventManager().unregisterListener(this, bungeecordAccountManager);
+    //proxy.getEventManager().unregisterCommand(bungeeChatCommand);
+    proxy.getEventManager().unregisterListener(this, channelTypeCorrectorListener);
+    proxy.getEventManager().unregisterListener(this, bungeeChatEventsListener);
 
-    ProxyServer.getInstance().getScheduler().cancel(this);
+    //proxy.getScheduler().cancel(this);
 
     // Just to be sure
-    ProxyServer.getInstance().getPluginManager().unregisterListeners(this);
-    ProxyServer.getInstance().getPluginManager().unregisterCommands(this);
+    proxy.getEventManager().unregisterListeners(this);
+    //proxy.getCommandManager().unregisterCommands(this);
 
     PlaceHolderManager.clear();
     PlaceHolderUtil.clearConfigSections();
@@ -160,10 +170,13 @@ public class BungeeChat extends Plugin implements BungeeChatApi {
 
   @Override
   public File getConfigFolder() {
-    if (configDir == null) {
-      configDir = new File(getProxy().getPluginsFolder(), "BungeeChat");
+    if(this.configDir == null) {
+      return null;
+    }
 
-      if (!configDir.exists() && !configDir.mkdirs())
+    File configDir = this.configDir.toFile();
+
+    if (!configDir.exists() && !configDir.mkdirs()) {
         throw new RuntimeException(new IOException("Could not create " + configDir));
     }
 
@@ -202,32 +215,32 @@ public class BungeeChat extends Plugin implements BungeeChatApi {
 
     if (size != StartupBannerSize.SHORT) {
       LoggerHelper.info(
-          ChatColor.GOLD
+              TextColor.GOLD
               + "---------------- "
-              + ChatColor.AQUA
+              + TextColor.AQUA
               + "Bungee Chat"
-              + ChatColor.GOLD
+              + TextColor.GOLD
               + " ----------------");
       LoggerHelper.info(getPeopleMessage("Authors", BungeeChatApi.AUTHORS));
     }
 
-    LoggerHelper.info(ChatColor.YELLOW + "Version: " + ChatColor.GREEN + VERSION_STR);
+    LoggerHelper.info(TextColor.YELLOW + "Version: " + TextColor.GREEN + VERSION_STR);
 
     if (size == StartupBannerSize.LONG) {
-      LoggerHelper.info(ChatColor.YELLOW + "Modules:");
+      LoggerHelper.info(TextColor.YELLOW + "Modules:");
 
       ModuleManager.getAvailableModulesStream()
           .map(
               module -> {
-                if (module.isEnabled()) return "\t" + ChatColor.GREEN + "On  - " + module.getName();
-                else return "\t" + ChatColor.RED + "Off - " + module.getName();
+                if (module.isEnabled()) return "\t" + TextColor.GREEN + "On  - " + module.getName();
+                else return "\t" + TextColor.RED + "Off - " + module.getName();
               })
           .forEachOrdered(LoggerHelper::info);
     } else {
       LoggerHelper.info(
-          ChatColor.YELLOW
+          TextColor.YELLOW
               + "Modules: "
-              + ChatColor.GREEN
+              + TextColor.GREEN
               + BungeecordModuleManager.getActiveModuleString());
     }
 
@@ -239,18 +252,18 @@ public class BungeeChat extends Plugin implements BungeeChatApi {
 
     if (!isLatestVersion()) {
       LoggerHelper.info(
-          ChatColor.YELLOW
+          TextColor.YELLOW
               + "There is an update avalible. You can download version "
-              + ChatColor.GREEN
+              + TextColor.GREEN
               + getLatestVersion()
-              + ChatColor.YELLOW
+              + TextColor.YELLOW
               + " on the plugin page at "
               + URL
               + " !");
     }
 
     if (size != StartupBannerSize.SHORT) {
-      LoggerHelper.info(ChatColor.GOLD + "---------------------------------------------");
+      LoggerHelper.info(TextColor.GOLD + "---------------------------------------------");
     }
   }
 
@@ -259,7 +272,7 @@ public class BungeeChat extends Plugin implements BungeeChatApi {
         .collect(
             Collectors.joining(
                 BungeecordModuleManager.MODULE_CONCATENATOR,
-                ChatColor.YELLOW + name + ": " + ChatColor.GREEN,
+                TextColor.YELLOW + name + ": " + TextColor.GREEN,
                 ""));
   }
 
@@ -310,6 +323,14 @@ public class BungeeChat extends Plugin implements BungeeChatApi {
     }
 
     return latestVersion;
+  }
+
+  public Logger getLogger() {
+    return logger;
+  }
+
+  public ProxyServer getProxy() {
+    return proxy;
   }
 
   public boolean isLatestVersion() {

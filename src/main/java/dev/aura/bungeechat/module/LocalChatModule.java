@@ -2,7 +2,6 @@ package dev.aura.bungeechat.module;
 
 import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.listener.LocalChatListener;
-import net.md_5.bungee.api.ProxyServer;
 
 public class LocalChatModule extends Module {
   private LocalChatListener localChatListener;
@@ -16,13 +15,13 @@ public class LocalChatModule extends Module {
   public void onEnable() {
     localChatListener = new LocalChatListener();
 
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerListener(BungeeChat.getInstance(), localChatListener);
+    BungeeChat.getInstance().getProxy()
+        .getEventManager()
+        .register(BungeeChat.getInstance(), localChatListener);
   }
 
   @Override
   public void onDisable() {
-    ProxyServer.getInstance().getPluginManager().unregisterListener(localChatListener);
+    BungeeChat.getInstance().getProxy().getEventManager().unregisterListener(BungeeChat.getInstance(), localChatListener);
   }
 }

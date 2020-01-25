@@ -3,7 +3,6 @@ package dev.aura.bungeechat.module;
 import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.command.StaffChatCommand;
 import dev.aura.bungeechat.listener.StaffChatListener;
-import net.md_5.bungee.api.ProxyServer;
 
 public class StaffChatModule extends Module {
   private StaffChatCommand staffChatCommand;
@@ -19,17 +18,15 @@ public class StaffChatModule extends Module {
     staffChatCommand = new StaffChatCommand(this);
     staffChatListener = new StaffChatListener();
 
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerCommand(BungeeChat.getInstance(), staffChatCommand);
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerListener(BungeeChat.getInstance(), staffChatListener);
+    staffChatCommand.register();
+    BungeeChat.getInstance().getProxy()
+        .getEventManager()
+        .register(BungeeChat.getInstance(), staffChatListener);
   }
 
   @Override
   public void onDisable() {
-    ProxyServer.getInstance().getPluginManager().unregisterCommand(staffChatCommand);
-    ProxyServer.getInstance().getPluginManager().unregisterListener(staffChatListener);
+    staffChatCommand.unregister();
+    BungeeChat.getInstance().getProxy().getEventManager().unregisterListener(BungeeChat.getInstance(), staffChatListener);
   }
 }

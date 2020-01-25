@@ -59,7 +59,7 @@ public class ChatLoggingManager {
   public static void loadFilteredCommands(List<String> commands) {
     filteredCommands =
         commands.stream()
-            .map(command -> RegexUtil.parseWildcardToPattern(command))
+            .map(RegexUtil::parseWildcardToPattern)
             .collect(Collectors.toList());
   }
 

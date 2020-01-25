@@ -1,5 +1,7 @@
 package dev.aura.bungeechat.command;
 
+import com.velocitypowered.api.command.CommandSource;
+import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.AccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
@@ -11,8 +13,6 @@ import dev.aura.bungeechat.permission.PermissionManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class IgnoreCommand extends BaseCommand {
   public IgnoreCommand(IgnoringModule ignoringModule) {
@@ -20,9 +20,9 @@ public class IgnoreCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSender sender, String[] args) {
+  public void execute(CommandSource sender, String[] args) {
     if (PermissionManager.hasPermission(sender, Permission.COMMAND_IGNORE)) {
-      if (!(sender instanceof ProxiedPlayer)) {
+      if (!(sender instanceof Player)) {
         MessagesService.sendMessage(sender, Messages.NOT_A_PLAYER.get());
       } else {
 
@@ -67,8 +67,8 @@ public class IgnoreCommand extends BaseCommand {
             return;
           }
 
-          CommandSender target =
-              BungeecordAccountManager.getCommandSender(targetAccount.get()).get();
+          CommandSource target =
+              BungeecordAccountManager.getCommandSource(targetAccount.get()).get();
 
           if (target == sender) {
             MessagesService.sendMessage(sender, Messages.IGNORE_YOURSELF.get());
@@ -98,8 +98,8 @@ public class IgnoreCommand extends BaseCommand {
             return;
           }
 
-          CommandSender target =
-              BungeecordAccountManager.getCommandSender(targetAccount.get()).get();
+          CommandSource target =
+              BungeecordAccountManager.getCommandSource(targetAccount.get()).get();
 
           if (target == sender) {
             MessagesService.sendMessage(sender, Messages.UNIGNORE_YOURSELF.get());

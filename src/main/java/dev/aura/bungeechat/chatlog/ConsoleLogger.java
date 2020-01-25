@@ -3,7 +3,7 @@ package dev.aura.bungeechat.chatlog;
 import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.api.placeholder.BungeeChatContext;
 import dev.aura.bungeechat.message.Format;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 public class ConsoleLogger implements ChatLogger {
   private final Logger logger;

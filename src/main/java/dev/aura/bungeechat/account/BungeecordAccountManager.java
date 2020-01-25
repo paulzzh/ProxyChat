@@ -1,49 +1,60 @@
 package dev.aura.bungeechat.account;
 
+import com.velocitypowered.api.command.CommandSource;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.network.ProtocolVersion;
+import com.velocitypowered.api.permission.Tristate;
+import com.velocitypowered.api.proxy.ConnectionRequestBuilder;
+import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.ServerConnection;
+import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
+import com.velocitypowered.api.proxy.player.PlayerSettings;
+import com.velocitypowered.api.proxy.player.TabList;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
+import com.velocitypowered.api.util.GameProfile;
+import com.velocitypowered.api.util.MessagePosition;
+import com.velocitypowered.api.util.ModInfo;
+import com.velocitypowered.api.util.title.Title;
+import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.api.account.AccountInfo;
 import dev.aura.bungeechat.api.account.AccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.event.BungeeChatJoinEvent;
 import dev.aura.bungeechat.event.BungeeChatLeaveEvent;
-import java.util.Arrays;
-import java.util.Collection;
+import net.kyori.text.Component;
+
+import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.event.EventHandler;
-import net.md_5.bungee.event.EventPriority;
 
-public class BungeecordAccountManager extends AccountManager implements Listener {
-  private static final ConcurrentMap<UUID, CommandSender> nativeObjects = new ConcurrentHashMap<>();
+public class BungeecordAccountManager extends AccountManager {
+  private static final ConcurrentMap<UUID, CommandSource> nativeObjects = new ConcurrentHashMap<>();
   private static final List<UUID> newPlayers = new LinkedList<>();
 
-  public static Optional<BungeeChatAccount> getAccount(CommandSender player) {
-    if (player instanceof ProxiedPlayer) return getAccount(((ProxiedPlayer) player).getUniqueId());
+  public static Optional<BungeeChatAccount> getAccount(CommandSource player) {
+    if (player instanceof Player) return getAccount(((Player) player).getUniqueId());
     else if (player == null) return Optional.empty();
     else return Optional.of(consoleAccount);
   }
 
-  public static Optional<CommandSender> getCommandSender(UUID uuid) {
+  public static Optional<CommandSource> getCommandSource(UUID uuid) {
     return Optional.ofNullable(nativeObjects.get(uuid));
   }
 
-  public static Optional<CommandSender> getCommandSender(BungeeChatAccount account) {
-    return getCommandSender(account.getUniqueId());
+  public static Optional<CommandSource> getCommandSource(BungeeChatAccount account) {
+    return getCommandSourceFromAccount(account);
   }
 
   public static void loadAccount(UUID uuid) {
     AccountInfo loadedAccount = getAccountStorage().load(uuid);
 
     accounts.put(uuid, loadedAccount.getAccount());
-    nativeObjects.put(uuid, getCommandSenderFromAccount(loadedAccount.getAccount()));
+    nativeObjects.put(uuid, getCommandSourceFromAccount(loadedAccount.getAccount()).get());
 
     if (loadedAccount.isForceSave()) {
       saveAccount(loadedAccount.getAccount());
@@ -73,75 +84,138 @@ public class BungeecordAccountManager extends AccountManager implements Listener
     return newPlayers.contains(uuid);
   }
 
-  private static CommandSender getCommandSenderFromAccount(BungeeChatAccount account) {
-    ProxyServer instance = ProxyServer.getInstance();
+  private static Optional<CommandSource> getCommandSourceFromAccount(BungeeChatAccount account) {
+    if(BungeeChat.getInstance() == null || BungeeChat.getInstance().getProxy() == null) {
+      return Optional.of(new DummyConsole());
+    }
 
-    if (instance == null) return new DummyConsole();
+    ProxyServer instance = BungeeChat.getInstance().getProxy();
+
+    if (instance == null) return Optional.of(new DummyConsole());
 
     switch (account.getAccountType()) {
       case PLAYER:
-        return instance.getPlayer(account.getUniqueId());
+        return Optional.ofNullable(instance.getPlayer(account.getUniqueId()).orElse(null));
       case CONSOLE:
       default:
-        return instance.getConsole();
+        return Optional.ofNullable(instance.getConsoleCommandSource());
     }
   }
 
-  @EventHandler(priority = EventPriority.LOWEST)
+  @Subscribe
   public void onPlayerConnect(BungeeChatJoinEvent event) {
     loadAccount(event.getPlayer().getUniqueId());
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @Subscribe
   public void onPlayerDisconnect(BungeeChatLeaveEvent event) {
     unloadAccount(event.getPlayer().getUniqueId());
   }
 
   static {
-    nativeObjects.put(consoleAccount.getUniqueId(), getCommandSenderFromAccount(consoleAccount));
+    nativeObjects.put(consoleAccount.getUniqueId(), getCommandSourceFromAccount(consoleAccount).get());
   }
 
-  private static class DummyConsole implements CommandSender {
+  private static class DummyConsole implements Player {
     @Override
-    public String getName() {
+    public String getUsername() {
       return null;
     }
 
     @Override
-    @Deprecated
-    public void sendMessage(String message) {
-      // Do nothing
-    }
-
-    @Override
-    @Deprecated
-    public void sendMessages(String... messages) {
-      // Do nothing
-    }
-
-    @Override
-    public void sendMessage(BaseComponent... message) {
-      // Do nothing
-    }
-
-    @Override
-    public void sendMessage(BaseComponent message) {
-      // Do nothing
-    }
-
-    @Override
-    public Collection<String> getGroups() {
+    public UUID getUniqueId() {
       return null;
     }
 
     @Override
-    public void addGroups(String... groups) {
+    public Optional<ServerConnection> getCurrentServer() {
+      return Optional.empty();
+    }
+
+    @Override
+    public PlayerSettings getPlayerSettings() {
+      return null;
+    }
+
+    @Override
+    public Optional<ModInfo> getModInfo() {
+      return Optional.empty();
+    }
+
+    @Override
+    public long getPing() {
+      return 0;
+    }
+
+    @Override
+    public void sendMessage(Component message) {
       // Do nothing
     }
 
     @Override
-    public void removeGroups(String... groups) {
-      // Do nothing
+    public void sendMessage(Component component, MessagePosition position) {
+
+    }
+
+    @Override
+    public ConnectionRequestBuilder createConnectionRequest(
+            RegisteredServer server) {
+      return null;
+    }
+
+    @Override
+    public List<GameProfile.Property> getGameProfileProperties() {
+      return null;
+    }
+
+    @Override
+    public void setGameProfileProperties(List<GameProfile.Property> properties) {
+
+    }
+
+    @Override
+    public GameProfile getGameProfile() {
+      return null;
+    }
+
+    @Override
+    public void setHeaderAndFooter(Component header, Component footer) {
+
+    }
+
+    @Override
+    public void clearHeaderAndFooter() {
+
+    }
+
+    @Override
+    public TabList getTabList() {
+      return null;
+    }
+
+    @Override
+    public void disconnect(Component reason) {
+
+    }
+
+    @Override
+    public void sendTitle(Title title) {
+
+    }
+
+    @Override
+    public void spoofChatInput(String input) {
+
+    }
+
+    @Override
+    public void sendResourcePack(String url) {
+
+    }
+
+    @Override
+    public void sendResourcePack(String url, byte[] hash) {
+
     }
 
     @Override
@@ -150,13 +224,33 @@ public class BungeecordAccountManager extends AccountManager implements Listener
     }
 
     @Override
-    public void setPermission(String permission, boolean value) {
-      // Do nothing
+    public Tristate getPermissionValue(String permission) {
+      return Tristate.fromBoolean(true);
     }
 
     @Override
-    public Collection<String> getPermissions() {
-      return Arrays.asList("*");
+    public InetSocketAddress getRemoteAddress() {
+      return null;
+    }
+
+    @Override
+    public Optional<InetSocketAddress> getVirtualHost() {
+      return Optional.empty();
+    }
+
+    @Override
+    public boolean isActive() {
+      return false;
+    }
+
+    @Override
+    public ProtocolVersion getProtocolVersion() {
+      return null;
+    }
+
+    @Override
+    public boolean sendPluginMessage(ChannelIdentifier identifier, byte[] data) {
+      return false;
     }
   }
 }

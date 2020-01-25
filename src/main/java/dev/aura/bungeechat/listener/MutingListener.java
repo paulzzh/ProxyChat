@@ -1,5 +1,8 @@
 package dev.aura.bungeechat.listener;
 
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.player.PlayerChatEvent;
+import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.enums.ChannelType;
@@ -8,19 +11,14 @@ import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.module.BungeecordModuleManager;
 import java.util.List;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.ChatEvent;
-import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.event.EventHandler;
-import net.md_5.bungee.event.EventPriority;
 
-public class MutingListener implements Listener {
-  @EventHandler(priority = EventPriority.LOWEST)
-  public void onPlayerChat(ChatEvent e) {
-    if (e.isCancelled()) return;
-    if (!(e.getSender() instanceof ProxiedPlayer)) return;
+public class MutingListener {
+  @Subscribe
+    public void onPlayerChat(PlayerChatEvent e) {
+    if (!e.getResult().isAllowed()) return;
+    if (e.getPlayer() == null) return;
 
-    ProxiedPlayer sender = (ProxiedPlayer) e.getSender();
+    Player sender = e.getPlayer();
     BungeeChatAccount account = BungeecordAccountManager.getAccount(sender).get();
 
     if (!account.isMuted()) return;
@@ -34,7 +32,7 @@ public class MutingListener implements Listener {
       for (String s : blockCommand) {
         if (message.startsWith("/" + s + " ")) {
           MessagesService.sendMessage(sender, Messages.MUTED.get(account));
-          e.setCancelled(true);
+          e.setResult(PlayerChatEvent.ChatResult.denied());
 
           return;
         }
@@ -44,7 +42,7 @@ public class MutingListener implements Listener {
 
       if (channel == ChannelType.STAFF) return;
 
-      e.setCancelled(true);
+      e.setResult(PlayerChatEvent.ChatResult.denied());
       MessagesService.sendMessage(sender, Messages.MUTED.get(account));
     }
   }

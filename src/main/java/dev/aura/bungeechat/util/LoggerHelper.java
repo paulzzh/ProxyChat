@@ -4,12 +4,12 @@ import dev.aura.bungeechat.BungeeChat;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.logging.Logger;
 import lombok.AccessLevel;
 import lombok.Cleanup;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.text.format.TextColor;
+import org.slf4j.Logger;
 
 @UtilityClass
 @SuppressFBWarnings(
@@ -20,7 +20,7 @@ public class LoggerHelper {
   private static final Logger logger = BungeeChat.getInstance().getLogger();
 
   public static void error(String text) {
-    getLogger().severe(ChatColor.RED + text);
+    getLogger().error(TextColor.RED + text);
   }
 
   public static void error(String text, Throwable t) {
@@ -44,7 +44,7 @@ public class LoggerHelper {
   }
 
   public static void warning(String text) {
-    getLogger().warning(ChatColor.YELLOW + text);
+    getLogger().warn(TextColor.YELLOW + text);
   }
 
   public static void warning(String text, Throwable t) {

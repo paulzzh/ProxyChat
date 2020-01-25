@@ -1,5 +1,7 @@
 package dev.aura.bungeechat.listener;
 
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.placeholder.BungeeChatContext;
@@ -8,15 +10,11 @@ import dev.aura.bungeechat.message.Format;
 import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.event.EventHandler;
-import net.md_5.bungee.event.EventPriority;
 
-public class MOTDListener implements Listener {
-  @EventHandler(priority = EventPriority.NORMAL)
+public class MOTDListener {
+  @Subscribe
   public void onPlayerJoin(BungeeChatJoinEvent e) {
-    ProxiedPlayer player = e.getPlayer();
+    Player player = e.getPlayer();
 
     if (!PermissionManager.hasPermission(player, Permission.MESSAGE_MOTD)) return;
 

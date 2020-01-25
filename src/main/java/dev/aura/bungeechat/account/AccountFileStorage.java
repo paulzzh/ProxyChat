@@ -1,6 +1,7 @@
 package dev.aura.bungeechat.account;
 
 import dev.aura.bungeechat.BungeeChat;
+import dev.aura.bungeechat.api.BungeeChatApi;
 import dev.aura.bungeechat.api.account.AccountInfo;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.account.BungeeChatAccountStorage;
@@ -22,7 +23,7 @@ public class AccountFileStorage implements BungeeChatAccountStorage {
   private static final String FILE_EXTENSION = ".sav";
 
   private static File getUserDataDir() throws IOException {
-    File folder = new File(BungeeChat.getInstance().getConfigFolder(), "userdata");
+    File folder = new File(BungeeChatApi.getInstance().getConfigFolder(), "userdata");
 
     if (!folder.exists() && !folder.mkdirs()) throw new IOException("Could not create " + folder);
 

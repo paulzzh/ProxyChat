@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.command;
 
+import com.velocitypowered.api.command.CommandSource;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.AccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
@@ -11,7 +12,6 @@ import dev.aura.bungeechat.permission.PermissionManager;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import net.md_5.bungee.api.CommandSender;
 
 public class MessageCommand extends BaseCommand {
   public MessageCommand(MessengerModule messengerModule) {
@@ -19,7 +19,7 @@ public class MessageCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSender sender, String[] args) {
+  public void execute(CommandSource sender, String[] args) {
     if (PermissionManager.hasPermission(sender, Permission.COMMAND_MESSAGE)) {
       if (args.length < 2) {
         MessagesService.sendMessage(
@@ -34,7 +34,7 @@ public class MessageCommand extends BaseCommand {
           return;
         }
 
-        CommandSender target = BungeecordAccountManager.getCommandSender(targetAccount.get()).get();
+        CommandSource target = BungeecordAccountManager.getCommandSource(targetAccount.get()).get();
 
         if (target == sender) {
           MessagesService.sendMessage(sender, Messages.MESSAGE_YOURSELF.get());

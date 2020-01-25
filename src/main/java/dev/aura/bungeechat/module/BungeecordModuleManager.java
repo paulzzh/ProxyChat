@@ -7,10 +7,11 @@ import dev.aura.bungeechat.module.perms.CloudNetPermsModule;
 import dev.aura.bungeechat.module.perms.LuckPerms4Module;
 import dev.aura.bungeechat.module.perms.LuckPerms5Module;
 import dev.aura.bungeechat.module.perms.PowerfulPermsModule;
+import net.kyori.text.format.TextColor;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import net.md_5.bungee.api.ChatColor;
 
 public class BungeecordModuleManager extends ModuleManager {
   // PermissionHookModules
@@ -42,11 +43,10 @@ public class BungeecordModuleManager extends ModuleManager {
   public static final ServerSwitchModule SERVER_SWITCH_MODULE = new ServerSwitchModule();
   public static final SpyModule SPY_MODULE = new SpyModule();
   public static final StaffChatModule STAFF_CHAT_MODULE = new StaffChatModule();
-  public static final TabCompletionModule TAB_COMPLETION_MODULE = new TabCompletionModule();
   public static final VanishModule VANISHER_MODULE = new VanishModule();
   public static final VersionCheckerModule VERSION_CHECKER_MODULE = new VersionCheckerModule();
   public static final WelcomeMessageModule WELCOME_MESSAGE_MODULE = new WelcomeMessageModule();
-  public static final String MODULE_CONCATENATOR = ChatColor.WHITE + ", " + ChatColor.GREEN;
+  public static final String MODULE_CONCATENATOR = TextColor.WHITE + ", " + TextColor.GREEN;
 
   private static boolean modulesAdded = false;
   private static List<BungeeChatModule> localModules = null;

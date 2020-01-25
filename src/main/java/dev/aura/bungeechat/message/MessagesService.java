@@ -1,6 +1,7 @@
 package dev.aura.bungeechat.message;
 
 import com.typesafe.config.Config;
+import com.velocitypowered.api.command.CommandSource;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.AccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
@@ -19,12 +20,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import lombok.experimental.UtilityClass;
-import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 
 @UtilityClass
 public class MessagesService {
-  public static void sendPrivateMessage(CommandSender sender, CommandSender target, String message)
+  public static void sendPrivateMessage(CommandSource sender, CommandSource target, String message)
       throws InvalidContextError {
     sendPrivateMessage(new Context(sender, target, message));
   }
@@ -36,8 +36,8 @@ public class MessagesService {
     Optional<BungeeChatAccount> account = context.getSender();
     BungeeChatAccount senderAccount = account.get();
     BungeeChatAccount targetAccount = context.getTarget().get();
-    CommandSender sender = BungeecordAccountManager.getCommandSender(senderAccount).get();
-    CommandSender target = BungeecordAccountManager.getCommandSender(targetAccount).get();
+    CommandSource sender = BungeecordAccountManager.getCommandSource(senderAccount).get();
+    CommandSource target = BungeecordAccountManager.getCommandSource(targetAccount).get();
     boolean filterPrivateMessages =
         BungeecordModuleManager.MESSENGER_MODULE
             .getModuleSection()
@@ -81,7 +81,7 @@ public class MessagesService {
     }
   }
 
-  public static void sendChannelMessage(CommandSender sender, ChannelType channel, String message)
+  public static void sendChannelMessage(CommandSource sender, ChannelType channel, String message)
       throws InvalidContextError {
     sendChannelMessage(new Context(sender, message), channel);
   }
@@ -109,7 +109,7 @@ public class MessagesService {
     }
   }
 
-  public static void sendGlobalMessage(CommandSender sender, String message)
+  public static void sendGlobalMessage(CommandSource sender, String message)
       throws InvalidContextError {
     sendGlobalMessage(new Context(sender, message));
   }
@@ -124,7 +124,7 @@ public class MessagesService {
     ChatLoggingManager.logMessage(ChannelType.GLOBAL, context);
   }
 
-  public static void sendLocalMessage(CommandSender sender, String message)
+  public static void sendLocalMessage(CommandSource sender, String message)
       throws InvalidContextError {
     sendLocalMessage(new Context(sender, message));
   }
@@ -180,7 +180,7 @@ public class MessagesService {
     sendToMatchingPlayers(finalMessage, isNotLocal, isDestination);
   }
 
-  public static void sendStaffMessage(CommandSender sender, String message)
+  public static void sendStaffMessage(CommandSource sender, String message)
       throws InvalidContextError {
     sendStaffMessage(new Context(sender, message));
   }
@@ -196,7 +196,7 @@ public class MessagesService {
     ChatLoggingManager.logMessage(ChannelType.STAFF, context);
   }
 
-  public static void sendHelpMessage(CommandSender sender, String message)
+  public static void sendHelpMessage(CommandSource sender, String message)
       throws InvalidContextError {
     sendHelpMessage(new Context(sender, message));
   }
@@ -216,7 +216,7 @@ public class MessagesService {
     ChatLoggingManager.logMessage(ChannelType.HELP, context);
   }
 
-  public static void sendJoinMessage(CommandSender sender) throws InvalidContextError {
+  public static void sendJoinMessage(CommandSource sender) throws InvalidContextError {
     sendJoinMessage(new Context(sender));
   }
 
@@ -236,7 +236,7 @@ public class MessagesService {
     ChatLoggingManager.logMessage("JOIN", context);
   }
 
-  public static void sendLeaveMessage(CommandSender sender) throws InvalidContextError {
+  public static void sendLeaveMessage(CommandSource sender) throws InvalidContextError {
     sendLeaveMessage(new Context(sender));
   }
 
@@ -256,7 +256,7 @@ public class MessagesService {
     ChatLoggingManager.logMessage("LEAVE", context);
   }
 
-  public static void sendSwitchMessage(CommandSender sender) throws InvalidContextError {
+  public static void sendSwitchMessage(CommandSource sender) throws InvalidContextError {
     sendSwitchMessage(new Context(sender));
   }
 
@@ -305,7 +305,7 @@ public class MessagesService {
     context.require(BungeeChatContext.HAS_MESSAGE);
 
     BungeeChatAccount playerAccount = account.get();
-    CommandSender player = BungeecordAccountManager.getCommandSender(playerAccount).get();
+    CommandSource player = BungeecordAccountManager.getCommandSource(playerAccount).get();
     String message = PlaceHolderUtil.transformAltColorCodes(context.getMessage().get(), account);
 
     if (runFilters) {
@@ -344,7 +344,7 @@ public class MessagesService {
         .forEach(
             account ->
                 MessagesService.sendMessage(
-                    BungeecordAccountManager.getCommandSender(account).get(), finalMessage));
+                    BungeecordAccountManager.getCommandSource(account).get(), finalMessage));
   }
 
   public static Predicate<BungeeChatAccount> getGlobalPredicate() {
@@ -372,9 +372,9 @@ public class MessagesService {
     return account -> PermissionManager.hasPermission(account, permission);
   }
 
-  public static void sendMessage(CommandSender recipient, String message) {
+  public static void sendMessage(CommandSource recipient, String message) {
     if ((message == null) || message.isEmpty()) return;
 
-    recipient.sendMessage(TextComponent.fromLegacyText(message));
+    recipient.sendMessage(LegacyComponentSerializer.legacy().deserialize(message));
   }
 }

@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.command;
 
+import com.velocitypowered.api.command.CommandSource;
 import dev.aura.bungeechat.api.account.AccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.message.Messages;
@@ -8,7 +9,6 @@ import dev.aura.bungeechat.module.MutingModule;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 import java.util.Optional;
-import net.md_5.bungee.api.CommandSender;
 
 public class UnmuteCommand extends BaseCommand {
   public UnmuteCommand(MutingModule mutingModule) {
@@ -16,7 +16,7 @@ public class UnmuteCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSender sender, String[] args) {
+  public void execute(CommandSource sender, String[] args) {
     if (PermissionManager.hasPermission(sender, Permission.COMMAND_UNMUTE)) {
       if (args.length < 1) {
         MessagesService.sendMessage(

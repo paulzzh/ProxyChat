@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.command;
 
+import com.velocitypowered.api.command.CommandSource;
 import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.BungeeChatApi;
@@ -11,41 +12,40 @@ import dev.aura.bungeechat.module.BungeecordModuleManager;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 import dev.aura.bungeechat.util.LoggerHelper;
+import net.kyori.text.format.TextColor;
+
 import java.io.IOException;
 import java.io.StreamTokenizer;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
 
 public class BungeeChatCommand extends BaseCommand {
-  private final String prefix = ChatColor.BLUE + "Bungee Chat " + ChatColor.DARK_GRAY + "// ";
+  private final String prefix = TextColor.BLUE + "Bungee Chat " + TextColor.DARK_GRAY + "// ";
 
   public BungeeChatCommand() {
     super("bungeechat");
   }
 
   @Override
-  public void execute(CommandSender sender, String[] args) {
+  public void execute(CommandSource sender, String[] args) {
     if (args.length != 0) {
       if (args[0].equalsIgnoreCase("reload")
           && PermissionManager.hasPermission(sender, Permission.BUNGEECHAT_RELOAD)) {
         final BungeeChat instance = BungeeChat.getInstance();
 
-        ProxyServer.getInstance()
+        BungeeChat.getInstance().getProxy()
             .getScheduler()
-            .runAsync(
+            .buildTask(
                 instance,
                 () -> {
                   instance.onDisable();
                   instance.onEnable(false);
 
                   MessagesService.sendMessage(
-                      sender, prefix + ChatColor.GREEN + "The plugin has been reloaded!");
-                });
+                      sender, prefix + TextColor.GREEN + "The plugin has been reloaded!");
+                }).schedule();
 
         return;
       } else if (args[0].equalsIgnoreCase("setprefix")
@@ -61,8 +61,8 @@ public class BungeeChatCommand extends BaseCommand {
           if (!targetAccount.isPresent()) {
             MessagesService.sendMessage(sender, Messages.PLAYER_NOT_FOUND.get());
           } else {
-            CommandSender target =
-                BungeecordAccountManager.getCommandSender(targetAccount.get()).get();
+            CommandSource target =
+                BungeecordAccountManager.getCommandSource(targetAccount.get()).get();
 
             if (args.length < 3) {
               targetAccount.get().setStoredPrefix(Optional.empty());
@@ -91,8 +91,8 @@ public class BungeeChatCommand extends BaseCommand {
           if (!targetAccount.isPresent()) {
             MessagesService.sendMessage(sender, Messages.PLAYER_NOT_FOUND.get());
           } else {
-            CommandSender target =
-                BungeecordAccountManager.getCommandSender(targetAccount.get()).get();
+            CommandSource target =
+                BungeecordAccountManager.getCommandSource(targetAccount.get()).get();
 
             if (args.length < 3) {
               targetAccount.get().setStoredSuffix(Optional.empty());
@@ -114,9 +114,9 @@ public class BungeeChatCommand extends BaseCommand {
         MessagesService.sendMessage(
             sender,
             prefix
-                + ChatColor.GRAY
+                + TextColor.GRAY
                 + "Active Modules: "
-                + ChatColor.GREEN
+                + TextColor.GREEN
                 + BungeecordModuleManager.getActiveModuleString());
         return;
       }
@@ -126,31 +126,31 @@ public class BungeeChatCommand extends BaseCommand {
     MessagesService.sendMessage(
         sender,
         prefix
-            + ChatColor.GRAY
+            + TextColor.GRAY
             + "Coded by "
-            + ChatColor.GOLD
+            + TextColor.GOLD
             + BungeeChatApi.AUTHOR_BRAINSTONE
-            + ChatColor.GRAY
+            + TextColor.GRAY
             + "and "
-            + ChatColor.GOLD
+            + TextColor.GOLD
             + BungeeChatApi.AUTHOR_SHAWN
             + ".");
   }
 
-  private void checkForUpdates(CommandSender sender) {
+  private void checkForUpdates(CommandSource sender) {
     BungeeChat instance = BungeeChat.getInstance();
     String latestVersion = instance.getLatestVersion(true);
 
     if (instance.isLatestVersion()) {
       MessagesService.sendMessage(
           sender,
-          prefix + ChatColor.GRAY + "Version: " + ChatColor.GREEN + BungeeChatApi.VERSION_STR);
+          prefix + TextColor.GRAY + "Version: " + TextColor.GREEN + BungeeChatApi.VERSION_STR);
     } else {
       MessagesService.sendMessage(
           sender,
-          prefix + ChatColor.GRAY + "Version: " + ChatColor.RED + BungeeChatApi.VERSION_STR);
+          prefix + TextColor.GRAY + "Version: " + TextColor.RED + BungeeChatApi.VERSION_STR);
       MessagesService.sendMessage(
-          sender, prefix + ChatColor.GRAY + "Newest Version: " + ChatColor.GREEN + latestVersion);
+          sender, prefix + TextColor.GRAY + "Newest Version: " + TextColor.GREEN + latestVersion);
     }
   }
 

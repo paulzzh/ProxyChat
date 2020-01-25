@@ -12,8 +12,7 @@ public class ServerAliases {
   private static Map<String, String> aliasMapping = new HashMap<>();
 
   public static String getServerAlias(String name) {
-    if (aliasMapping.containsKey(name)) return aliasMapping.get(name);
-    else return name;
+    return aliasMapping.getOrDefault(name, name);
   }
 
   public static void loadAliases() {

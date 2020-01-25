@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.command;
 
+import com.velocitypowered.api.command.CommandSource;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.message.Messages;
@@ -8,7 +9,6 @@ import dev.aura.bungeechat.module.BungeecordModuleManager;
 import dev.aura.bungeechat.module.ClearChatModule;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
-import net.md_5.bungee.api.CommandSender;
 
 public class ClearChatCommand extends BaseCommand {
   private static final String USAGE = "/clearchat <local|global>";
@@ -19,7 +19,7 @@ public class ClearChatCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSender sender, String[] args) {
+  public void execute(CommandSource sender, String[] args) {
     if (PermissionManager.hasPermission(sender, Permission.COMMAND_CLEAR_CHAT)) {
       if (args.length == 0) {
         MessagesService.sendMessage(sender, Messages.INCORRECT_USAGE.get(sender, USAGE));

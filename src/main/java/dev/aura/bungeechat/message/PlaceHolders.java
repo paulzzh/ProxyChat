@@ -1,5 +1,7 @@
 package dev.aura.bungeechat.message;
 
+import com.velocitypowered.api.proxy.Player;
+import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.enums.AccountType;
@@ -10,8 +12,6 @@ import dev.aura.bungeechat.api.placeholder.PlaceHolderManager;
 import dev.aura.bungeechat.api.utils.TimeUtil;
 import java.text.SimpleDateFormat;
 import lombok.experimental.UtilityClass;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 @UtilityClass
 public class PlaceHolders {
@@ -185,14 +185,14 @@ public class PlaceHolders {
   private static String getLocalPlayerCount(BungeeChatAccount player) {
     if (player.getAccountType() == AccountType.CONSOLE) return getTotalPlayerCount();
 
-    ProxiedPlayer nativePlayer =
-        (ProxiedPlayer) BungeecordAccountManager.getCommandSender(player).get();
+    Player nativePlayer =
+        (Player) BungeecordAccountManager.getCommandSource(player).get();
 
-    return Integer.toString(nativePlayer.getServer().getInfo().getPlayers().size());
+    return Integer.toString(nativePlayer.getCurrentServer().get().getServer().getPlayersConnected().size());
   }
 
   private static String getTotalPlayerCount() {
-    return Integer.toString(ProxyServer.getInstance().getPlayers().size());
+    return Integer.toString(BungeeChat.getInstance().getProxy().getAllPlayers().size());
   }
 
   private static SimpleDateFormat getDateFormat() {

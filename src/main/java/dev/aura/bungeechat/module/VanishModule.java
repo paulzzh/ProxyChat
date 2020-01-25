@@ -2,7 +2,6 @@ package dev.aura.bungeechat.module;
 
 import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.command.VanishCommand;
-import net.md_5.bungee.api.ProxyServer;
 
 public class VanishModule extends Module {
   private VanishCommand vanishCommand;
@@ -15,14 +14,11 @@ public class VanishModule extends Module {
   @Override
   public void onEnable() {
     vanishCommand = new VanishCommand(this);
-
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerCommand(BungeeChat.getInstance(), vanishCommand);
+    vanishCommand.register();
   }
 
   @Override
   public void onDisable() {
-    ProxyServer.getInstance().getPluginManager().unregisterCommand(vanishCommand);
+    vanishCommand.unregister();
   }
 }

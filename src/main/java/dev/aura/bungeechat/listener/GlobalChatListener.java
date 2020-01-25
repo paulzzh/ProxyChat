@@ -1,6 +1,9 @@
 package dev.aura.bungeechat.listener;
 
 import com.typesafe.config.Config;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.player.PlayerChatEvent;
+import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.enums.ChannelType;
@@ -8,24 +11,19 @@ import dev.aura.bungeechat.api.utils.ChatUtils;
 import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.module.BungeecordModuleManager;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.ChatEvent;
-import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.event.EventHandler;
-import net.md_5.bungee.event.EventPriority;
 
-public class GlobalChatListener implements Listener {
+public class GlobalChatListener {
   private final boolean passToClientServer =
       BungeecordModuleManager.GLOBAL_CHAT_MODULE
           .getModuleSection()
           .getBoolean("passToClientServer");
 
-  @EventHandler(priority = EventPriority.HIGH)
-  public void onPlayerChat(ChatEvent e) {
-    if (e.isCancelled()) return;
-    if (!(e.getSender() instanceof ProxiedPlayer)) return;
+  @Subscribe
+  public void onPlayerChat(PlayerChatEvent e) {
+    if (!e.getResult().isAllowed()) return;
+    if (e.getPlayer() == null) return;
 
-    ProxiedPlayer sender = (ProxiedPlayer) e.getSender();
+    Player sender = e.getPlayer();
     String message = e.getMessage();
     BungeeChatAccount account = BungeecordAccountManager.getAccount(sender).get();
 
@@ -35,7 +33,7 @@ public class GlobalChatListener implements Listener {
 
     if (BungeecordModuleManager.GLOBAL_CHAT_MODULE.getModuleSection().getBoolean("default")) {
       if (MessagesService.getGlobalPredicate().test(account)) {
-        e.setCancelled(!passToClientServer);
+        e.setResult(passToClientServer ? PlayerChatEvent.ChatResult.allowed() : PlayerChatEvent.ChatResult.denied());
         MessagesService.sendGlobalMessage(sender, message);
         return;
       }
@@ -48,7 +46,7 @@ public class GlobalChatListener implements Listener {
         return;
       }
 
-      e.setCancelled(!passToClientServer);
+      e.setResult(passToClientServer ? PlayerChatEvent.ChatResult.allowed() : PlayerChatEvent.ChatResult.denied());
       MessagesService.sendGlobalMessage(sender, message);
 
       return;
@@ -67,7 +65,7 @@ public class GlobalChatListener implements Listener {
           return;
         }
 
-        e.setCancelled(!passToClientServer);
+        e.setResult(passToClientServer ? PlayerChatEvent.ChatResult.allowed() : PlayerChatEvent.ChatResult.denied());
         MessagesService.sendGlobalMessage(sender, message.replaceFirst(symbol, ""));
       }
     }

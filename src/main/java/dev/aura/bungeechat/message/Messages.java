@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.message;
 
+import com.velocitypowered.api.command.CommandSource;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.placeholder.BungeeChatContext;
 import dev.aura.lib.messagestranslator.Message;
@@ -8,7 +9,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.CommandSender;
 
 @RequiredArgsConstructor
 public enum Messages implements Message {
@@ -116,11 +116,11 @@ public enum Messages implements Message {
     return PlaceHolderUtil.getFullMessage(this, context);
   }
 
-  public String get(CommandSender sender) {
+  public String get(CommandSource sender) {
     return get(new Context(sender));
   }
 
-  public String get(CommandSender sender, String command) {
+  public String get(CommandSource sender, String command) {
     return get(new Context(sender, command));
   }
 }

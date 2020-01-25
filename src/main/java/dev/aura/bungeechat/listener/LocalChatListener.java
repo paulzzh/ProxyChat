@@ -1,6 +1,9 @@
 package dev.aura.bungeechat.listener;
 
 import com.typesafe.config.Config;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.player.PlayerChatEvent;
+import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.enums.ChannelType;
@@ -9,13 +12,8 @@ import dev.aura.bungeechat.message.Context;
 import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.module.BungeecordModuleManager;
 import java.util.List;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.ChatEvent;
-import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.event.EventHandler;
-import net.md_5.bungee.event.EventPriority;
 
-public class LocalChatListener implements Listener {
+public class LocalChatListener {
   private final boolean passToClientServer =
       BungeecordModuleManager.LOCAL_CHAT_MODULE.getModuleSection().getBoolean("passToClientServer");
   private final boolean passTransparently =
@@ -29,12 +27,12 @@ public class LocalChatListener implements Listener {
   private final boolean serverListDisabled = !serverListSection.getBoolean("enabled");
   private final List<String> passthruServers = serverListSection.getStringList("list");
 
-  @EventHandler(priority = EventPriority.HIGHEST)
-  public void onPlayerChat(ChatEvent e) {
-    if (e.isCancelled()) return;
-    if (!(e.getSender() instanceof ProxiedPlayer)) return;
+  @Subscribe
+  public void onPlayerChat(PlayerChatEvent e) {
+    if (!e.getResult().isAllowed()) return;
+    if (e.getPlayer() == null) return;
 
-    ProxiedPlayer sender = (ProxiedPlayer) e.getSender();
+    Player sender = e.getPlayer();
     BungeeChatAccount account = BungeecordAccountManager.getAccount(sender).get();
     String message = e.getMessage();
 
@@ -42,11 +40,13 @@ public class LocalChatListener implements Listener {
 
     if (account.getChannelType() == ChannelType.LOCAL) {
       // Check we send to this server
-      e.setCancelled(
-          !(passToClientServer
-              && (serverListDisabled || passthruServers.contains(account.getServerName()))));
+      boolean cancel = !(passToClientServer
+              && (serverListDisabled || passthruServers.contains(account.getServerName())));
+
+      e.setResult(cancel ? PlayerChatEvent.ChatResult.denied() : PlayerChatEvent.ChatResult.allowed());
+
       // Was just cancelled, or we want to process all local chat regardless
-      if (e.isCancelled() || !passTransparently) {
+      if (cancel || !passTransparently) {
         MessagesService.sendLocalMessage(sender, message);
       }
       // still log and spy after transparently sent messages

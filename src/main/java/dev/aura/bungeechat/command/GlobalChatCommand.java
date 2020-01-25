@@ -1,5 +1,7 @@
 package dev.aura.bungeechat.command;
 
+import com.velocitypowered.api.command.CommandSource;
+import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.enums.AccountType;
@@ -12,8 +14,6 @@ import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class GlobalChatCommand extends BaseCommand {
   public GlobalChatCommand(GlobalChatModule globalChatModule) {
@@ -21,7 +21,7 @@ public class GlobalChatCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSender sender, String[] args) {
+  public void execute(CommandSource sender, String[] args) {
     if (PermissionManager.hasPermission(sender, Permission.COMMAND_GLOBAL)) {
       BungeeChatAccount account = BungeecordAccountManager.getAccount(sender).get();
 
@@ -38,7 +38,7 @@ public class GlobalChatCommand extends BaseCommand {
       }
 
       if (args.length < 1) {
-        if (!(sender instanceof ProxiedPlayer)) {
+        if (!(sender instanceof Player)) {
           MessagesService.sendMessage(sender, Messages.NOT_A_PLAYER.get());
           return;
         }

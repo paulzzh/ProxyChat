@@ -1,8 +1,0 @@
-name: ${name}
-id: ${id}
-main: dev.aura.bungeechat.BungeeChat
-version: ${version}
-author: BrainStone
-description: ${description}
-url: https://www.spigotmc.org/threads/bungee-chat.93960
-softDepends: [BungeePerms, PowerfulPerms, LuckPerms]

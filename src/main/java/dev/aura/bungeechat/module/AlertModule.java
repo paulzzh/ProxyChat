@@ -2,7 +2,6 @@ package dev.aura.bungeechat.module;
 
 import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.command.AlertCommand;
-import net.md_5.bungee.api.ProxyServer;
 
 public class AlertModule extends Module {
   private AlertCommand alertCommand;
@@ -15,14 +14,11 @@ public class AlertModule extends Module {
   @Override
   public void onEnable() {
     alertCommand = new AlertCommand(this);
-
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerCommand(BungeeChat.getInstance(), alertCommand);
+    alertCommand.register();
   }
 
   @Override
   public void onDisable() {
-    ProxyServer.getInstance().getPluginManager().unregisterCommand(alertCommand);
+    alertCommand.unregister();
   }
 }

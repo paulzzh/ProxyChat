@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.command;
 
+import com.velocitypowered.api.command.CommandSource;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.enums.ChannelType;
@@ -10,7 +11,6 @@ import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import net.md_5.bungee.api.CommandSender;
 
 public class StaffChatCommand extends BaseCommand {
   public StaffChatCommand(StaffChatModule staffChatModule) {
@@ -18,7 +18,7 @@ public class StaffChatCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSender sender, String[] args) {
+  public void execute(CommandSource sender, String[] args) {
     if (PermissionManager.hasPermission(sender, Permission.COMMAND_STAFFCHAT)) {
       if (args.length == 0) {
         BungeeChatAccount player = BungeecordAccountManager.getAccount(sender).get();

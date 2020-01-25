@@ -1,12 +1,12 @@
 package dev.aura.bungeechat.module;
 
+import com.velocitypowered.api.plugin.PluginManager;
+import com.velocitypowered.api.proxy.ProxyServer;
 import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.command.MuteCommand;
 import dev.aura.bungeechat.command.TempMuteCommand;
 import dev.aura.bungeechat.command.UnmuteCommand;
 import dev.aura.bungeechat.listener.MutingListener;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.plugin.PluginManager;
 
 public class MutingModule extends Module {
   private MuteCommand muteCommand;
@@ -27,10 +27,10 @@ public class MutingModule extends Module {
     if (!super.isEnabled()) return false;
 
     if (getModuleSection().getBoolean("disableWithOtherMutePlugins")) {
-      PluginManager pm = ProxyServer.getInstance().getPluginManager();
+      PluginManager pm = BungeeChat.getInstance().getProxy().getPluginManager();
 
       for (String mutePlugin : mutePlugins) {
-        if (pm.getPlugin(mutePlugin) != null) return false;
+        if (pm.getPlugin(mutePlugin).isPresent()) return false;
       }
     }
 
@@ -44,25 +44,21 @@ public class MutingModule extends Module {
     unmuteCommand = new UnmuteCommand(this);
     mutingListener = new MutingListener();
 
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerCommand(BungeeChat.getInstance(), muteCommand);
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerCommand(BungeeChat.getInstance(), tempMuteCommand);
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerCommand(BungeeChat.getInstance(), unmuteCommand);
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerListener(BungeeChat.getInstance(), mutingListener);
+    BungeeChat plugin = BungeeChat.getInstance();
+    ProxyServer proxy = plugin.getProxy();
+
+    muteCommand.register();
+    tempMuteCommand.register();
+    unmuteCommand.register();
+    proxy.getEventManager()
+        .register(BungeeChat.getInstance(), mutingListener);
   }
 
   @Override
   public void onDisable() {
-    ProxyServer.getInstance().getPluginManager().unregisterCommand(muteCommand);
-    ProxyServer.getInstance().getPluginManager().unregisterCommand(tempMuteCommand);
-    ProxyServer.getInstance().getPluginManager().unregisterCommand(unmuteCommand);
-    ProxyServer.getInstance().getPluginManager().unregisterListener(mutingListener);
+    muteCommand.unregister();
+    tempMuteCommand.unregister();
+    unmuteCommand.unregister();
+    BungeeChat.getInstance().getProxy().getEventManager().unregisterListener(BungeeChat.getInstance(), mutingListener);
   }
 }

@@ -6,7 +6,6 @@ import dev.aura.bungeechat.chatlog.ChatLoggingManager;
 import dev.aura.bungeechat.chatlog.ConsoleLogger;
 import dev.aura.bungeechat.chatlog.FileLogger;
 import dev.aura.bungeechat.listener.ChatLoggingListener;
-import net.md_5.bungee.api.ProxyServer;
 
 public class ChatLoggingModule extends Module {
   private ChatLoggingListener chatLoggingListener;
@@ -38,14 +37,14 @@ public class ChatLoggingModule extends Module {
 
     chatLoggingListener = new ChatLoggingListener();
 
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerListener(BungeeChat.getInstance(), chatLoggingListener);
+    BungeeChat.getInstance().getProxy()
+        .getEventManager()
+        .register(BungeeChat.getInstance(), chatLoggingListener);
   }
 
   @Override
   public void onDisable() {
-    ProxyServer.getInstance().getPluginManager().unregisterListener(chatLoggingListener);
+    BungeeChat.getInstance().getProxy().getEventManager().unregisterListener(BungeeChat.getInstance(), chatLoggingListener);
 
     if (chatLoggingListener != null) {
       ChatLoggingManager.removeLogger(consoleLogger);

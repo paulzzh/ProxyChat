@@ -1,11 +1,10 @@
 package dev.aura.bungeechat.module;
 
 import com.typesafe.config.Config;
+import com.velocitypowered.api.scheduler.ScheduledTask;
 import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.task.AutomaticBroadcastTask;
 import java.util.concurrent.TimeUnit;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.scheduler.ScheduledTask;
 
 public class AutoBroadcastModule extends Module {
   private static final TimeUnit TIME_UNIT = TimeUnit.SECONDS;
@@ -25,19 +24,19 @@ public class AutoBroadcastModule extends Module {
     long delay = Math.min(10, interval / 2);
 
     automaticBroadcastTask =
-        ProxyServer.getInstance()
+        BungeeChat.getInstance().getProxy()
             .getScheduler()
-            .schedule(
+            .buildTask(
                 BungeeChat.getInstance(),
                 new AutomaticBroadcastTask(
-                    section.getStringList("messages"), section.getBoolean("random")),
-                delay,
-                interval,
-                TIME_UNIT);
+                    section.getStringList("messages"), section.getBoolean("random")))
+            .delay(delay, TIME_UNIT)
+            .repeat(interval, TIME_UNIT)
+            .schedule();
   }
 
   @Override
   public void onDisable() {
-    ProxyServer.getInstance().getScheduler().cancel(automaticBroadcastTask);
+    automaticBroadcastTask.cancel();
   }
 }

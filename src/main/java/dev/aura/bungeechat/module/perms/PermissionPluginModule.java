@@ -1,7 +1,7 @@
 package dev.aura.bungeechat.module.perms;
 
+import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.api.module.BungeeChatModule;
-import net.md_5.bungee.api.ProxyServer;
 
 public abstract class PermissionPluginModule implements BungeeChatModule {
   @Override
@@ -10,6 +10,6 @@ public abstract class PermissionPluginModule implements BungeeChatModule {
   }
 
   protected boolean isPluginPresent(String pluginName) {
-    return ProxyServer.getInstance().getPluginManager().getPlugin(pluginName) != null;
+    return BungeeChat.getInstance().getProxy().getPluginManager().getPlugin(pluginName).isPresent();
   }
 }

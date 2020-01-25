@@ -1,25 +1,23 @@
 package dev.aura.bungeechat.listener;
 
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.connection.DisconnectEvent;
+import com.velocitypowered.api.event.connection.PostLoginEvent;
+import com.velocitypowered.api.event.player.ServerConnectedEvent;
+import com.velocitypowered.api.proxy.Player;
+import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.event.BungeeChatJoinEvent;
 import dev.aura.bungeechat.event.BungeeChatLeaveEvent;
 import dev.aura.bungeechat.event.BungeeChatServerSwitchEvent;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.PlayerDisconnectEvent;
-import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.api.event.ServerSwitchEvent;
-import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.event.EventHandler;
-import net.md_5.bungee.event.EventPriority;
 
-public class BungeeChatEventsListener implements Listener {
+public class BungeeChatEventsListener {
   private static final List<UUID> joinedPlayers = new LinkedList<>();
   private static final List<UUID> duplicatePlayers = new LinkedList<>();
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @Subscribe
   public void onPlayerJoin(PostLoginEvent e) {
     UUID uuid = e.getPlayer().getUniqueId();
 
@@ -28,27 +26,25 @@ public class BungeeChatEventsListener implements Listener {
     duplicatePlayers.add(uuid);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
-  public void onPlayerServerSwitch(ServerSwitchEvent e) {
-    ProxiedPlayer player = e.getPlayer();
+  @Subscribe
+  public void onPlayerServerSwitch(ServerConnectedEvent e) {
+    Player player = e.getPlayer();
     UUID uuid = player.getUniqueId();
 
     if (!duplicatePlayers.contains(uuid)) {
       if (joinedPlayers.contains(uuid)) {
-        ProxyServer.getInstance()
-            .getPluginManager()
-            .callEvent(new BungeeChatServerSwitchEvent(player));
+        BungeeChat.getInstance().getProxy().getEventManager().fireAndForget(new BungeeChatServerSwitchEvent(player));
       } else {
         joinedPlayers.add(uuid);
 
-        ProxyServer.getInstance().getPluginManager().callEvent(new BungeeChatJoinEvent(player));
+        BungeeChat.getInstance().getProxy().getEventManager().fireAndForget(new BungeeChatJoinEvent(player));
       }
     }
   }
 
-  @EventHandler(priority = EventPriority.HIGH)
-  public void onPlayerLeave(PlayerDisconnectEvent e) {
-    ProxiedPlayer player = e.getPlayer();
+  @Subscribe
+  public void onPlayerLeave(DisconnectEvent e) {
+    Player player = e.getPlayer();
     UUID uuid = player.getUniqueId();
 
     if (!joinedPlayers.contains(uuid)) return;
@@ -58,7 +54,7 @@ public class BungeeChatEventsListener implements Listener {
     } else {
       joinedPlayers.remove(uuid);
 
-      ProxyServer.getInstance().getPluginManager().callEvent(new BungeeChatLeaveEvent(player));
+      BungeeChat.getInstance().getProxy().getEventManager().fireAndForget(new BungeeChatLeaveEvent(player));
     }
   }
 }

@@ -1,16 +1,18 @@
 package dev.aura.bungeechat.permission;
 
+import com.velocitypowered.api.command.CommandSource;
+import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.message.MessagesService;
 import lombok.experimental.UtilityClass;
-import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+import java.util.Optional;
 
 @UtilityClass
 public class PermissionManager {
-  public static boolean hasPermission(ProxiedPlayer player, Permission permission) {
+  public static boolean hasPermission(Player player, Permission permission) {
     if (player.hasPermission(permission.getStringedPermission())) return true;
     else {
       if (permission.getWarnOnLackingPermission()) {
@@ -21,11 +23,12 @@ public class PermissionManager {
     }
   }
 
-  public static boolean hasPermission(CommandSender sender, Permission permission) {
-    return !(sender instanceof ProxiedPlayer) || hasPermission((ProxiedPlayer) sender, permission);
+  public static boolean hasPermission(CommandSource sender, Permission permission) {
+    return !(sender instanceof Player) || hasPermission((Player) sender, permission);
   }
 
   public static boolean hasPermission(BungeeChatAccount account, Permission permission) {
-    return hasPermission(BungeecordAccountManager.getCommandSender(account).get(), permission);
+    Optional<CommandSource> player = BungeecordAccountManager.getCommandSource(account);
+    return player.filter(value -> hasPermission(value, permission)).isPresent();
   }
 }

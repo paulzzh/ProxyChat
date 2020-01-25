@@ -4,7 +4,6 @@ import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.command.MessageCommand;
 import dev.aura.bungeechat.command.ReplyCommand;
 import dev.aura.bungeechat.command.ToggleCommand;
-import net.md_5.bungee.api.ProxyServer;
 
 public class MessengerModule extends Module {
   private MessageCommand messageCommand;
@@ -22,21 +21,15 @@ public class MessengerModule extends Module {
     replyCommand = new ReplyCommand(this);
     toggleCommand = new ToggleCommand(this);
 
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerCommand(BungeeChat.getInstance(), messageCommand);
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerCommand(BungeeChat.getInstance(), replyCommand);
-    ProxyServer.getInstance()
-        .getPluginManager()
-        .registerCommand(BungeeChat.getInstance(), toggleCommand);
+    messageCommand.register();
+    replyCommand.register();
+    toggleCommand.register();
   }
 
   @Override
   public void onDisable() {
-    ProxyServer.getInstance().getPluginManager().unregisterCommand(messageCommand);
-    ProxyServer.getInstance().getPluginManager().unregisterCommand(replyCommand);
-    ProxyServer.getInstance().getPluginManager().unregisterCommand(toggleCommand);
+    messageCommand.unregister();
+    replyCommand.unregister();
+    toggleCommand.unregister();
   }
 }
