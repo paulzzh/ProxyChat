@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -53,7 +54,9 @@ import net.kyori.text.format.TextColor;
 import org.slf4j.Logger;
 
 @Plugin(id = "bungeechat", name = "BungeeChat", version = "0.1-SNAPSHOT",
-        description = "", authors = {"Jim (NotKatuen)"})
+        description = "", authors = {"Jim (NotKatuen)"}, dependencies = {
+  @Dependency(id = "luckperms", optional = true)
+})
 public class BungeeChat implements BungeeChatApi {
   private static final String storedDataHookName = "storedData";
   private static final String defaultHookName = "default";
