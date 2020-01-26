@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.listener;
 
+import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
@@ -12,7 +13,7 @@ import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 
 public class MOTDListener {
-  @Subscribe
+  @Subscribe(order = PostOrder.LATE)
   public void onPlayerJoin(BungeeChatJoinEvent e) {
     Player player = e.getPlayer();
 

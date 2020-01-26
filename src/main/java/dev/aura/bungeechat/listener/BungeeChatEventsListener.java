@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.listener;
 
+import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PostLoginEvent;
@@ -17,7 +18,7 @@ public class BungeeChatEventsListener {
   private static final List<UUID> joinedPlayers = new LinkedList<>();
   private static final List<UUID> duplicatePlayers = new LinkedList<>();
 
-  @Subscribe
+  @Subscribe(order = PostOrder.LATE)
   public void onPlayerJoin(PostLoginEvent e) {
     UUID uuid = e.getPlayer().getUniqueId();
 
@@ -26,7 +27,7 @@ public class BungeeChatEventsListener {
     duplicatePlayers.add(uuid);
   }
 
-  @Subscribe
+  @Subscribe(order = PostOrder.LATE)
   public void onPlayerServerSwitch(ServerConnectedEvent e) {
     Player player = e.getPlayer();
     UUID uuid = player.getUniqueId();
@@ -42,7 +43,7 @@ public class BungeeChatEventsListener {
     }
   }
 
-  @Subscribe
+  @Subscribe(order = PostOrder.LATE)
   public void onPlayerLeave(DisconnectEvent e) {
     Player player = e.getPlayer();
     UUID uuid = player.getUniqueId();

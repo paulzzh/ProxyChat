@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.listener;
 
+import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.event.BungeeChatServerSwitchEvent;
@@ -8,7 +9,7 @@ import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 
 public class ServerSwitchListener {
-  @Subscribe
+  @Subscribe(order = PostOrder.LATE)
   public void onPlayerServerSwitch(BungeeChatServerSwitchEvent e) {
     Player player = e.getPlayer();
 

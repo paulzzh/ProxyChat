@@ -1,6 +1,7 @@
 package dev.aura.bungeechat.listener;
 
 import com.typesafe.config.Config;
+import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
@@ -18,7 +19,7 @@ public class GlobalChatListener {
           .getModuleSection()
           .getBoolean("passToClientServer");
 
-  @Subscribe
+  @Subscribe(order = PostOrder.LAST)
   public void onPlayerChat(PlayerChatEvent e) {
     if (!e.getResult().isAllowed()) return;
     if (e.getPlayer() == null) return;

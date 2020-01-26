@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.listener;
 
+import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
@@ -13,7 +14,7 @@ import dev.aura.bungeechat.module.BungeecordModuleManager;
 import java.util.List;
 
 public class MutingListener {
-  @Subscribe
+  @Subscribe(order = PostOrder.FIRST)
     public void onPlayerChat(PlayerChatEvent e) {
     if (!e.getResult().isAllowed()) return;
     if (e.getPlayer() == null) return;

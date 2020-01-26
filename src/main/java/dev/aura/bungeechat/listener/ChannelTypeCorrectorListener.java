@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.listener;
 
+import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
@@ -15,7 +16,7 @@ import dev.aura.bungeechat.permission.PermissionManager;
 import java.util.Optional;
 
 public class ChannelTypeCorrectorListener {
-  @Subscribe
+  @Subscribe(order = PostOrder.LATE)
   public void onPlayerChat(PlayerChatEvent e) {
     if (!e.getResult().isAllowed()) return;
     if (e.getPlayer() == null) return;

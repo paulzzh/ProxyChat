@@ -1,6 +1,7 @@
 package dev.aura.bungeechat.account;
 
 import com.velocitypowered.api.command.CommandSource;
+import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.permission.Tristate;
@@ -102,12 +103,12 @@ public class BungeecordAccountManager extends AccountManager {
     }
   }
 
-  @Subscribe
+  @Subscribe(order = PostOrder.LATE)
   public void onPlayerConnect(BungeeChatJoinEvent event) {
     loadAccount(event.getPlayer().getUniqueId());
   }
 
-  @Subscribe
+  @Subscribe(order = PostOrder.LATE)
   public void onPlayerDisconnect(BungeeChatLeaveEvent event) {
     unloadAccount(event.getPlayer().getUniqueId());
   }
