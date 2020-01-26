@@ -1,10 +1,16 @@
 package dev.aura.bungeechat.hook;
 
+import com.velocitypowered.api.event.PostOrder;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.player.PlayerChatEvent;
+import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.hook.BungeeChatHook;
 import dev.aura.bungeechat.api.hook.HookManager;
 import java.util.Objects;
 import java.util.Optional;
+
+import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.cacheddata.CachedMetaData;
@@ -17,6 +23,7 @@ public class LuckPerms5Hook implements BungeeChatHook {
 
   public LuckPerms5Hook() {
     api = LuckPermsProvider.get();
+    BungeeChat.getInstance().getProxy().getEventManager().register(BungeeChat.getInstance(), this);
   }
 
   @Override
@@ -48,5 +55,15 @@ public class LuckPerms5Hook implements BungeeChatHook {
 
     return user.flatMap(contextManager::getQueryOptions)
         .orElseGet(contextManager::getStaticQueryOptions);
+  }
+
+  @Subscribe(order = PostOrder.FIRST)
+  public void onPlayerChat(PlayerChatEvent e) {
+    if(e.getPlayer().hasPermission("bungeechat.muted")) {
+      e.setResult(PlayerChatEvent.ChatResult.denied());
+      e.getPlayer().sendMessage(
+              LegacyComponentSerializer.legacyLinking()
+                                        .deserialize("&cYou have been muted and cannot chat right now. Please see &ehttps://minecraft.rtgame.co.uk/bans &rfor more information", '&'));
+    }
   }
 }
