@@ -375,6 +375,6 @@ public class MessagesService {
   public static void sendMessage(CommandSource recipient, String message) {
     if ((message == null) || message.isEmpty()) return;
 
-    recipient.sendMessage(LegacyComponentSerializer.legacy().deserialize(message));
+    recipient.sendMessage(LegacyComponentSerializer.legacyLinking().deserialize(message));
   }
 }
