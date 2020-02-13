@@ -32,7 +32,6 @@ import dev.aura.bungeechat.message.PlaceHolders;
 import dev.aura.bungeechat.message.ServerAliases;
 import dev.aura.bungeechat.module.BungeecordModuleManager;
 import dev.aura.bungeechat.util.LoggerHelper;
-import dev.aura.lib.version.Version;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -66,8 +65,6 @@ public class BungeeChat implements BungeeChatApi {
   @Setter(AccessLevel.PRIVATE)
   @VisibleForTesting
   static BungeeChat instance;
-
-  private String latestVersion = null;
 
   @Inject
   @DataDirectory
@@ -141,9 +138,6 @@ public class BungeeChat implements BungeeChatApi {
         new DefaultHook(
             prefixDefaults.getString("defaultPrefix"), prefixDefaults.getString("defaultSuffix")));
     ServerAliases.loadAliases();
-
-    // Refresh Cache and cache version
-    getLatestVersion(true);
 
     if (prinLoadScreen) {
       loadScreen();
@@ -253,18 +247,6 @@ public class BungeeChat implements BungeeChatApi {
       LoggerHelper.info(getPeopleMessage("Donators", BungeeChatApi.DONATORS));
     }
 
-    if (!isLatestVersion()) {
-      LoggerHelper.info(
-          TextColor.YELLOW
-              + "There is an update avalible. You can download version "
-              + TextColor.GREEN
-              + getLatestVersion()
-              + TextColor.YELLOW
-              + " on the plugin page at "
-              + URL
-              + " !");
-    }
-
     if (size != StartupBannerSize.SHORT) {
       LoggerHelper.info(TextColor.GOLD + "---------------------------------------------");
     }
@@ -279,65 +261,12 @@ public class BungeeChat implements BungeeChatApi {
                 ""));
   }
 
-  private String queryLatestVersion() {
-    if (!Configuration.get().getBoolean("Miscellaneous.checkForUpdates")) return VERSION_STR;
-
-    try {
-      @Cleanup("disconnect")
-      HttpsURLConnection con =
-          (HttpsURLConnection)
-              new URL("https://api.spigotmc.org/legacy/update.php?resource=" + PLUGIN_ID)
-                  .openConnection();
-      con.setDoOutput(true);
-      con.setRequestMethod("GET");
-
-      con.connect();
-
-      int responseCode = con.getResponseCode();
-      @Cleanup
-      BufferedReader reader =
-          new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
-
-      if (responseCode != 200) {
-        LoggerHelper.warning(
-            "Invalid response! HTTP code: "
-                + responseCode
-                + " Content:\n"
-                + reader.lines().collect(Collectors.joining("\n")));
-
-        return errorVersion;
-      }
-
-      return Optional.ofNullable(reader.readLine()).orElse(errorVersion);
-    } catch (Exception ex) {
-      LoggerHelper.warning("Could not fetch the latest version!", ex);
-
-      return errorVersion;
-    }
-  }
-
-  public String getLatestVersion() {
-    return getLatestVersion(false);
-  }
-
-  public String getLatestVersion(boolean refreshCache) {
-    if (refreshCache || (latestVersion == null)) {
-      latestVersion = queryLatestVersion();
-    }
-
-    return latestVersion;
-  }
-
   public Logger getLogger() {
     return logger;
   }
 
   public ProxyServer getProxy() {
     return proxy;
-  }
-
-  public boolean isLatestVersion() {
-    return VERSION.compareTo(new Version(getLatestVersion())) >= 0;
   }
 
   private enum StartupBannerSize {

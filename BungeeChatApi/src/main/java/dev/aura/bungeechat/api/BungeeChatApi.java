@@ -5,7 +5,6 @@ import dev.aura.bungeechat.api.enums.ChannelType;
 import dev.aura.bungeechat.api.placeholder.BungeeChatContext;
 import dev.aura.bungeechat.api.placeholder.InvalidContextError;
 import dev.aura.bungeechat.api.utils.BungeeChatInstaceHolder;
-import dev.aura.lib.version.Version;
 import java.io.File;
 
 /** This is the base Interface for the BungeChatApi. The central methods will be found here */
@@ -14,7 +13,6 @@ public interface BungeeChatApi {
   public static final String NAME = "Bungee Chat";
   public static final String DESCRIPTION = "Bungee Chat Plugin";
   public static final String VERSION_STR = "@version@";
-  public static final Version VERSION = new Version(VERSION_STR);
   public static final BuildType BUILD_TYPE = BuildType.valueOf("@buildType@");
   public static final int BUILD = Integer.parseInt("@build@");
   public static final String URL = "https://www.spigotmc.org/resources/bungee-chat.12592";

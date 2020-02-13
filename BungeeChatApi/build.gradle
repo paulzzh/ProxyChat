@@ -1,9 +1,5 @@
 apply from: "../GradleCommon/common.gradle"
 
-dependencies {
-    api "dev.aura.lib.version:VersionLib:${versionLib_version}"
-}
-
 jacocoTestCoverageVerification {
     violationRules {
         rule {

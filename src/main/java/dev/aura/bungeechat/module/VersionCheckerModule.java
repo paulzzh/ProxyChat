@@ -1,7 +1,6 @@
 package dev.aura.bungeechat.module;
 
 import dev.aura.bungeechat.BungeeChat;
-import dev.aura.bungeechat.listener.VersionCheckerListener;
 
 public class VersionCheckerModule extends Module {
   private VersionCheckerListener versionCheckerListener;

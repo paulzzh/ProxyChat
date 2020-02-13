@@ -122,7 +122,6 @@ public class BungeeChatCommand extends BaseCommand {
       }
     }
 
-    checkForUpdates(sender);
     MessagesService.sendMessage(
         sender,
         prefix
@@ -135,23 +134,6 @@ public class BungeeChatCommand extends BaseCommand {
             + TextColor.GOLD
             + BungeeChatApi.AUTHOR_SHAWN
             + ".");
-  }
-
-  private void checkForUpdates(CommandSource sender) {
-    BungeeChat instance = BungeeChat.getInstance();
-    String latestVersion = instance.getLatestVersion(true);
-
-    if (instance.isLatestVersion()) {
-      MessagesService.sendMessage(
-          sender,
-          prefix + TextColor.GRAY + "Version: " + TextColor.GREEN + BungeeChatApi.VERSION_STR);
-    } else {
-      MessagesService.sendMessage(
-          sender,
-          prefix + TextColor.GRAY + "Version: " + TextColor.RED + BungeeChatApi.VERSION_STR);
-      MessagesService.sendMessage(
-          sender, prefix + TextColor.GRAY + "Newest Version: " + TextColor.GREEN + latestVersion);
-    }
   }
 
   private String getUnquotedString(String str) {

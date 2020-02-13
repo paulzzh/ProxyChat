@@ -259,9 +259,6 @@ if (type == FORGE)
     archivesBaseName += "-${minecraft_version}"
 
 ext {
-    // bStats
-    if (useStats) bStatsName = "bstats-" + ((type == SPIGOT)? "bukkit" : ((type == SPONGEFORGE)? "sponge" : type)) + (customCharts? "" : "-lite")
-
     // Common Manifest
     commonManifest = {
         attributes(
@@ -290,42 +287,6 @@ ext {
             name baseProject.archivesBaseName
             packaging "jar"
             description baseProject.description
-            url "https://gitlab.aura-dev.team/AuraDev/${rootProject.archivesBaseName}"
-            scm {
-                url "https://gitlab.aura-dev.team/AuraDev/${rootProject.archivesBaseName}"
-                connection "scm:git:git@gitlab.aura-dev.team:AuraDev/${rootProject.archivesBaseName}.git"
-                developerConnection "scm:git:gitlab.aura-dev.team:AuraDev/${rootProject.archivesBaseName}.git"
-            }
-            issueManagement {
-                system "github"
-                url "https://github.com/AuraDevelopmentTeam/${rootProject.archivesBaseName}/issues"
-            }
-            licenses {
-                license {
-                    name "License"
-                    url "https://github.com/AuraDevelopmentTeam/${rootProject.archivesBaseName}/blob/master/LICENSE.md"
-                    distribution "repo"
-                }
-            }
-            developers {
-                developer {
-                    id "brainstone"
-                    name "The_BrainStone"
-                    email "yannick@tedworld.de"
-                    roles {
-                        role "developer"
-                        role "development leader"
-                        role "team leader"
-                    }
-                }
-                developer {
-                    id "shawn_ian"
-                    name "shawn_ian"
-                    roles {
-                        role "former developer"
-                    }
-                }
-            }
         }
     }
 }
@@ -530,10 +491,6 @@ repositories {
     jcenter()
     mavenCentral()
 
-    maven {
-        name "Aura Dev"
-        url "https://maven.aura-dev.team/repository/auradev-snapshots/"
-    }
     maven {
         name "BungeeCord"
         url "https://oss.sonatype.org/content/repositories/snapshots"
