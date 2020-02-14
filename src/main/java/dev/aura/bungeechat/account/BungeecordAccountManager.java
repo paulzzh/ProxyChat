@@ -149,6 +149,11 @@ public class BungeecordAccountManager extends AccountManager {
     }
 
     @Override
+    public boolean isOnlineMode() {
+      return false;
+    }
+
+    @Override
     public void sendMessage(Component message) {
       // Do nothing
     }
