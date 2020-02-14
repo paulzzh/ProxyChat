@@ -66,7 +66,7 @@ public class RegexUtil {
               new LeetSpeakPattern("C", "[", "¢", "{", "<", "(", "©"),
               new LeetSpeakPattern(
                   "D", ")", "|)", "(|", "[)", "I>", "|>", "?", "T)", "I7", "cl", "|}", ">", "|]"),
-              new LeetSpeakPattern("E", "3", "&", "£", "€", "ë", "[-", "|=-"),
+//              new LeetSpeakPattern("E", "3", "&", "£", "€", "ë", "\\[-", "|=-"),
               new LeetSpeakPattern("F", "|=", "ƒ", "|#", "ph", "/=", "v"),
               new LeetSpeakPattern(
                   "G", "&", "6", "(_+", "9", "C-", "gee", "(?,", "[,", "{,", "<-", "(."),
@@ -90,7 +90,7 @@ public class RegexUtil {
                   "R", "I2", "|`", "|~", "|?", "/2", "|^", "lz", "|9", "2", "12", "®", "[z", "Я",
                   ".-", "|2", "|-"),
               new LeetSpeakPattern("S", "5", "$", "z", "§", "ehs", "es", "2"),
-              new LeetSpeakPattern("T", "7", "+", "-|-", "']['", "†", "\"|\"", "~|~"),
+//              new LeetSpeakPattern("T", "7", "+", "-|-", "'\\]\\['", "†", "\"|\"", "~|~"),
               new LeetSpeakPattern("U", "(_)", "|_|", "v", "L|", "µ", "บ"),
               new LeetSpeakPattern("V", "\\/", "|/", "\\|"),
               new LeetSpeakPattern(
