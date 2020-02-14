@@ -9,13 +9,15 @@ import java.util.Random;
 
 public class AutomaticBroadcastTask implements Runnable {
   private final List<String> messages;
+  private final List<String> servers;
   private final int size;
   private final boolean random;
   private int current;
   private Random rand;
 
-  public AutomaticBroadcastTask(List<String> messages, boolean random) {
+  public AutomaticBroadcastTask(List<String> messages, boolean random, List<String> servers) {
     this.messages = new ArrayList<>(messages);
+    this.servers = servers != null ? new ArrayList<>(servers) : null;
     size = messages.size();
     this.random = random;
     current = -1;
@@ -26,7 +28,7 @@ public class AutomaticBroadcastTask implements Runnable {
   public void run() {
     MessagesService.sendToMatchingPlayers(
         PlaceHolderUtil.formatMessage(getMessage(), new BungeeChatContext()),
-        MessagesService.getGlobalPredicate());
+        this.servers != null ? MessagesService.getServerPredicate(this.servers) : MessagesService.getGlobalPredicate());
   }
 
   private String getMessage() {
