@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyReloadEvent;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
@@ -89,6 +90,12 @@ public class BungeeChat implements BungeeChatApi {
   @Subscribe
   public void onProxyInitialized(ProxyInitializeEvent event) {
     onEnable(true);
+  }
+
+  @Subscribe
+  public void onProxyReload(ProxyReloadEvent event) {
+    onDisable();
+    onEnable(false);
   }
 
   public void onEnable(boolean prinLoadScreen) {
