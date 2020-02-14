@@ -408,13 +408,6 @@ public class Configuration implements Config {
               .put("enabled", section.getNode("enabled").getBoolean())
               .build();
 
-      section = modulesSection.getNode("VersionChecker");
-      final ImmutableMap<String, Object> moduleVersionChecker =
-          ImmutableMap.<String, Object>builder()
-              .put("checkOnAdminLogin", section.getNode("checkOnAdminLogin").getBoolean())
-              .put("enabled", section.getNode("enabled").getBoolean())
-              .build();
-
       section = modulesSection.getNode("WelcomeMessage");
       final ImmutableMap<String, Object> moduleWelcomeMessage =
           ImmutableMap.<String, Object>builder()
@@ -445,7 +438,6 @@ public class Configuration implements Config {
               .put("StaffChat", moduleStaffChat)
               .put("TabCompletion", moduleTabCompletion)
               .put("Vanish", moduleVanish)
-              .put("VersionChecker", moduleVersionChecker)
               .put("WelcomeMessage", moduleWelcomeMessage)
               .build();
 
