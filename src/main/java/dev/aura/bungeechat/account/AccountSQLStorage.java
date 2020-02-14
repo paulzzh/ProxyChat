@@ -5,7 +5,6 @@ import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.account.BungeeChatAccountStorage;
 import dev.aura.bungeechat.api.enums.ChannelType;
 import dev.aura.bungeechat.util.LoggerHelper;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -259,9 +258,6 @@ public class AccountSQLStorage implements BungeeChatAccountStorage {
     return name;
   }
 
-  @SuppressFBWarnings(
-      value = "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
-      justification = "Names are variable.")
   private void prepareTables() {
     try {
       final String channelTypeEnum =
@@ -332,9 +328,6 @@ public class AccountSQLStorage implements BungeeChatAccountStorage {
     }
   }
 
-  @SuppressFBWarnings(
-      value = "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING",
-      justification = "Names are variable.")
   private void prepareStatements() {
     try {
       final String saveAccountStr =

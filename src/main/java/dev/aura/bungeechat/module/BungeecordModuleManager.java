@@ -2,9 +2,7 @@ package dev.aura.bungeechat.module;
 
 import dev.aura.bungeechat.api.module.BungeeChatModule;
 import dev.aura.bungeechat.api.module.ModuleManager;
-import dev.aura.bungeechat.module.perms.BungeePermsModule;
 import dev.aura.bungeechat.module.perms.CloudNetPermsModule;
-import dev.aura.bungeechat.module.perms.LuckPerms4Module;
 import dev.aura.bungeechat.module.perms.LuckPerms5Module;
 import dev.aura.bungeechat.module.perms.PowerfulPermsModule;
 import net.kyori.text.format.TextColor;
@@ -15,10 +13,8 @@ import java.util.stream.Collectors;
 
 public class BungeecordModuleManager extends ModuleManager {
   // PermissionHookModules
-  public static final BungeePermsModule BUNGEE_PERMS_MODULE = new BungeePermsModule();
   public static final CloudNetPermsModule CLOUD_NET_PERMS_MODULE = new CloudNetPermsModule();
   public static final LuckPerms5Module LUCK_PERMS_5_MODULE = new LuckPerms5Module();
-  public static final LuckPerms4Module LUCK_PERMS_4_MODULE = new LuckPerms4Module();
   public static final PowerfulPermsModule POWERFUL_PERMS_MODULE = new PowerfulPermsModule();
 
   // Normal Modules
@@ -44,7 +40,6 @@ public class BungeecordModuleManager extends ModuleManager {
   public static final SpyModule SPY_MODULE = new SpyModule();
   public static final StaffChatModule STAFF_CHAT_MODULE = new StaffChatModule();
   public static final VanishModule VANISHER_MODULE = new VanishModule();
-  public static final VersionCheckerModule VERSION_CHECKER_MODULE = new VersionCheckerModule();
   public static final WelcomeMessageModule WELCOME_MESSAGE_MODULE = new WelcomeMessageModule();
   public static final String MODULE_CONCATENATOR = TextColor.WHITE + ", " + TextColor.GREEN;
 

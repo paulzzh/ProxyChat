@@ -10,7 +10,6 @@ import dev.aura.bungeechat.api.account.AccountInfo;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.account.BungeeChatAccountStorage;
 import dev.aura.bungeechat.api.enums.ChannelType;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -20,7 +19,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-@SuppressFBWarnings(value = "DMI_CONSTANT_DB_PASSWORD", justification = "Hardcoding for tests.")
 public class AccountSQLStorageTest {
   private static final String database = "test";
   private static final String password = "test";

@@ -9,7 +9,6 @@ import dev.aura.bungeechat.api.module.ModuleManager;
 import dev.aura.bungeechat.module.BungeecordModuleManager;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,7 +68,7 @@ public abstract class BaseCommand implements Command {
   }
 
   @Override
-  public List<String> suggest(@NonNull CommandSource source, String[] currentArgs) {
+  public List<String> suggest(CommandSource source, String[] currentArgs) {
     List<String> suggestions = new ArrayList<>();
     String partialPlayerName = "";
 

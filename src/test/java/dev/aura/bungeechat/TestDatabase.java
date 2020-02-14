@@ -6,7 +6,6 @@ import ch.vorburger.mariadb4j.DB;
 import ch.vorburger.mariadb4j.DBConfiguration;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
 import com.google.common.base.Preconditions;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -27,9 +26,6 @@ public class TestDatabase {
   @Getter private static int port;
 
   @SneakyThrows(ManagedProcessException.class)
-  @SuppressFBWarnings( // TODO: Remove when fixed in SpotBugs
-      value = "RV_RETURN_VALUE_IGNORED",
-      justification = "Return values can be safely ignored as they are for chaining only.")
   public static void startDatabase() {
     final int limit = 100;
     int count = 0;
@@ -72,7 +68,6 @@ public class TestDatabase {
     }
   }
 
-  @SuppressFBWarnings(value = "DMI_CONSTANT_DB_PASSWORD", justification = "Hardcoding for tests.")
   public static Connection getDatabaseInstance() throws SQLException {
     return DriverManager.getConnection("jdbc:mysql://" + host + "/test", "test", "test");
   }

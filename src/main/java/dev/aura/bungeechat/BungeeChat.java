@@ -221,8 +221,6 @@ public class BungeeChat implements BungeeChatApi {
       LoggerHelper.info(getPeopleMessage("Authors", BungeeChatApi.AUTHORS));
     }
 
-    LoggerHelper.info(TextColor.YELLOW + "Version: " + TextColor.GREEN + VERSION_STR);
-
     if (size == StartupBannerSize.LONG) {
       LoggerHelper.info(TextColor.YELLOW + "Modules:");
 

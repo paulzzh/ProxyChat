@@ -1,4 +1,3 @@
-include "GradleCommon"
 include "BungeeChatApi"
 
 rootProject.name = "BungeeChat"

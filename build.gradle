@@ -1,56 +1,85 @@
-apply from: "GradleCommon/common.gradle"
+plugins {
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
+    id 'java'
+    id 'maven'
+    id "io.freefair.lombok" version "5.0.0-rc2"
+}
 
-allprojects {
-    repositories {
-        jcenter()
-        mavenCentral()
-        maven { url "https://repo.velocitypowered.com/snapshots/" }
-        maven {
-            name "luck-repo"
-            url "https://repo.lucko.me/"
+group = 'dev.aura.bungeechat'
+version = 'RTGAME'
+
+description = """BungeeChat"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+sourceSets {
+    main {
+        java {
+            srcDirs= ["./src/main/java"]
         }
-        maven {
-            name "cloudnet-repo"
-            url "https://cloudnetservice.eu/repositories/"
+        resources {
+            srcDirs= ["./src/main/resources"]
         }
-        maven {
-            name "jitpack.io"
-            url "https://jitpack.io"
-        }
+    }
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven { url "https://repo.velocitypowered.com/snapshots/" }
+    maven {
+        name "luck-repo"
+        url "https://repo.lucko.me/"
+    }
+    maven {
+        name "cloudnet-repo"
+        url "https://cloudnetservice.eu/repositories/"
+    }
+    maven {
+        name "jitpack.io"
+        url "https://jitpack.io"
+    }
+    maven {
+        name 'sponge'
+        url 'https://repo.spongepowered.org/maven/'
+    }
+    maven {
+        name 'velocity'
+        url 'https://repo.velocitypowered.com/snapshots/'
+    }
+    maven {
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    flatDir {
+        dirs 'libs'
     }
 }
 
 dependencies {
+
+    compile project(":BungeeChatApi")
+
+    compile name: "MessagesTranslator-1.4.3.41-DEV"
+    compile 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
+    compile 'org.spongepowered:configurate-yaml:3.6'
+    compile "de.dytanic.cloudnet:cloudnet-api-bridge:${cloudnetapi_version}"
+    compileOnly "net.luckperms:api:${luckperms5_version}"
+    compile "com.github.CheeseSoftware:PowerfulPermsAPI:${powerfulperms_version}"
+
+    annotationProcessor 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
+
+    shadow "com.typesafe:config:${hocon_version}"
+    shadow name: "MessagesTranslator-1.4.3.41-DEV"
     shadow (project(":BungeeChatApi")) {
         exclude module: "lombok"
     }
 
-    implementation("net.alpenblock:BungeePerms:${bungeeperms_version}")
-    implementation "de.dytanic.cloudnet:cloudnet-api-bridge:${cloudnetapi_version}"
-    implementation "me.lucko.luckperms:luckperms-api:${luckperms4_version}"
-    implementation "net.luckperms:api:${luckperms5_version}"
-    implementation "com.github.CheeseSoftware:PowerfulPermsAPI:${powerfulperms_version}"
-
-    shadowRelocate "com.typesafe:config:${hocon_version}"
-    shadowRelocate("dev.aura.lib.messagestranslator:MessagesTranslator:${messagesTranslator_version}") {
-        transitive = false
-    }
-    
+    testImplementation('junit:junit:4.13')
     testImplementation "ch.vorburger.mariaDB4j:mariaDB4j:2.3.0"
     testImplementation "commons-io:commons-io:2.6"
+    testImplementation name: "MessagesTranslator-1.4.3.41-DEV"
+    testImplementation "com.velocitypowered:velocity-api:1.1.0-SNAPSHOT"
+    testImplementation project(":BungeeChatApi")
     testRuntimeOnly "org.mariadb.jdbc:mariadb-java-client:2.4.1"
-}
-
-jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            limit {
-//                minimum = 0.4
-            }
-        }
-    }
-}
-
-spotbugs {
-  ignoreFailures = true
 }

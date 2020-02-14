@@ -1,6 +1,5 @@
 package dev.aura.bungeechat.api;
 
-import dev.aura.bungeechat.api.enums.BuildType;
 import dev.aura.bungeechat.api.enums.ChannelType;
 import dev.aura.bungeechat.api.placeholder.BungeeChatContext;
 import dev.aura.bungeechat.api.placeholder.InvalidContextError;
@@ -12,9 +11,6 @@ public interface BungeeChatApi {
   public static final String ID = "bungeechat";
   public static final String NAME = "Bungee Chat";
   public static final String DESCRIPTION = "Bungee Chat Plugin";
-  public static final String VERSION_STR = "@version@";
-  public static final BuildType BUILD_TYPE = BuildType.valueOf("@buildType@");
-  public static final int BUILD = Integer.parseInt("@build@");
   public static final String URL = "https://www.spigotmc.org/resources/bungee-chat.12592";
   public static final String AUTHOR_BRAINSTONE = "BrainStone";
   public static final String AUTHOR_SHAWN = "shawn_ian";

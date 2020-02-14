@@ -66,6 +66,11 @@ public class DummyPlayer implements Player {
   }
 
   @Override
+  public boolean isOnlineMode() {
+    return false;
+  }
+
+  @Override
   public void sendMessage(Component component, MessagePosition position) {
 
   }
