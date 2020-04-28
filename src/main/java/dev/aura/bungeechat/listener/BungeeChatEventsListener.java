@@ -12,49 +12,28 @@ import dev.aura.bungeechat.event.BungeeChatLeaveEvent;
 import dev.aura.bungeechat.event.BungeeChatServerSwitchEvent;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class BungeeChatEventsListener {
-  private static final List<UUID> joinedPlayers = new LinkedList<>();
-  private static final List<UUID> duplicatePlayers = new LinkedList<>();
-
-  @Subscribe(order = PostOrder.LATE)
-  public void onPlayerJoin(PostLoginEvent e) {
-    UUID uuid = e.getPlayer().getUniqueId();
-
-    if (!joinedPlayers.contains(uuid)) return;
-
-    duplicatePlayers.add(uuid);
-  }
 
   @Subscribe(order = PostOrder.LATE)
   public void onPlayerServerSwitch(ServerConnectedEvent e) {
     Player player = e.getPlayer();
-    UUID uuid = player.getUniqueId();
 
-    if (!duplicatePlayers.contains(uuid)) {
-      if (joinedPlayers.contains(uuid)) {
-        BungeeChat.getInstance().getProxy().getEventManager().fireAndForget(new BungeeChatServerSwitchEvent(player));
-      } else {
-        joinedPlayers.add(uuid);
-
-        BungeeChat.getInstance().getProxy().getEventManager().fireAndForget(new BungeeChatJoinEvent(player));
-      }
+    if(!e.getPlayer().getCurrentServer().isPresent()) {
+      BungeeChat.getInstance().getProxy().getEventManager().fireAndForget(new BungeeChatJoinEvent(player));
+    } else {
+      BungeeChat.getInstance().getProxy().getEventManager().fireAndForget(new BungeeChatServerSwitchEvent(player));
     }
   }
 
   @Subscribe(order = PostOrder.LATE)
   public void onPlayerLeave(DisconnectEvent e) {
     Player player = e.getPlayer();
-    UUID uuid = player.getUniqueId();
 
-    if (!joinedPlayers.contains(uuid)) return;
-
-    if (duplicatePlayers.contains(uuid)) {
-      duplicatePlayers.remove(uuid);
-    } else {
-      joinedPlayers.remove(uuid);
-
+    if(e.getPlayer().getCurrentServer().isPresent()) {
       BungeeChat.getInstance().getProxy().getEventManager().fireAndForget(new BungeeChatLeaveEvent(player));
     }
   }
