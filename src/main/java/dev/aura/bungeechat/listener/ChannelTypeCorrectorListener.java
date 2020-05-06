@@ -21,20 +21,30 @@ public class ChannelTypeCorrectorListener {
     if (!e.getResult().isAllowed()) return;
     if (e.getPlayer() == null) return;
 
-    Player player = e.getPlayer();
-    Optional<BungeeChatAccount> bungeeChatAccountOptional =
-        AccountManager.getAccount(player.getUniqueId());
-    ChannelType c = bungeeChatAccountOptional.get().getChannelType();
+    Player sender = e.getPlayer();
+    BungeeChatAccount player = AccountManager.getAccount(sender.getUniqueId()).get();
+    ChannelType channel = player.getChannelType();
 
-    if ((c.equals(ChannelType.GLOBAL)
+    if (((channel == ChannelType.GLOBAL)
             && (!ModuleManager.isModuleActive(BungeecordModuleManager.GLOBAL_CHAT_MODULE)
-                || !PermissionManager.hasPermission(player, Permission.COMMAND_GLOBAL)))
-        || (c.equals(ChannelType.STAFF)
+                || !PermissionManager.hasPermission(sender, Permission.COMMAND_GLOBAL)))
+        || ((channel == ChannelType.LOCAL)
+            && (!ModuleManager.isModuleActive(BungeecordModuleManager.LOCAL_CHAT_MODULE)
+                || !PermissionManager.hasPermission(sender, Permission.COMMAND_LOCAL)))
+        || ((channel == ChannelType.STAFF)
             && (!ModuleManager.isModuleActive(BungeecordModuleManager.STAFF_CHAT_MODULE)
-                || !PermissionManager.hasPermission(player, Permission.COMMAND_STAFFCHAT)))) {
+                || !PermissionManager.hasPermission(sender, Permission.COMMAND_STAFFCHAT)))) {
+
       e.setResult(PlayerChatEvent.ChatResult.denied());
-      bungeeChatAccountOptional.get().setChannelType(ChannelType.LOCAL);
-      MessagesService.sendMessage(player, Messages.BACK_TO_LOCAL.get());
+      ChannelType defaultChannel = player.getDefaultChannelType();
+
+      if (((defaultChannel == ChannelType.GLOBAL)
+              && PermissionManager.hasPermissionNoMessage(sender, Permission.COMMAND_GLOBAL))
+          || ((defaultChannel == ChannelType.LOCAL)
+              && PermissionManager.hasPermissionNoMessage(sender, Permission.COMMAND_LOCAL))) {
+        player.setChannelType(defaultChannel);
+        MessagesService.sendMessage(sender, Messages.BACK_TO_DEFAULT.get());
+      }
     }
   }
 }

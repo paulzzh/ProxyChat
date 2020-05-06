@@ -1,6 +1,8 @@
 package dev.aura.bungeechat.module;
 
 import dev.aura.bungeechat.BungeeChat;
+import dev.aura.bungeechat.account.Account;
+import dev.aura.bungeechat.api.enums.ChannelType;
 import dev.aura.bungeechat.command.GlobalChatCommand;
 import dev.aura.bungeechat.listener.GlobalChatListener;
 
@@ -22,11 +24,19 @@ public class GlobalChatModule extends Module {
     BungeeChat.getInstance().getProxy()
         .getEventManager()
         .register(BungeeChat.getInstance(), globalChatListener);
+
+    if (getModuleSection().getBoolean("default")) {
+      Account.staticSetDefaultChannelType(ChannelType.GLOBAL);
+    }
   }
 
   @Override
   public void onDisable() {
     globalChatCommand.unregister();
-    BungeeChat.getInstance().getProxy().getEventManager().unregisterListener(BungeeChat.getInstance(), globalChatListener);
+    BungeeChat.getInstance().getProxy()
+        .getEventManager()
+        .unregisterListener(BungeeChat.getInstance(), globalChatListener);
+
+    Account.staticSetDefaultChannelType(ChannelType.LOCAL);
   }
 }

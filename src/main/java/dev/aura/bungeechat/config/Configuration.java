@@ -5,9 +5,11 @@ import com.google.common.io.Files;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigParseOptions;
 import com.typesafe.config.ConfigRenderOptions;
 import com.typesafe.config.ConfigSyntax;
+import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueFactory;
 import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.api.BungeeChatApi;
@@ -20,8 +22,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Cleanup;
 import lombok.Getter;
@@ -100,13 +102,30 @@ public class Configuration implements Config {
     return header.toString();
   }
 
+  private static Collection<String> getPaths(ConfigValue config) {
+    if (config instanceof ConfigObject) {
+      return ((ConfigObject) config)
+          .entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList());
+    } else {
+      return Collections.emptyList();
+    }
+  }
+
+  private static List<String> getComment(Config config, String path) {
+    return config.hasPath(path) ? getComment(config.getValue(path)) : Collections.emptyList();
+  }
+
+  private static List<String> getComment(ConfigValue config) {
+    return config.origin().comments();
+  }
+
   protected void loadConfig() {
     Config defaultConfig =
         ConfigFactory.parseReader(
             new InputStreamReader(
                     Objects.requireNonNull(
                             BungeeChat.getInstance().getClass().getClassLoader().getResourceAsStream(CONFIG_FILE_NAME)),
-                StandardCharsets.UTF_8),
+                    StandardCharsets.UTF_8),
             PARSE_OPTIONS);
 
     if (CONFIG_FILE.exists()) {
@@ -126,6 +145,7 @@ public class Configuration implements Config {
     config = config.resolve();
 
     convertOldConfig();
+    copyComments(defaultConfig);
 
     saveConfig();
   }
@@ -148,6 +168,39 @@ public class Configuration implements Config {
     }
 
     switch (String.format(Locale.ROOT, "%.1f", config.getDouble("Version"))) {
+      case "11.0":
+        LoggerHelper.info("Performing config migration 11.0 -> 11.1 ...");
+
+        // Rename "passToClientServer" to "passToBackendServer"
+        for (String basePath :
+            new String[] {"Modules.GlobalChat", "Modules.LocalChat", "Modules.StaffChat"}) {
+          final String newPath = basePath + ".passToBackendServer";
+          final String oldPath = basePath + ".passToClientServer";
+
+          // Remove old path first to reduce the amount of data that needs to be copied
+          config = config.withoutPath(oldPath).withValue(newPath, config.getValue(oldPath));
+        }
+      case "11.1":
+        LoggerHelper.info("Performing config migration 11.1 -> 11.2 ...");
+
+        // Delete old language files
+        final File langDir = BungeeChat.getInstance().getLangFolder();
+        File langFile;
+
+        for (String lang :
+            new String[] {"de_DE", "en_US", "fr_FR", "hu_HU", "nl_NL", "pl_PL", "ru_RU", "zh_CN"}) {
+          langFile = new File(langDir, lang + ".lang");
+
+          if (langFile.exists()) {
+            langFile.delete();
+          }
+        }
+      case "11.2":
+        LoggerHelper.info("Performing config migration 11.2 -> 11.3 ...");
+
+        // Remove config section "Modules.TabCompletion"
+        config = config.withoutPath("Modules.TabCompletion");
+
       default:
         // Unknow Version or old version
         // -> Update version
@@ -155,7 +208,7 @@ public class Configuration implements Config {
             config.withValue(
                 "Version", ConfigValueFactory.fromAnyRef(BungeeChatApi.CONFIG_VERSION));
 
-      case "11.0":
+      case "11.3":
         // Up to date
         // -> No action needed
     }
@@ -284,7 +337,7 @@ public class Configuration implements Config {
       final ImmutableMap<String, Object> moduleGlobalChatServerList =
           ImmutableMap.<String, Object>builder()
               .put("enabled", section.getNode("serverList.enabled").getBoolean())
-              .put("serverList", section.getNode("serverList.serverList").getList(Object::toString))
+              .put("list", section.getNode("serverList.list").getList(Object::toString))
               .build();
       final ImmutableMap<String, Object> moduleGlobalChatSymbol =
           ImmutableMap.<String, Object>builder()
@@ -296,7 +349,7 @@ public class Configuration implements Config {
               .put("aliases", section.getNode("aliases").getList(Object::toString))
               .put("default", section.getNode("default").getBoolean())
               .put("enabled", section.getNode("enabled").getBoolean())
-              .put("passToClientServer", section.getNode("passToClientServer").getBoolean())
+              .put("passToBackendServer", section.getNode("passToClientServer").getBoolean())
               .put("serverList", moduleGlobalChatServerList)
               .put("symbol", moduleGlobalChatSymbol)
               .build();
@@ -331,7 +384,7 @@ public class Configuration implements Config {
       final ImmutableMap<String, Object> moduleLocalChat =
           ImmutableMap.<String, Object>builder()
               .put("enabled", section.getNode("enabled").getBoolean())
-              .put("passToClientServer", section.getNode("passToClientServer").getBoolean())
+              .put("passToBackendServer", section.getNode("passToClientServer").getBoolean())
               .build();
 
       section = modulesSection.getNode("MOTD");
@@ -392,13 +445,7 @@ public class Configuration implements Config {
           ImmutableMap.<String, Object>builder()
               .put("aliases", section.getNode("aliases").getList(Object::toString))
               .put("enabled", section.getNode("enabled").getBoolean())
-              .put("passToClientServer", section.getNode("passToClientServer").getBoolean())
-              .build();
-
-      section = modulesSection.getNode("TabCompletion");
-      final ImmutableMap<String, Object> moduleTabCompletion =
-          ImmutableMap.<String, Object>builder()
-              .put("enabled", section.getNode("enabled").getBoolean())
+              .put("passToBackendServer", section.getNode("passToClientServer").getBoolean())
               .build();
 
       section = modulesSection.getNode("Vanish");
@@ -411,6 +458,13 @@ public class Configuration implements Config {
       section = modulesSection.getNode("WelcomeMessage");
       final ImmutableMap<String, Object> moduleWelcomeMessage =
           ImmutableMap.<String, Object>builder()
+              .put("enabled", section.getNode("enabled").getBoolean())
+              .build();
+
+      section = modulesSection.getNode("LocalTo");
+      final ImmutableMap<String, Object> moduleLocalTo =
+          ImmutableMap.<String, Object>builder()
+              .put("aliases", section.getNode("aliases").getList(Object::toString))
               .put("enabled", section.getNode("enabled").getBoolean())
               .build();
 
@@ -436,9 +490,9 @@ public class Configuration implements Config {
               .put("ServerSwitchMessages", moduleServerSwitchMessages)
               .put("Spy", moduleSpy)
               .put("StaffChat", moduleStaffChat)
-              .put("TabCompletion", moduleTabCompletion)
               .put("Vanish", moduleVanish)
               .put("WelcomeMessage", moduleWelcomeMessage)
+              .put("LocalTo", moduleLocalTo)
               .build();
 
       section = oldConfig.getNode("Settings.PermissionsManager");
@@ -466,7 +520,8 @@ public class Configuration implements Config {
       config =
           ConfigFactory.parseMap(configMap)
               .withFallback(config.withoutPath("ServerAlias"))
-              .resolve();
+              .resolve()
+              .withValue("Version", ConfigValueFactory.fromAnyRef("11.3"));
 
       // Rename old file
       Files.move(OLD_CONFIG_FILE, OLD_OLD_CONFIG_FILE);
@@ -477,6 +532,34 @@ public class Configuration implements Config {
       LoggerHelper.info("Migration successful!");
     } catch (Exception e) {
       LoggerHelper.error("There has been an error while migrating the old YAML config file!", e);
+    }
+  }
+
+  private void copyComments(Config defaultConfig) {
+    final Queue<String> paths = new LinkedList<>(getPaths(config.root()));
+
+    while (!paths.isEmpty()) {
+      final String path = paths.poll();
+      final ConfigValue currentConfig = config.getValue(path);
+
+      // Add new paths to path list
+      paths.addAll(
+          getPaths(currentConfig).stream()
+              .map(newPath -> path + '.' + newPath)
+              .collect(Collectors.toList()));
+
+      // If the current value has a comment we will not override it
+      if (!getComment(currentConfig).isEmpty()) continue;
+
+      final List<String> comments = getComment(defaultConfig, path);
+
+      // If the default config has no comments we can't set any
+      if (comments.isEmpty()) continue;
+
+      // Set comment
+      config =
+          config.withValue(
+              path, currentConfig.withOrigin(currentConfig.origin().withComments(comments)));
     }
   }
 }

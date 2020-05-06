@@ -11,8 +11,10 @@ import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.module.BungeecordModuleManager;
 
 public class StaffChatListener {
-  private final boolean passToClientServer =
-      BungeecordModuleManager.STAFF_CHAT_MODULE.getModuleSection().getBoolean("passToClientServer");
+  private final boolean passToBackendServer =
+      BungeecordModuleManager.STAFF_CHAT_MODULE
+          .getModuleSection()
+          .getBoolean("passToBackendServer");
 
   @Subscribe(order = PostOrder.LAST)
   public void onPlayerChat(PlayerChatEvent e) {
@@ -25,7 +27,7 @@ public class StaffChatListener {
     if (ChatUtils.isCommand(message)) return;
 
     if (BungeecordAccountManager.getAccount(sender).get().getChannelType() == ChannelType.STAFF) {
-      e.setResult(passToClientServer ? PlayerChatEvent.ChatResult.allowed() : PlayerChatEvent.ChatResult.denied());
+      e.setResult(passToBackendServer ? PlayerChatEvent.ChatResult.allowed() : PlayerChatEvent.ChatResult.denied());
       MessagesService.sendStaffMessage(sender, message);
     }
   }

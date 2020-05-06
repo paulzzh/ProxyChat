@@ -3,6 +3,8 @@ package dev.aura.bungeechat.listener;
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
+import com.velocitypowered.api.proxy.server.ServerInfo;
 import dev.aura.bungeechat.event.BungeeChatServerSwitchEvent;
 import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.permission.Permission;
@@ -14,7 +16,15 @@ public class ServerSwitchListener {
     Player player = e.getPlayer();
 
     if (PermissionManager.hasPermission(player, Permission.MESSAGE_SWITCH)) {
-      MessagesService.sendSwitchMessage(player);
+      MessagesService.sendSwitchMessage(player, getServerInfo(e));
+    }
+  }
+
+  private static ServerInfo getServerInfo(BungeeChatServerSwitchEvent event) {
+    try {
+      return event.getFrom().getServerInfo();
+    } catch (NoSuchMethodError e) {
+      return null;
     }
   }
 }

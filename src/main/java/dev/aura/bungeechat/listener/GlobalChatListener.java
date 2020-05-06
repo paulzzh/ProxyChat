@@ -12,12 +12,17 @@ import dev.aura.bungeechat.api.utils.ChatUtils;
 import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.module.BungeecordModuleManager;
+import dev.aura.bungeechat.permission.Permission;
+import dev.aura.bungeechat.permission.PermissionManager;
 
 public class GlobalChatListener {
-  private final boolean passToClientServer =
+  private final boolean passToBackendServer =
       BungeecordModuleManager.GLOBAL_CHAT_MODULE
           .getModuleSection()
-          .getBoolean("passToClientServer");
+          .getBoolean("passToBackendServer");
+
+  private final Config symbolSection =
+      BungeecordModuleManager.GLOBAL_CHAT_MODULE.getModuleSection().getConfig("symbol");
 
   @Subscribe(order = PostOrder.LAST)
   public void onPlayerChat(PlayerChatEvent e) {
@@ -30,43 +35,27 @@ public class GlobalChatListener {
 
     if (ChatUtils.isCommand(message)) return;
 
-    if (account.getChannelType() == ChannelType.STAFF) return;
-
-    if (BungeecordModuleManager.GLOBAL_CHAT_MODULE.getModuleSection().getBoolean("default")) {
-      if (MessagesService.getGlobalPredicate().test(account)) {
-        e.setResult(passToClientServer ? PlayerChatEvent.ChatResult.allowed() : PlayerChatEvent.ChatResult.denied());
-        MessagesService.sendGlobalMessage(sender, message);
-        return;
-      }
-    }
-
-    if (BungeecordAccountManager.getAccount(sender).get().getChannelType() == ChannelType.GLOBAL) {
-      if (!MessagesService.getGlobalPredicate().test(account)) {
-        MessagesService.sendMessage(sender, Messages.NOT_IN_GLOBAL_SERVER.get());
-
-        return;
-      }
-
-      e.setResult(passToClientServer ? PlayerChatEvent.ChatResult.allowed() : PlayerChatEvent.ChatResult.denied());
-      MessagesService.sendGlobalMessage(sender, message);
-
-      return;
-    }
-
-    Config section =
-        BungeecordModuleManager.GLOBAL_CHAT_MODULE.getModuleSection().getConfig("symbol");
-
-    if (section.getBoolean("enabled")) {
-      String symbol = section.getString("symbol");
+    if (symbolSection.getBoolean("enabled")) {
+      String symbol = symbolSection.getString("symbol");
 
       if (message.startsWith(symbol) && !symbol.equals("/")) {
         if (!MessagesService.getGlobalPredicate().test(account)) {
           MessagesService.sendMessage(sender, Messages.NOT_IN_GLOBAL_SERVER.get());
-
           return;
         }
 
-        e.setResult(passToClientServer ? PlayerChatEvent.ChatResult.allowed() : PlayerChatEvent.ChatResult.denied());
+        if (!(PermissionManager.hasPermission(sender, Permission.COMMAND_GLOBAL))) {
+          e.setResult(PlayerChatEvent.ChatResult.denied());
+          return;
+        }
+
+        if (message.equals(symbol)) {
+          MessagesService.sendMessage(sender, Messages.MESSAGE_BLANK.get());
+          e.setResult(PlayerChatEvent.ChatResult.denied());
+          return;
+        }
+
+        e.setResult(passToBackendServer ? PlayerChatEvent.ChatResult.allowed() : PlayerChatEvent.ChatResult.denied());
         MessagesService.sendGlobalMessage(sender, message.replaceFirst(symbol, ""));
       }
     }

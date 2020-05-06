@@ -6,7 +6,7 @@ import dev.aura.bungeechat.api.placeholder.InvalidContextError;
 import dev.aura.bungeechat.api.utils.BungeeChatInstaceHolder;
 import java.io.File;
 
-/** This is the base Interface for the BungeChatApi. The central methods will be found here */
+/** This is the base Interface for the BungeeChatApi. The central methods will be found here */
 public interface BungeeChatApi {
   public static final String ID = "bungeechat";
   public static final String NAME = "Bungee Chat";
@@ -16,11 +16,20 @@ public interface BungeeChatApi {
   public static final String AUTHOR_SHAWN = "shawn_ian";
   public static final String[] AUTHORS = new String[] {AUTHOR_BRAINSTONE, AUTHOR_SHAWN};
   public static final String[] CONTRIBUTORS =
-      new String[] {"MineTech13", "Brianetta", "CryLegend", "gb2233", "n0dai", "Luck"};
+      new String[] {
+        "AwesomestGamer",
+        "Brianetta",
+        "CryLegend",
+        "gb2233",
+        "Hodel1",
+        "Luck",
+        "MineTech13",
+        "n0dai"
+      };
   public static final String[] TRANSLATORS =
-      new String[] {"Maxime_74", "DardBrinza", "gb2233", "Garixer"};
-  public static final String[] DONATORS = new String[] {"Breantique"};
-  public static final double CONFIG_VERSION = 11.0;
+      new String[] {"DardBrinza", "Fantasenf", "Garixer", "gb2233", "Maxime_74", "povsister"};
+  public static final String[] DONATORS = new String[] {"Breantique", "NickT"};
+  public static final double CONFIG_VERSION = 11.3;
   public static final int PLUGIN_ID = 12592;
 
   /**

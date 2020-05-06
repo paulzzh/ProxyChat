@@ -1,36 +1,23 @@
 package dev.aura.bungeechat.event;
 
-import com.google.common.base.Preconditions;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+/**
+ * Called when a player has changed servers.
+ *
+ * <p>Used by BungeeChat internally to make sure people joining while they are online don't cause
+ * issues.
+ */
+@Data
+@ToString(callSuper = false)
+@EqualsAndHashCode(callSuper = false)
 public class BungeeChatServerSwitchEvent {
+  /** Player whom the server is for. */
   private final Player player;
-  private final RegisteredServer server;
-
-  public BungeeChatServerSwitchEvent(Player player) {
-    this.player = Preconditions.checkNotNull(player, "player");
-    this.server = null;
-  }
-
-  public BungeeChatServerSwitchEvent(Player player, RegisteredServer server) {
-    this.player = Preconditions.checkNotNull(player, "player");
-    this.server = Preconditions.checkNotNull(server, "server");
-  }
-
-  public Player getPlayer() {
-    return player;
-  }
-
-  public RegisteredServer getServer() {
-    return server;
-  }
-
-  @Override
-  public String toString() {
-    return "BungeeChatServerSwitchEvent{"
-        + "player=" + player
-        + ", server=" + server
-        + '}';
-  }
+  /** Server the player is switch from. */
+  private final RegisteredServer from;
 }

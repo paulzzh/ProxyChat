@@ -10,13 +10,15 @@ import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.enums.ChannelType;
 import dev.aura.bungeechat.api.utils.ChatUtils;
 import dev.aura.bungeechat.message.Context;
+import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.module.BungeecordModuleManager;
 import java.util.List;
 
 public class LocalChatListener {
-  private final boolean passToClientServer =
-      BungeecordModuleManager.LOCAL_CHAT_MODULE.getModuleSection().getBoolean("passToClientServer");
+   private final boolean passToBackendServer = BungeecordModuleManager.LOCAL_CHAT_MODULE
+          .getModuleSection()
+          .getBoolean("passToBackendServer");
   private final boolean passTransparently =
       BungeecordModuleManager.LOCAL_CHAT_MODULE.getModuleSection().getBoolean("passTransparently");
   private final boolean logTransparentLocal =
@@ -24,7 +26,7 @@ public class LocalChatListener {
           .getModuleSection()
           .getBoolean("logTransparentLocal");
   private final Config serverListSection =
-      BungeecordModuleManager.LOCAL_CHAT_MODULE.getModuleSection().getConfig("serverList");
+      BungeecordModuleManager.LOCAL_CHAT_MODULE.getModuleSection().getConfig("passThruServerList");
   private final boolean serverListDisabled = !serverListSection.getBoolean("enabled");
   private final List<String> passthruServers = serverListSection.getStringList("list");
 
@@ -40,8 +42,14 @@ public class LocalChatListener {
     if (ChatUtils.isCommand(message)) return;
 
     if (account.getChannelType() == ChannelType.LOCAL) {
+      if (!MessagesService.getLocalPredicate().test(account)) {
+        MessagesService.sendMessage(sender, Messages.NOT_IN_LOCAL_SERVER.get());
+
+        return;
+      }
+
       // Check we send to this server
-      boolean cancel = !(passToClientServer
+      boolean cancel = !(passToBackendServer
               && (serverListDisabled || passthruServers.contains(account.getServerName())));
 
       e.setResult(cancel ? PlayerChatEvent.ChatResult.denied() : PlayerChatEvent.ChatResult.allowed());

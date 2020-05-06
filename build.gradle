@@ -82,4 +82,5 @@ dependencies {
     testImplementation "com.velocitypowered:velocity-api:1.1.0-SNAPSHOT"
     testImplementation project(":BungeeChatApi")
     testRuntimeOnly "org.mariadb.jdbc:mariadb-java-client:2.4.1"
+    testRuntimeOnly "org.slf4j:slf4j-nop:1.7.30"
 }

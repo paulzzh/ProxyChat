@@ -12,8 +12,22 @@ import java.util.Optional;
 
 @UtilityClass
 public class PermissionManager {
+  public static boolean hasPermissionNoMessage(Player player, Permission permission) {
+    return player.hasPermission(permission.getStringedPermission());
+  }
+
+  public static boolean hasPermissionNoMessage(CommandSource sender, Permission permission) {
+    return !(sender instanceof Player)
+    || hasPermissionNoMessage((Player) sender, permission);
+  }
+
+  public static boolean hasPermissionNoMessage(BungeeChatAccount account, Permission permission) {
+    return hasPermissionNoMessage(
+      BungeecordAccountManager.getCommandSource(account).get(), permission);
+  }
+
   public static boolean hasPermission(Player player, Permission permission) {
-    if (player.hasPermission(permission.getStringedPermission())) return true;
+    if (hasPermissionNoMessage(player, permission)) return true;
     else {
       if (permission.getWarnOnLackingPermission()) {
         MessagesService.sendMessage(player, Messages.NO_PERMISSION.get(player));

@@ -41,6 +41,7 @@ public class BungeecordModuleManager extends ModuleManager {
   public static final StaffChatModule STAFF_CHAT_MODULE = new StaffChatModule();
   public static final VanishModule VANISHER_MODULE = new VanishModule();
   public static final WelcomeMessageModule WELCOME_MESSAGE_MODULE = new WelcomeMessageModule();
+  public static final LocalToModule LOCAL_TO_MODULE = new LocalToModule();
   public static final String MODULE_CONCATENATOR = TextColor.WHITE + ", " + TextColor.GREEN;
 
   private static boolean modulesAdded = false;

@@ -1,12 +1,14 @@
 package dev.aura.bungeechat;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyReloadEvent;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.plugin.PluginDescription;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import dev.aura.bungeechat.account.AccountFileStorage;
@@ -33,21 +35,17 @@ import dev.aura.bungeechat.message.PlaceHolders;
 import dev.aura.bungeechat.message.ServerAliases;
 import dev.aura.bungeechat.module.BungeecordModuleManager;
 import dev.aura.bungeechat.util.LoggerHelper;
-import java.io.BufferedReader;
+import dev.aura.bungeechat.util.MapUtils;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import javax.net.ssl.HttpsURLConnection;
 import lombok.AccessLevel;
-import lombok.Cleanup;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.text.format.TextColor;
@@ -83,19 +81,29 @@ public class BungeeChat implements BungeeChatApi {
   public BungeeChat(ProxyServer proxy, Logger logger) {
     this.proxy = proxy;
     this.logger = logger;
+  }
+
+  /** For unit tests only! */
+  protected BungeeChat(ProxyServer proxy, PluginDescription description) {
+    this.proxy = proxy;
+    this.logger = null;
+  }
+
+  public void onLoad() {
     setInstance(this);
     BungeeChatInstaceHolder.setInstance(instance);
   }
 
   @Subscribe
   public void onProxyInitialized(ProxyInitializeEvent event) {
+    onLoad();
     onEnable(true);
   }
 
   @Subscribe
   public void onProxyReload(ProxyReloadEvent event) {
     onDisable();
-    onEnable(false);
+    onEnable(false);n
   }
 
   public void onEnable(boolean prinLoadScreen) {
@@ -104,18 +112,26 @@ public class BungeeChat implements BungeeChatApi {
 
     PlaceHolders.registerPlaceHolders();
 
-    Config accountDatabase = Configuration.get().getConfig("AccountDatabase");
+    final Config accountDatabase = Configuration.get().getConfig("AccountDatabase");
+    final Config databaseCredentials = accountDatabase.getConfig("credentials");
+    final Config connectionProperties = accountDatabase.getConfig("properties");
+    final ImmutableMap<String, String> connectionPropertiesMap =
+        connectionProperties.entrySet().stream()
+            .collect(
+                MapUtils.immutableMapCollector(
+                    Map.Entry::getKey, entry -> entry.getValue().unwrapped().toString()));
 
     if (accountDatabase.getBoolean("enabled")) {
       try {
         AccountManager.setAccountStorage(
             new AccountSQLStorage(
-                accountDatabase.getString("ip"),
-                accountDatabase.getInt("port"),
-                accountDatabase.getString("database"),
-                accountDatabase.getString("user"),
-                accountDatabase.getString("password"),
-                accountDatabase.getString("tablePrefix")));
+                databaseCredentials.getString("ip"),
+                databaseCredentials.getInt("port"),
+                databaseCredentials.getString("database"),
+                databaseCredentials.getString("user"),
+                databaseCredentials.getString("password"),
+                databaseCredentials.getString("tablePrefix"),
+                connectionPropertiesMap));
       } catch (SQLException e) {
         LoggerHelper.error("Could not connect to specified database. Using file storage", e);
 

@@ -17,7 +17,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BungeeChatEventsListener {
-
   @Subscribe(order = PostOrder.LATE)
   public void onPlayerServerSwitch(ServerConnectedEvent e) {
     Player player = e.getPlayer();
@@ -25,7 +24,7 @@ public class BungeeChatEventsListener {
     if(!e.getPlayer().getCurrentServer().isPresent()) {
       BungeeChat.getInstance().getProxy().getEventManager().fireAndForget(new BungeeChatJoinEvent(player));
     } else {
-      BungeeChat.getInstance().getProxy().getEventManager().fireAndForget(new BungeeChatServerSwitchEvent(player));
+      BungeeChat.getInstance().getProxy().getEventManager().fireAndForget(new BungeeChatServerSwitchEvent(player, e.getPlayer().getCurrentServer().get().getServer()));
     }
   }
 

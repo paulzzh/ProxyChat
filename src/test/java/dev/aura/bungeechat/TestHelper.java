@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
@@ -44,22 +45,27 @@ public class TestHelper {
 
   @SneakyThrows
   public static void initBungeeChat() {
-//    if (!hasInitRun) {
-//      proxyServer = new DummyProxyServer();
-//      org.slf4j.Logger logger = LoggerFactory.getLogger("test");
-//
-//      bungeeChat = new BungeeChat(proxyServer, logger);
-//      BungeeChat.instance = bungeeChat;
-//
-//      Method init =
-//          Plugin.class.getDeclaredMethod("init", ProxyServer.class, PluginDescription.class);
-//      init.setAccessible(true);
-//      init.invoke(bungeeChat, proxyServer, (PluginDescription) () -> null);
-//
-//      hasInitRun = true;
-//    }
-//
-//    Configuration.load();
+    if (!hasInitRun) {
+      proxyServer = new DummyProxyServer();
+      PluginDescription desc = new PluginDescription();
+
+      ProxyServer.setInstance(proxyServer);
+
+      bungeeChat = new BungeeChat(proxyServer, desc);
+
+      if (bungeeChat.getProxy() == null) {
+        Method init =
+            Plugin.class.getDeclaredMethod("init", ProxyServer.class, PluginDescription.class);
+        init.setAccessible(true);
+        init.invoke(bungeeChat, proxyServer, desc);
+      }
+
+      bungeeChat.onLoad();
+
+      hasInitRun = true;
+    }
+
+    Configuration.load();
   }
 
   public static void deinitBungeeChat() throws IOException {
@@ -210,6 +216,12 @@ public class TestHelper {
 
     @Override
     public Scheduler getScheduler() {
+      return null;
+    }
+
+    @Override
+    public ServerInfo constructServerInfo(
+        String name, SocketAddress address, String motd, boolean restricted) {
       return null;
     }
   }

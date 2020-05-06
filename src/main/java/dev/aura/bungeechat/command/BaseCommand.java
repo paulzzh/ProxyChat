@@ -72,10 +72,6 @@ public abstract class BaseCommand implements Command {
     List<String> suggestions = new ArrayList<>();
     String partialPlayerName = "";
 
-    if (!PermissionManager.hasPermission(source, Permission.USE_TAB_COMPLETE)) {
-      return Collections.emptyList();
-    }
-
     if(currentArgs.length > 0) {
       partialPlayerName = currentArgs[currentArgs.length - 1];
     }

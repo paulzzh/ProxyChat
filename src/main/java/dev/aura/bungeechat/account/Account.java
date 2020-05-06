@@ -5,6 +5,7 @@ import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.enums.ChannelType;
+import dev.aura.bungeechat.module.BungeecordModuleManager;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 import dev.aura.bungeechat.util.DummyPlayer;
@@ -22,6 +23,8 @@ import lombok.Setter;
 @Data
 @EqualsAndHashCode(of = "uuid")
 public class Account implements BungeeChatAccount {
+  protected static ChannelType defaultChannelType = ChannelType.LOCAL;
+
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
   private UUID uuid;
@@ -94,6 +97,11 @@ public class Account implements BungeeChatAccount {
   }
 
   @Override
+  public ChannelType getDefaultChannelType() {
+    return defaultChannelType;
+  }
+
+  @Override
   public boolean hasMessangerEnabled() {
     return messanger;
   }
@@ -114,6 +122,13 @@ public class Account implements BungeeChatAccount {
     }
 
     return localSpy;
+  }
+
+  @Override
+  public BlockingQueue<UUID> getIgnored() {
+    return BungeecordModuleManager.IGNORING_MODULE.isEnabled()
+        ? ignored
+        : new LinkedBlockingQueue<>();
   }
 
   public boolean hasIgnored(Player player) {
@@ -158,7 +173,7 @@ public class Account implements BungeeChatAccount {
     try {
       return getServerInfo().getName();
     } catch (NullPointerException e) {
-      return "unknown";
+      return unknownServer;
     }
   }
 
@@ -167,8 +182,17 @@ public class Account implements BungeeChatAccount {
     try {
       return getServerInfo().getAddress().toString();
     } catch (NullPointerException e) {
-      return "unknown";
+      return unknownServer;
     }
+  }
+
+  @Override
+  public void setDefaultChannelType(ChannelType channelType) {
+    defaultChannelType = channelType;
+  }
+
+  public static void staticSetDefaultChannelType(ChannelType channelType) {
+    defaultChannelType = channelType;
   }
 
   @Override
