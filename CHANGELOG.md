@@ -1,3 +1,32 @@
+Version 2.2.2
+-------------
+
+\+ Added tab completion for all commands (where it is possible).  
+\+ Added `%unknown_server%` placeholder.  
+\* Make Global default if Local is disabled (Fixes [#119](https://github.com/AuraDevelopmentTeam/BungeeChat2/issues/119)).  
+\* New accounts start in the default channel (Fixes [#120](https://github.com/AuraDevelopmentTeam/BungeeChat2/issues/120)).  
+\* Disable channel correction if neither local nor global is active (Fixes [#121](https://github.com/AuraDevelopmentTeam/BungeeChat2/issues/121)).  
+\* Updated fr_FR.  
+\* Updated hu_HU.  
+\* Updated zh_CN.  
+\* Print unknown server name in unknown server message.  
+\* Prevent console from using `/local`.  
+\* VersionChecker module is disabled if checking for updates is too.  
+\* Commands players don't have permissions to no longer show in tab completion.  
+\* Fixed typos.  
+
+
+Version 2.2.1
+-------------
+
+\+ Added support for CloudNet 3.  
+\* Fixed support for CloudNet 2 (Fixes [#115](https://github.com/AuraDevelopmentTeam/BungeeChat2/issues/115)).  
+\* Fixed error when having the ignore bypass permission (Fixes [#116](https://github.com/AuraDevelopmentTeam/BungeeChat2/issues/116)).  
+\* Fixed commands being canceled when players don't have permissions to chat (Fixes [#117](https://github.com/AuraDevelopmentTeam/BungeeChat2/issues/117)).  
+\* Fixed ServerSwitch backwards compatibility (Fixes [#118](https://github.com/AuraDevelopmentTeam/BungeeChat2/issues/118)).  
+\* Fixed build issues.  
+
+
 Version 2.2.0
 -------------
 

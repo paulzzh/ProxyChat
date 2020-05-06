@@ -11,13 +11,19 @@ import dev.aura.bungeechat.module.ChatLockModule;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 import dev.aura.bungeechat.util.ServerNameHelper;
-import java.util.Optional;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ChatLockCommand extends BaseCommand {
   private static final String USAGE = "/chatlock <local [server]|global> [clear]";
+  private static final String CLEAR = "clear";
 
   public ChatLockCommand(ChatLockModule chatLockModule) {
-    super("chatlock", chatLockModule.getModuleSection().getStringList("aliases"));
+    super(
+        "chatlock",
+        Permission.COMMAND_CHAT_LOCK,
+        chatLockModule.getModuleSection().getStringList("aliases"));
   }
 
   @Override
@@ -82,5 +88,40 @@ public class ChatLockCommand extends BaseCommand {
     } else {
       MessagesService.sendMessage(sender, Messages.INCORRECT_USAGE.get(player, USAGE));
     }
+  }
+
+  @Override
+  public List<String> suggest(CommandSource sender, String[] args) {
+    if(args.length == 0) {
+      return ClearChatCommand.arg1Completetions;
+    }
+
+    final String location = args[0];
+
+    if (args.length == 1 && !ClearChatCommand.arg1Completetions.contains(location)) {
+      return ClearChatCommand.arg1Completetions.stream()
+          .filter(completion -> completion.startsWith(location))
+          .collect(Collectors.toList());
+    } else if ((args.length == 2) && ClearChatCommand.arg1Completetions.contains(location)) {
+      final String param2 = args[1];
+      final List<String> suggestions = new LinkedList<>();
+
+      if (CLEAR.startsWith(param2)) {
+        suggestions.add(CLEAR);
+      }
+
+      if ("local".equals(location)) {
+        suggestions.addAll(ServerNameHelper.getMatchingServerNames(param2));
+      }
+
+      return suggestions;
+    } else if ((args.length == 3)
+        && "local".equals(location)
+        && !CLEAR.equals(args[1])
+        && CLEAR.startsWith(args[2])) {
+      return Collections.singletonList(CLEAR);
+    }
+
+    return super.suggest(sender, args);
   }
 }

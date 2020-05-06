@@ -26,12 +26,17 @@ import dev.aura.bungeechat.event.BungeeChatLeaveEvent;
 import net.kyori.text.Component;
 
 import java.net.InetSocketAddress;
+import dev.aura.bungeechat.permission.Permission;
+import dev.aura.bungeechat.permission.PermissionManager;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 public class BungeecordAccountManager extends AccountManager {
   private static final ConcurrentMap<UUID, CommandSource> nativeObjects = new ConcurrentHashMap<>();
@@ -49,6 +54,23 @@ public class BungeecordAccountManager extends AccountManager {
 
   public static Optional<CommandSource> getCommandSource(BungeeChatAccount account) {
     return getCommandSourceFromAccount(account);
+  }
+
+  public static List<BungeeChatAccount> getAccountsForPartialName(
+      String partialName, CommandSource player) {
+    List<BungeeChatAccount> accounts = getAccountsForPartialName(partialName);
+
+    if (!PermissionManager.hasPermission(player, Permission.COMMAND_VANISH_VIEW)) {
+      accounts =
+          accounts.stream().filter(account -> !account.isVanished()).collect(Collectors.toList());
+    }
+
+    return accounts;
+  }
+
+  public static List<BungeeChatAccount> getAccountsForPartialName(
+      String partialName, BungeeChatAccount account) {
+    return getAccountsForPartialName(partialName, getCommandSourceFromAccount(account).orElse(null));
   }
 
   public static void loadAccount(UUID uuid) {
@@ -93,6 +115,10 @@ public class BungeecordAccountManager extends AccountManager {
     ProxyServer instance = BungeeChat.getInstance().getProxy();
 
     if (instance == null) return Optional.of(new DummyConsole());
+
+    if(account == null) {
+      return Optional.empty();
+    }
 
     switch (account.getAccountType()) {
       case PLAYER:

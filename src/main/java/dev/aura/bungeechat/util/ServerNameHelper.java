@@ -6,7 +6,10 @@ import com.velocitypowered.api.proxy.server.ServerInfo;
 import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.message.MessagesService;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -31,5 +34,16 @@ public class ServerNameHelper {
     }
 
     return verifiedServerName;
+  }
+
+  public static List<String> getServerNames() {
+    return BungeeChat.getInstance().getProxy().getAllServers().stream().map(
+            server -> server.getServerInfo().getName()).collect(Collectors.toList());
+  }
+
+  public static List<String> getMatchingServerNames(String partialName) {
+    return getServerNames().stream()
+        .filter(serverName -> serverName.startsWith(partialName))
+        .collect(Collectors.toList());
   }
 }

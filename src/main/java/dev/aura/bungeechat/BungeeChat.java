@@ -29,6 +29,7 @@ import dev.aura.bungeechat.hook.DefaultHook;
 import dev.aura.bungeechat.hook.StoredDataHook;
 import dev.aura.bungeechat.listener.BungeeChatEventsListener;
 import dev.aura.bungeechat.listener.ChannelTypeCorrectorListener;
+import dev.aura.bungeechat.listener.CommandTabCompleteListener;
 import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.message.PlaceHolderUtil;
 import dev.aura.bungeechat.message.PlaceHolders;
@@ -76,6 +77,7 @@ public class BungeeChat implements BungeeChatApi {
   private BungeecordAccountManager bungeecordAccountManager;
   private ChannelTypeCorrectorListener channelTypeCorrectorListener;
   private BungeeChatEventsListener bungeeChatEventsListener;
+  private CommandTabCompleteListener commandTabCompleteListener;
 
   @Inject
   public BungeeChat(ProxyServer proxy, Logger logger) {
@@ -103,7 +105,7 @@ public class BungeeChat implements BungeeChatApi {
   @Subscribe
   public void onProxyReload(ProxyReloadEvent event) {
     onDisable();
-    onEnable(false);n
+    onEnable(false);
   }
 
   public void onEnable(boolean prinLoadScreen) {
@@ -145,11 +147,13 @@ public class BungeeChat implements BungeeChatApi {
     bungeecordAccountManager = new BungeecordAccountManager();
     channelTypeCorrectorListener = new ChannelTypeCorrectorListener();
     bungeeChatEventsListener = new BungeeChatEventsListener();
+    commandTabCompleteListener = new CommandTabCompleteListener();
 
     bungeeChatCommand.register();
     proxy.getEventManager().register(this, bungeecordAccountManager);
     proxy.getEventManager().register(this, channelTypeCorrectorListener);
     proxy.getEventManager().register(this, bungeeChatEventsListener);
+    proxy.getEventManager().register(this, commandTabCompleteListener);
 
     Config prefixDefaults = Configuration.get().getConfig("PrefixDefaults");
 
@@ -165,6 +169,9 @@ public class BungeeChat implements BungeeChatApi {
     if (prinLoadScreen) {
       loadScreen();
     }
+
+    // Finally initialize BungeeChat command map
+    commandTabCompleteListener.updateBungeeChatCommands();
   }
 
   public void onDisable() {

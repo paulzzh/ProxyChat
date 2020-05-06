@@ -12,7 +12,10 @@ import dev.aura.bungeechat.permission.PermissionManager;
 
 public class LocalSpyCommand extends BaseCommand {
   public LocalSpyCommand(SpyModule socialSpyModule) {
-    super("localspy", socialSpyModule.getModuleSection().getStringList("aliases.localspy"));
+    super(
+        "localspy",
+        Permission.COMMAND_LOCALSPY,
+        socialSpyModule.getModuleSection().getStringList("aliases.localspy"));
   }
 
   @Override

@@ -16,15 +16,7 @@ public class ServerSwitchListener {
     Player player = e.getPlayer();
 
     if (PermissionManager.hasPermission(player, Permission.MESSAGE_SWITCH)) {
-      MessagesService.sendSwitchMessage(player, getServerInfo(e));
-    }
-  }
-
-  private static ServerInfo getServerInfo(BungeeChatServerSwitchEvent event) {
-    try {
-      return event.getFrom().getServerInfo();
-    } catch (NoSuchMethodError e) {
-      return null;
+      MessagesService.sendSwitchMessage(player, e.getFrom());
     }
   }
 }

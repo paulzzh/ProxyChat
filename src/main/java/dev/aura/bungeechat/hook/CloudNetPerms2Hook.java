@@ -3,16 +3,17 @@ package dev.aura.bungeechat.hook;
 import de.dytanic.cloudnet.api.CloudAPI;
 import de.dytanic.cloudnet.lib.player.CloudPlayer;
 import de.dytanic.cloudnet.lib.player.permission.PermissionGroup;
+import de.dytanic.cloudnet.lib.player.permission.PermissionPool;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.hook.BungeeChatHook;
 import dev.aura.bungeechat.api.hook.HookManager;
 import java.util.Objects;
 import java.util.Optional;
 
-public class CloudNetPermsHook implements BungeeChatHook {
+public class CloudNetPerms2Hook implements BungeeChatHook {
   private final CloudAPI api;
 
-  public CloudNetPermsHook() {
+  public CloudNetPerms2Hook() {
     api = CloudAPI.getInstance();
   }
 
@@ -40,6 +41,8 @@ public class CloudNetPermsHook implements BungeeChatHook {
   }
 
   public boolean permissionsEnabled() {
-    return api.getPermissionPool().isAvailable();
+    PermissionPool permissionPool = api.getPermissionPool();
+
+    return (permissionPool != null) && permissionPool.isAvailable();
   }
 }

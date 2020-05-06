@@ -8,6 +8,7 @@ import dev.aura.bungeechat.api.account.AccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.enums.ChannelType;
 import dev.aura.bungeechat.api.module.ModuleManager;
+import dev.aura.bungeechat.api.utils.ChatUtils;
 import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.module.BungeecordModuleManager;
@@ -20,6 +21,8 @@ public class ChannelTypeCorrectorListener {
   public void onPlayerChat(PlayerChatEvent e) {
     if (!e.getResult().isAllowed()) return;
     if (e.getPlayer() == null) return;
+    if (!BungeecordModuleManager.GLOBAL_CHAT_MODULE.isEnabled()
+        && !BungeecordModuleManager.LOCAL_CHAT_MODULE.isEnabled()) return;
 
     Player sender = e.getPlayer();
     BungeeChatAccount player = AccountManager.getAccount(sender.getUniqueId()).get();

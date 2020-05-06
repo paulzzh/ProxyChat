@@ -14,7 +14,8 @@ import net.kyori.text.TextComponent;
 
 public class AlertCommand extends BaseCommand {
   public AlertCommand(AlertModule alertModule) {
-    super("alert", alertModule.getModuleSection().getStringList("aliases"));
+    super(
+        "alert", Permission.COMMAND_ALERT, alertModule.getModuleSection().getStringList("aliases"));
   }
 
   @Override

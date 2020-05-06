@@ -9,7 +9,10 @@ import dev.aura.bungeechat.permission.PermissionManager;
 
 public class HelpOpCommand extends BaseCommand {
   public HelpOpCommand(HelpOpModule helpOpModule) {
-    super("helpop", helpOpModule.getModuleSection().getStringList("aliases"));
+    super(
+        "helpop",
+        Permission.COMMAND_HELPOP,
+        helpOpModule.getModuleSection().getStringList("aliases"));
   }
 
   @Override

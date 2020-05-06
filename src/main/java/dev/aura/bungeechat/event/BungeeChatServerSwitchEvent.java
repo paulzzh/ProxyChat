@@ -4,6 +4,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
@@ -13,6 +14,7 @@ import lombok.ToString;
  * issues.
  */
 @Data
+@RequiredArgsConstructor
 @ToString(callSuper = false)
 @EqualsAndHashCode(callSuper = false)
 public class BungeeChatServerSwitchEvent {

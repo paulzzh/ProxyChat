@@ -2,7 +2,6 @@ package dev.aura.bungeechat.module;
 
 import dev.aura.bungeechat.api.module.BungeeChatModule;
 import dev.aura.bungeechat.api.module.ModuleManager;
-import dev.aura.bungeechat.module.perms.CloudNetPermsModule;
 import dev.aura.bungeechat.module.perms.LuckPerms5Module;
 import dev.aura.bungeechat.module.perms.PowerfulPermsModule;
 import net.kyori.text.format.TextColor;
@@ -13,7 +12,6 @@ import java.util.stream.Collectors;
 
 public class BungeecordModuleManager extends ModuleManager {
   // PermissionHookModules
-  public static final CloudNetPermsModule CLOUD_NET_PERMS_MODULE = new CloudNetPermsModule();
   public static final LuckPerms5Module LUCK_PERMS_5_MODULE = new LuckPerms5Module();
   public static final PowerfulPermsModule POWERFUL_PERMS_MODULE = new PowerfulPermsModule();
 
@@ -32,8 +30,9 @@ public class BungeecordModuleManager extends ModuleManager {
   public static final JoinMessageModule JOIN_MESSAGE_MODULE = new JoinMessageModule();
   public static final LeaveMessageModule LEAVE_MESSAGE_MODULE = new LeaveMessageModule();
   public static final LocalChatModule LOCAL_CHAT_MODULE = new LocalChatModule();
-  public static final MulticastChatModule MULTICAST_CHAT_MODULE = new MulticastChatModule();
+  public static final LocalToModule LOCAL_TO_MODULE = new LocalToModule();
   public static final MessengerModule MESSENGER_MODULE = new MessengerModule();
+  public static final MulticastChatModule MULTICAST_CHAT_MODULE = new MulticastChatModule();
   public static final MOTDModule MOTD_MODULE = new MOTDModule();
   public static final MutingModule MUTING_MODULE = new MutingModule();
   public static final ServerSwitchModule SERVER_SWITCH_MODULE = new ServerSwitchModule();
@@ -41,7 +40,6 @@ public class BungeecordModuleManager extends ModuleManager {
   public static final StaffChatModule STAFF_CHAT_MODULE = new StaffChatModule();
   public static final VanishModule VANISHER_MODULE = new VanishModule();
   public static final WelcomeMessageModule WELCOME_MESSAGE_MODULE = new WelcomeMessageModule();
-  public static final LocalToModule LOCAL_TO_MODULE = new LocalToModule();
   public static final String MODULE_CONCATENATOR = TextColor.WHITE + ", " + TextColor.GREEN;
 
   private static boolean modulesAdded = false;

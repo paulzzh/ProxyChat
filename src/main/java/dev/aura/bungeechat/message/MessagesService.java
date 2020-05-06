@@ -1,8 +1,8 @@
 package dev.aura.bungeechat.message;
 
-import com.google.common.base.Predicates;
 import com.typesafe.config.Config;
 import com.velocitypowered.api.command.CommandSource;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.AccountManager;
@@ -262,9 +262,9 @@ public class MessagesService {
 		ChatLoggingManager.logMessage("LEAVE", context);
 	}
 
-  	public static void sendSwitchMessage(CommandSource sender, ServerInfo server)
+  	public static void sendSwitchMessage(CommandSource sender, RegisteredServer server)
   		throws InvalidContextError {
-		sendSwitchMessage(sender, (server == null) ? null : server.getName());
+		sendSwitchMessage(sender, (server == null) ? null : server.getServerInfo().getName());
 	}
 
 	public static void sendSwitchMessage(CommandSource sender, String server)
@@ -405,12 +405,12 @@ public class MessagesService {
 	public static Predicate<BungeeChatAccount> getNotIgnoredPredicate(BungeeChatAccount sender) {
 		final IgnoringModule ignoringModule = BungeecordModuleManager.IGNORING_MODULE;
 
-		return (ignoringModule.isEnabled()
-			&& ignoringModule.getModuleSection().getBoolean("ignoreChatMessages")
-			&& !PermissionManager.hasPermission(sender, Permission.BYPASS_IGNORE))
-		? account -> !account.hasIgnored(sender)
-		: Predicates.alwaysTrue();
-	}
+    return (ignoringModule.isEnabled()
+            && ignoringModule.getModuleSection().getBoolean("ignoreChatMessages")
+            && !PermissionManager.hasPermission(sender, Permission.BYPASS_IGNORE))
+        ? account -> !account.hasIgnored(sender)
+        : account -> true;
+  }
 
 	public static void sendMessage(CommandSource recipient, String message) {
 		if ((message == null) || message.isEmpty()) return;

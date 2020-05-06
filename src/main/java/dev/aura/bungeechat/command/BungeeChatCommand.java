@@ -18,11 +18,14 @@ import java.io.IOException;
 import java.io.StreamTokenizer;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class BungeeChatCommand extends BaseCommand {
   private final String prefix = TextColor.BLUE + "Bungee Chat " + TextColor.DARK_GRAY + "// ";
+  private static final List<String> arg1Completetions =
+      Arrays.asList("modules", "reload", "setprefix", "setsuffix");
 
   public BungeeChatCommand() {
     super("bungeechat");
@@ -130,10 +133,31 @@ public class BungeeChatCommand extends BaseCommand {
             + TextColor.GOLD
             + BungeeChatApi.AUTHOR_BRAINSTONE
             + TextColor.GRAY
-            + "and "
+            + " and "
             + TextColor.GOLD
             + BungeeChatApi.AUTHOR_SHAWN
             + ".");
+  }
+
+  @Override
+  public List<String> suggest(CommandSource sender, String[] args) {
+    if(args.length == 0) {
+      return arg1Completetions;
+    }
+
+    final String param1 = args[0];
+
+    if (args.length == 1 && !arg1Completetions.contains(args[0])) {
+      return arg1Completetions.stream()
+          .filter(completion -> completion.startsWith(param1))
+          .collect(Collectors.toList());
+    } else if ((args.length == 2) && ("setprefix".equals(param1) || "setsuffix".equals(param1))) {
+      return BungeecordAccountManager.getAccountsForPartialName(args[1], sender).stream()
+          .map(BungeeChatAccount::getName)
+          .collect(Collectors.toList());
+    }
+
+    return super.suggest(sender, args);
   }
 
   private String getUnquotedString(String str) {
