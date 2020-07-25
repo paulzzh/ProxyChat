@@ -1,21 +1,21 @@
 package dev.aura.bungeechat.module;
 
 import dev.aura.bungeechat.api.filter.FilterManager;
-import dev.aura.bungeechat.filter.DuplicationFilter;
+import dev.aura.bungeechat.filter.CapslockFilter;
 
-public class AntiDuplicationModule extends Module {
+public class AntiCapslockModule extends Module {
   @Override
   public String getName() {
-    return "AntiDuplication";
+    return "AntiCapslock";
   }
 
   @Override
   public void onEnable() {
     FilterManager.addFilter(
         getName(),
-        new DuplicationFilter(
-            getModuleSection().getInt("checkPastMessages"),
-            getModuleSection().getInt("expireAfter")));
+        new CapslockFilter(
+            getModuleSection().getInt("minimumLetterCount"),
+            getModuleSection().getInt("maximumCapsPercentage")));
   }
 
   @Override

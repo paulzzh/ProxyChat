@@ -120,22 +120,33 @@ public class Configuration implements Config {
   }
 
   protected void loadConfig() {
-    Config defaultConfig =
+    boolean saveConfig = true;
+    final Config defaultConfig =
         ConfigFactory.parseReader(
             new InputStreamReader(
                     Objects.requireNonNull(
                             BungeeChat.getInstance().getClass().getClassLoader().getResourceAsStream(CONFIG_FILE_NAME)),
                     StandardCharsets.UTF_8),
             PARSE_OPTIONS);
+    final Config strippedDefautConfig = defaultConfig.withoutPath("ServerAlias");
 
     if (CONFIG_FILE.exists()) {
       try {
         Config fileConfig = ConfigFactory.parseFile(CONFIG_FILE, PARSE_OPTIONS);
 
-        config = fileConfig.withFallback(defaultConfig.withoutPath("ServerAlias"));
+        config = fileConfig.withFallback(strippedDefautConfig);
       } catch (ConfigException e) {
+        LoggerHelper.error(
+            "====================================================================================================");
         LoggerHelper.error("Error while reading config:\n" + e.getLocalizedMessage());
+        LoggerHelper.error(
+            "The plugin will run with the default config (but the config file has not been changed)!");
+        LoggerHelper.error(
+            "After you fixed the issue, either restart the server or run `/bungeechat reload`.");
+        LoggerHelper.error(
+            "====================================================================================================");
 
+        saveConfig = false;
         config = defaultConfig;
       }
     } else {
@@ -145,9 +156,12 @@ public class Configuration implements Config {
     config = config.resolve();
 
     convertOldConfig();
+    // Reapply default config. By default this does nothing but it can fix the missing config
+    // settings in some cases
+    config = config.withFallback(strippedDefautConfig);
     copyComments(defaultConfig);
 
-    saveConfig();
+    if (saveConfig) saveConfig();
   }
 
   protected void saveConfig() {
@@ -200,6 +214,31 @@ public class Configuration implements Config {
 
         // Remove config section "Modules.TabCompletion"
         config = config.withoutPath("Modules.TabCompletion");
+      case "11.3":
+        LoggerHelper.info("Performing config migration 11.3 -> 11.4 ...");
+
+        final Config gloabalServerList = config.getConfig("Modules.GlobalChat.serverList");
+
+        // Copy over server list from Global to AutoBroadcast if it is enabled
+        if (gloabalServerList.getBoolean("enabled")) {
+          config = config.withValue("Modules.AutoBroadcast.serverList", gloabalServerList.root());
+        }
+      case "11.4":
+        LoggerHelper.info("Performing config migration 11.4 -> 11.5 ...");
+
+        // Move the server lists section one layer down
+        config =
+            config.withValue(
+                "Modules.MulticastChat.serverLists",
+                config.getValue("Modules.MulticastChat.serverLists.lists"));
+      case "11.5":
+        LoggerHelper.info("Performing config migration 11.5 -> 11.6 ...");
+
+        // Rename PrefixDefaults to PrefixSuffixSettings
+        config =
+            config
+                .withoutPath("PrefixDefaults")
+                .withValue("PrefixSuffixSettings", config.getValue("PrefixDefaults"));
 
       default:
         // Unknow Version or old version
@@ -208,7 +247,7 @@ public class Configuration implements Config {
             config.withValue(
                 "Version", ConfigValueFactory.fromAnyRef(BungeeChatApi.CONFIG_VERSION));
 
-      case "11.3":
+      case "11.6":
         // Up to date
         // -> No action needed
     }

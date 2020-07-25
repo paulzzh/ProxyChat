@@ -231,6 +231,11 @@ public class BungeecordAccountManager extends AccountManager {
     }
 
     @Override
+    public void disconnect(net.kyori.adventure.text.Component reason) {
+
+    }
+
+    @Override
     public void sendTitle(Title title) {
 
     }

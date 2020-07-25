@@ -10,9 +10,12 @@ import dev.aura.bungeechat.module.BungeecordModuleManager;
 import dev.aura.bungeechat.module.ChatLockModule;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
-import dev.aura.bungeechat.util.ServerNameHelper;
-
-import java.util.*;
+import dev.aura.bungeechat.util.ServerNameUtil;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ChatLockCommand extends BaseCommand {
@@ -65,7 +68,7 @@ public class ChatLockCommand extends BaseCommand {
       }
 
       Optional<String> optServerName =
-          ServerNameHelper.verifyServerName(
+          ServerNameUtil.verifyServerName(
               serverSpecified ? args[1] : player.getServerName(), sender);
 
       if (!optServerName.isPresent()) return;
@@ -111,7 +114,7 @@ public class ChatLockCommand extends BaseCommand {
       }
 
       if ("local".equals(location)) {
-        suggestions.addAll(ServerNameHelper.getMatchingServerNames(param2));
+        suggestions.addAll(ServerNameUtil.getMatchingServerNames(param2));
       }
 
       return suggestions;

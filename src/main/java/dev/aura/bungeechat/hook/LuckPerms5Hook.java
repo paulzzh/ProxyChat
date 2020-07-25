@@ -9,22 +9,22 @@ import dev.aura.bungeechat.api.hook.BungeeChatHook;
 import dev.aura.bungeechat.api.hook.HookManager;
 import java.util.Objects;
 import java.util.Optional;
-
+import lombok.RequiredArgsConstructor;
 import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.cacheddata.CachedMetaData;
 import net.luckperms.api.context.ContextManager;
+import net.luckperms.api.context.DefaultContextKeys;
+import net.luckperms.api.context.MutableContextSet;
 import net.luckperms.api.model.user.User;
+import net.luckperms.api.query.QueryMode;
 import net.luckperms.api.query.QueryOptions;
 
+@RequiredArgsConstructor
 public class LuckPerms5Hook implements BungeeChatHook {
-  private final LuckPerms api;
-
-  public LuckPerms5Hook() {
-    api = LuckPermsProvider.get();
-    BungeeChat.getInstance().getProxy().getEventManager().register(BungeeChat.getInstance(), this);
-  }
+  private final boolean fixContexts;
+  private final LuckPerms api = LuckPermsProvider.get();
 
   @Override
   public Optional<String> getPrefix(BungeeChatAccount account) {
@@ -52,9 +52,21 @@ public class LuckPerms5Hook implements BungeeChatHook {
 
   private QueryOptions getQueryOptions(Optional<User> user) {
     final ContextManager contextManager = api.getContextManager();
+    final QueryOptions queryOptions =
+        user.flatMap(contextManager::getQueryOptions)
+            .orElseGet(contextManager::getStaticQueryOptions);
 
-    return user.flatMap(contextManager::getQueryOptions)
-        .orElseGet(contextManager::getStaticQueryOptions);
+    if (fixContexts && (queryOptions.mode() == QueryMode.CONTEXTUAL)) {
+      final MutableContextSet context = queryOptions.context().mutableCopy();
+
+      context
+          .getValues(DefaultContextKeys.WORLD_KEY)
+          .forEach(world -> context.add(DefaultContextKeys.SERVER_KEY, world));
+
+      return queryOptions.toBuilder().context(context).build();
+    } else {
+      return queryOptions;
+    }
   }
 
   @Subscribe(order = PostOrder.FIRST)

@@ -42,7 +42,9 @@ notInLocalServer: "&cDer Lokale Chat ist auf diesem Server nicht aktiviert..."
 ####################################################################################################
 messageYourself: "&cDu kannst dir selbst keine Privaten Nachrichten schreiben..."
 enableMessager: "&eDu hast Private Nachrichten &aaktiviert&e!"
+enableMessagerOthers: "&eDu hast %name%'s Private Nachrichten &aaktiviert&e!"
 disableMessager: "&eDu hast Private Nachrichten &cdeaktiviert&e!"
+disableMessagerOthers: "&eDu hast %name%'s Private Nachrichten &cdeaktiviert&e!"
 noReply: "&cEs gibt niemanden, den du zurückschreiben kannst!"
 replyOffline: "&cDer Spieler mit dem du schreibst ist nicht länger online."
 hasMessagerDisabled: "&c%name% hat Private Nachrichten &cdeaktiviert&c!"
@@ -104,7 +106,9 @@ ignoreNobody: "&eDu Ignorierst &akeinen&e Online Spieler!"
 # Filter Messages
 ####################################################################################################
 antiAdvertise: "&cBitte mache keine Werbung!"
-antiDuplication: "&cBitte spamme keine Nachrichten!"
+antiCapslock: "&cBitte verwende kein CAPSLOCK!"
+antiDuplication: "&cBitte sende nicht die gleichen Nachrichten!"
+antiSpam: "&cBitte sende Nachrichten nicht so schnell!"
 
 ####################################################################################################
 # ChatLock Messages

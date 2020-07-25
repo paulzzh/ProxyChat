@@ -43,7 +43,7 @@ public class UnmuteCommand extends BaseCommand {
       }
 
       targetAccount.get().unmute();
-      MessagesService.sendMessage(sender, Messages.UNMUTE.get(sender));
+      MessagesService.sendMessage(sender, Messages.UNMUTE.get(targetAccount.get()));
     }
   }
 

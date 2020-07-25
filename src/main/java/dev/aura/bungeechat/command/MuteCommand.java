@@ -39,15 +39,13 @@ public class MuteCommand extends BaseCommand {
       return;
     }
 
-    CommandSource target = BungeecordAccountManager.getCommandSource(targetAccount.get()).get();
-
     if (targetAccount.get().isMuted()) {
       MessagesService.sendMessage(sender, Messages.MUTE_IS_MUTED.get());
       return;
     }
 
     targetAccount.get().mutePermanetly();
-    MessagesService.sendMessage(sender, Messages.MUTE.get(target));
+    MessagesService.sendMessage(sender, Messages.MUTE.get(targetAccount.get()));
   }
 
   @Override

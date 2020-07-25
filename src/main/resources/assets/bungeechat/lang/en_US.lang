@@ -42,7 +42,9 @@ notInLocalServer: "&cLocal Chat is not enabled on this server..."
 ####################################################################################################
 messageYourself: "&cYou can not send a private message to yourself..."
 enableMessager: "&eYou have &aenabled&e messaging!"
-disableMessager: "&eYou have &cdisabled&e messaging"
+enableMessagerOthers: "&eYou have &aenabled&e %name%'s messaging!"
+disableMessager: "&eYou have &cdisabled&e messaging."
+disableMessagerOthers: "&eYou have &cdisabled&e %name%'s messaging."
 noReply: "&cThere is no one to reply to."
 replyOffline: "&cThe player you were chatting with is no longer online."
 hasMessagerDisabled: "&c%name% has messaging disabled!"
@@ -104,7 +106,9 @@ ignoreNobody: "&eYou are not ignoring &aanyone&e that is online!"
 # Filter Messages
 ####################################################################################################
 antiAdvertise: "&cPlease do not advertise!"
-antiDuplication: "&cPlease do not spam messages!"
+antiCapslock: "&cPlease do not use CAPSLOCK!"
+antiDuplication: "&cPlease do not send the same messages!"
+antiSpam: "&cPlease do not send messages that fast!"
 
 ####################################################################################################
 # ChatLock Messages

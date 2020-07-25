@@ -22,11 +22,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
+import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 
 @UtilityClass
 public class MessagesService {
+    @Setter private static List<List<String>> multiCastServerGroups = null;
+
+    public static void unsetMultiCastServerGroups() {
+        setMultiCastServerGroups(null);
+    }
+
 	public static void sendPrivateMessage(CommandSource sender, CommandSource target, String message)
 			throws InvalidContextError {
 		sendPrivateMessage(new Context(sender, target, message));
@@ -64,9 +72,10 @@ public class MessagesService {
 							.get();
 			MessagesService.sendMessage(target, messageTarget);
 
-			if (ModuleManager.isModuleActive(BungeecordModuleManager.SPY_MODULE)) {
-				String socialSpyMessage =
-						preProcessMessage(context, account, Format.SOCIAL_SPY, false).get();
+      if (ModuleManager.isModuleActive(BungeecordModuleManager.SPY_MODULE)
+          && !PermissionManager.hasPermission(account.get(), Permission.COMMAND_SOCIALSPY_EXEMPT)) {
+        String socialSpyMessage =
+            preProcessMessage(context, account, Format.SOCIAL_SPY, false).get();
 
 				sendToMatchingPlayers(
 						socialSpyMessage,
@@ -166,30 +175,19 @@ public class MessagesService {
 
 		ChatLoggingManager.logMessage(ChannelType.LOCAL, context);
 
-		if (ModuleManager.isModuleActive(BungeecordModuleManager.SPY_MODULE)) {
-			String localSpyMessage = preProcessMessage(context, account, Format.LOCAL_SPY, false).get();
-			Predicate<BungeeChatAccount> isNotLocal = isLocal.negate();
+    if (ModuleManager.isModuleActive(BungeecordModuleManager.SPY_MODULE)
+        && !PermissionManager.hasPermission(account.get(), Permission.COMMAND_LOCALSPY_EXEMPT)) {
+      String localSpyMessage = preProcessMessage(context, account, Format.LOCAL_SPY, false).get();
+      Predicate<BungeeChatAccount> isNotLocal = isLocal.negate();
 
 			sendToMatchingPlayers(localSpyMessage, BungeeChatAccount::hasLocalSpyEnabled, isNotLocal);
 		}
 	}
 
-	public static void sendMulticastMessage(BungeeChatContext context, List<String> servers)
-			throws InvalidContextError {
-		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE);
-		Optional<String> finalMessage = preProcessMessage(context, Format.LOCAL_CHAT);
-		String localServerName =
-				context.hasServer() ? context.getServer().get() : context.getSender().get().getServerName();
-		Predicate<BungeeChatAccount> isDestination = getServerPredicate(servers);
-		Predicate<BungeeChatAccount> isNotLocal = getLocalPredicate(localServerName).negate();
-
-		sendToMatchingPlayers(finalMessage, isNotLocal, isDestination);
-	}
-
-	public static void sendStaffMessage(CommandSource sender, String message)
-			throws InvalidContextError {
-		sendStaffMessage(new Context(sender, message));
-	}
+  public static void sendStaffMessage(CommandSource sender, String message)
+      throws InvalidContextError {
+    sendStaffMessage(new Context(sender, message));
+  }
 
 	public static void sendStaffMessage(BungeeChatContext context) throws InvalidContextError {
 		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE);
@@ -229,14 +227,15 @@ public class MessagesService {
 	public static void sendJoinMessage(BungeeChatContext context) throws InvalidContextError {
 		context.require(BungeeChatContext.HAS_SENDER);
 
-		String finalMessage = Format.JOIN_MESSAGE.get(context);
+    String finalMessage = Format.JOIN_MESSAGE.get(context);
+    Predicate<BungeeChatAccount> predicate = getPermissionPredicate(Permission.MESSAGE_JOIN_VIEW);
 
-		// This condition checks if the player is present and vanished
-		if (context.getSender().filter(BungeeChatAccount::isVanished).isPresent()) {
-			sendToMatchingPlayers(finalMessage, getPermissionPredicate(Permission.COMMAND_VANISH_VIEW));
-		} else {
-			sendToMatchingPlayers(finalMessage);
-		}
+    // This condition checks if the player is present and vanished
+    if (context.getSender().filter(BungeeChatAccount::isVanished).isPresent()) {
+      predicate = predicate.and(getPermissionPredicate(Permission.COMMAND_VANISH_VIEW));
+    }
+
+    sendToMatchingPlayers(finalMessage, predicate);
 
 		context.setMessage(finalMessage);
 		ChatLoggingManager.logMessage("JOIN", context);
@@ -249,14 +248,15 @@ public class MessagesService {
 	public static void sendLeaveMessage(BungeeChatContext context) throws InvalidContextError {
 		context.require(BungeeChatContext.HAS_SENDER);
 
-		String finalMessage = Format.LEAVE_MESSAGE.get(context);
+    String finalMessage = Format.LEAVE_MESSAGE.get(context);
+    Predicate<BungeeChatAccount> predicate = getPermissionPredicate(Permission.MESSAGE_LEAVE_VIEW);
 
-		// This condition checks if the player is present and vanished
-		if (context.getSender().filter(BungeeChatAccount::isVanished).isPresent()) {
-			sendToMatchingPlayers(finalMessage, getPermissionPredicate(Permission.COMMAND_VANISH_VIEW));
-		} else {
-			sendToMatchingPlayers(finalMessage);
-		}
+    // This condition checks if the player is present and vanished
+    if (context.getSender().filter(BungeeChatAccount::isVanished).isPresent()) {
+      predicate = predicate.and(getPermissionPredicate(Permission.COMMAND_VANISH_VIEW));
+    }
+
+    sendToMatchingPlayers(finalMessage, predicate);
 
 		context.setMessage(finalMessage);
 		ChatLoggingManager.logMessage("LEAVE", context);
@@ -278,14 +278,15 @@ public class MessagesService {
   	public static void sendSwitchMessage(BungeeChatContext context) throws InvalidContextError {
     	context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_SERVER);
 
-		String finalMessage = Format.SERVER_SWITCH.get(context);
+    String finalMessage = Format.SERVER_SWITCH.get(context);
+    Predicate<BungeeChatAccount> predicate = getPermissionPredicate(Permission.MESSAGE_SWITCH_VIEW);
 
-		// This condition checks if the player is present and vanished
-		if (context.getSender().filter(BungeeChatAccount::isVanished).isPresent()) {
-			sendToMatchingPlayers(finalMessage, getPermissionPredicate(Permission.COMMAND_VANISH_VIEW));
-		} else {
-			sendToMatchingPlayers(finalMessage);
-		}
+    // This condition checks if the player is present and vanished
+    if (context.getSender().filter(BungeeChatAccount::isVanished).isPresent()) {
+      predicate = predicate.and(getPermissionPredicate(Permission.COMMAND_VANISH_VIEW));
+    }
+
+    sendToMatchingPlayers(finalMessage, predicate);
 
 		context.setMessage(finalMessage);
 		ChatLoggingManager.logMessage("SWITCH", context);
@@ -359,39 +360,67 @@ public class MessagesService {
 						 MessagesService.sendMessage(commandSource, finalMessage)));
 	}
 
-	public static Predicate<BungeeChatAccount> getGlobalPredicate() {
-		final Config section =
-				BungeecordModuleManager.GLOBAL_CHAT_MODULE.getModuleSection().getConfig("serverList");
-
-		if (!section.getBoolean("enabled")) return account -> true;
-		else {
-			// TODO: Use wildcard string
-			List<String> allowedServers = section.getStringList("list");
+  public static Predicate<BungeeChatAccount> getServerListPredicate(Config section) {
+    if (!section.getBoolean("enabled")) return account -> true;
+    else {
+      // TODO: Use wildcard string
+      List<String> allowedServers = section.getStringList("list");
 
 			return account -> allowedServers.contains(account.getServerName());
 		}
 	}
 
-	public static Predicate<BungeeChatAccount> getServerPredicate(List<String> servers) {
-		return account -> servers.contains(account.getServerName());
-	}
+  public static Predicate<BungeeChatAccount> getGlobalPredicate() {
+    return getServerListPredicate(
+        BungeecordModuleManager.GLOBAL_CHAT_MODULE.getModuleSection().getConfig("serverList"));
+  }
 
-	public static Predicate<BungeeChatAccount> getLocalPredicate(String serverName) {
-		return account -> serverName.equals(account.getServerName());
-	}
+  public static Predicate<BungeeChatAccount> getServerPredicate(List<String> servers) {
+    return account -> servers.contains(account.getServerName());
+  }
 
-	public static Predicate<BungeeChatAccount> getLocalPredicate() {
-		final Config section =
-			BungeecordModuleManager.LOCAL_CHAT_MODULE.getModuleSection().getConfig("serverList");
+  public static Predicate<BungeeChatAccount> getLocalPredicate(String serverName) {
+    if (multiCastServerGroups == null) {
+      return account -> serverName.equals(account.getServerName());
+    } else {
+      return account -> {
+        final String accountServerName = account.getServerName();
 
-		if (!section.getBoolean("enabled")) return account -> true;
-		else {
-			// TODO: Use wildcard string
-			List<String> allowedServers = section.getStringList("list");
+        for (List<String> group : multiCastServerGroups) {
+          if (group.contains(accountServerName)) {
+            return group.contains(serverName);
+          }
+        }
 
-			return account -> allowedServers.contains(account.getServerName());
-		}
-	}
+        return serverName.equals(accountServerName);
+      };
+    }
+  }
+
+  public static Predicate<BungeeChatAccount> getLocalPredicate() {
+    final Config serverList =
+        BungeecordModuleManager.LOCAL_CHAT_MODULE.getModuleSection().getConfig("serverList");
+    final Config passThruServerList =
+        BungeecordModuleManager.LOCAL_CHAT_MODULE
+            .getModuleSection()
+            .getConfig("passThruServerList");
+
+    return Stream.of(serverList, passThruServerList)
+        .flatMap(MessagesService::serverListToPredicate)
+        .collect(
+            () -> ((Predicate<BungeeChatAccount>) account -> true), Predicate::and, Predicate::and);
+  }
+
+  private static Stream<Predicate<BungeeChatAccount>> serverListToPredicate(Config section) {
+    if (section.getBoolean("enabled")) {
+      // TODO: Use wildcard string
+      List<String> allowedServers = section.getStringList("list");
+
+      return Stream.of(account -> allowedServers.contains(account.getServerName()));
+    } else {
+      return Stream.empty();
+    }
+  }
 
 	public static Predicate<BungeeChatAccount> getPermissionPredicate(Permission permission) {
 		return account -> PermissionManager.hasPermission(account, permission);

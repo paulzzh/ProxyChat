@@ -38,7 +38,9 @@ public enum Permission {
   USE_CHAT_FORMAT_RESET("chat.format.reset"),
 
   BYPASS_ANTI_ADVERTISEMENT("chat.bypass.antiadvertisement"),
+  BYPASS_ANTI_CAPSLOCK("chat.bypass.anticapslock"),
   BYPASS_ANTI_DUPLICATE("chat.bypass.antiduplicate"),
+  BYPASS_ANTI_SPAM("chat.bypass.antispam"),
   BYPASS_ANTI_SWEAR("chat.bypass.antiswear"),
   BYPASS_TOGGLE_MESSAGE("chat.bypass.toggle"),
   BYPASS_CHAT_LOCK("chat.bypass.chatlock"),
@@ -59,17 +61,23 @@ public enum Permission {
   COMMAND_TEMPMUTE("command.tempmute"),
   COMMAND_UNMUTE("command.unmute"),
   COMMAND_TOGGLE_MESSAGE("command.toggle"),
+  COMMAND_TOGGLE_MESSAGE_OTHERS("command.toggle.others"),
   COMMAND_VANISH("command.vanish"),
   COMMAND_VANISH_VIEW("command.vanish.view"),
   COMMAND_SOCIALSPY("command.socialspy"),
+  COMMAND_SOCIALSPY_EXEMPT("command.socialspy.exempt"),
   COMMAND_LOCALSPY("command.localspy"),
+  COMMAND_LOCALSPY_EXEMPT("command.localspy.exempt"),
   COMMAND_CHAT_LOCK("command.chatlock"),
   COMMAND_CLEAR_CHAT("command.clearchat"),
   COMMAND_LOCALTO("command.localto"),
 
   MESSAGE_JOIN("message.join"),
+  MESSAGE_JOIN_VIEW("message.join.view"),
   MESSAGE_LEAVE("message.leave"),
+  MESSAGE_LEAVE_VIEW("message.leave.view"),
   MESSAGE_SWITCH("message.switch"),
+  MESSAGE_SWITCH_VIEW("message.switch.view"),
   MESSAGE_MOTD("message.motd");
 
   @Getter private final String stringedPermission;
@@ -84,6 +92,6 @@ public enum Permission {
     this(
         stringedPermission,
         (stringedPermission.startsWith("command.") || stringedPermission.startsWith("admin."))
-            && !stringedPermission.endsWith(".view"));
+            && !(stringedPermission.endsWith(".view") || stringedPermission.endsWith(".exempt")));
   }
 }

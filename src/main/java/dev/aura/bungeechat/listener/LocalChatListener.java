@@ -50,7 +50,7 @@ public class LocalChatListener {
 
       // Check we send to this server
       boolean cancel = !(passToBackendServer
-              && (serverListDisabled || passthruServers.contains(account.getServerName())));
+              || (serverListDisabled || passthruServers.contains(account.getServerName())));
 
       e.setResult(cancel ? PlayerChatEvent.ChatResult.denied() : PlayerChatEvent.ChatResult.allowed());
 

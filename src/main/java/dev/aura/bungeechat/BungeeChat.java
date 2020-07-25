@@ -33,10 +33,10 @@ import dev.aura.bungeechat.listener.CommandTabCompleteListener;
 import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.message.PlaceHolderUtil;
 import dev.aura.bungeechat.message.PlaceHolders;
-import dev.aura.bungeechat.message.ServerAliases;
 import dev.aura.bungeechat.module.BungeecordModuleManager;
 import dev.aura.bungeechat.util.LoggerHelper;
 import dev.aura.bungeechat.util.MapUtils;
+import dev.aura.bungeechat.util.ServerNameUtil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -155,7 +155,7 @@ public class BungeeChat implements BungeeChatApi {
     proxy.getEventManager().register(this, bungeeChatEventsListener);
     proxy.getEventManager().register(this, commandTabCompleteListener);
 
-    Config prefixDefaults = Configuration.get().getConfig("PrefixDefaults");
+    Config prefixDefaults = Configuration.get().getConfig("PrefixSuffixSettings");
 
     BungeecordModuleManager.registerPluginModules();
     ModuleManager.enableModules();
@@ -164,7 +164,7 @@ public class BungeeChat implements BungeeChatApi {
         defaultHookName,
         new DefaultHook(
             prefixDefaults.getString("defaultPrefix"), prefixDefaults.getString("defaultSuffix")));
-    ServerAliases.loadAliases();
+    ServerNameUtil.loadAliases();
 
     if (prinLoadScreen) {
       loadScreen();

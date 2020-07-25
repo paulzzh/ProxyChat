@@ -47,8 +47,6 @@ public class TempMuteCommand extends BaseCommand {
       return;
     }
 
-    CommandSource target = BungeecordAccountManager.getCommandSource(targetAccount.get()).get();
-
     if (targetAccount.get().isMuted()) {
       MessagesService.sendMessage(sender, Messages.MUTE_IS_MUTED.get());
       return;
@@ -58,7 +56,7 @@ public class TempMuteCommand extends BaseCommand {
     final double currentTime = System.currentTimeMillis();
     final java.sql.Timestamp timeStamp = new java.sql.Timestamp((long) (currentTime + timeAmount));
     targetAccount.get().setMutedUntil(timeStamp);
-    MessagesService.sendMessage(sender, Messages.TEMPMUTE.get(target));
+    MessagesService.sendMessage(sender, Messages.TEMPMUTE.get(targetAccount.get()));
   }
 
   @Override

@@ -1,27 +1,26 @@
 package dev.aura.bungeechat.module;
 
-import dev.aura.bungeechat.BungeeChat;
-import dev.aura.bungeechat.listener.MulticastChatListener;
+import dev.aura.bungeechat.message.MessagesService;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class MulticastChatModule extends Module {
-  private MulticastChatListener multicastListener;
-
   @Override
   public String getName() {
     return "MulticastChat";
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public void onEnable() {
-    multicastListener = new MulticastChatListener();
-
-    BungeeChat.getInstance().getProxy()
-        .getEventManager()
-        .register(BungeeChat.getInstance(), multicastListener);
+    MessagesService.setMultiCastServerGroups(
+        getModuleSection().getList("serverLists").stream()
+            .map(configValue -> (List<String>) configValue.unwrapped())
+            .collect(Collectors.toList()));
   }
 
   @Override
   public void onDisable() {
-    BungeeChat.getInstance().getProxy().getEventManager().unregisterListener(BungeeChat.getInstance(), multicastListener);
+    MessagesService.unsetMultiCastServerGroups();
   }
 }
