@@ -12,7 +12,8 @@ import dev.aura.bungeechat.module.BungeecordModuleManager;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 import dev.aura.bungeechat.util.LoggerHelper;
-import net.kyori.text.format.TextColor;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.io.IOException;
 import java.io.StreamTokenizer;
@@ -23,7 +24,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class BungeeChatCommand extends BaseCommand {
-  private final String prefix = TextColor.BLUE + "Bungee Chat " + TextColor.DARK_GRAY + "// ";
+  private final String prefix = NamedTextColor.BLUE + "Bungee Chat " + NamedTextColor.DARK_GRAY + "// ";
   private static final List<String> arg1Completetions =
       Arrays.asList("modules", "reload", "setprefix", "setsuffix");
 
@@ -47,7 +48,7 @@ public class BungeeChatCommand extends BaseCommand {
                   instance.onEnable(false);
 
                   MessagesService.sendMessage(
-                      sender, prefix + TextColor.GREEN + "The plugin has been reloaded!");
+                      sender, TextComponent.of(prefix + NamedTextColor.GREEN + "The plugin has been reloaded!"));
                 }).schedule();
 
         return;
@@ -117,9 +118,9 @@ public class BungeeChatCommand extends BaseCommand {
         MessagesService.sendMessage(
             sender,
             prefix
-                + TextColor.GRAY
+                + NamedTextColor.GRAY
                 + "Active Modules: "
-                + TextColor.GREEN
+                + NamedTextColor.GREEN
                 + BungeecordModuleManager.getActiveModuleString());
         return;
       }
@@ -128,13 +129,13 @@ public class BungeeChatCommand extends BaseCommand {
     MessagesService.sendMessage(
         sender,
         prefix
-            + TextColor.GRAY
+            + NamedTextColor.GRAY
             + "Coded by "
-            + TextColor.GOLD
+            + NamedTextColor.GOLD
             + BungeeChatApi.AUTHOR_BRAINSTONE
-            + TextColor.GRAY
+            + NamedTextColor.GRAY
             + " and "
-            + TextColor.GOLD
+            + NamedTextColor.GOLD
             + BungeeChatApi.AUTHOR_SHAWN
             + ".");
   }

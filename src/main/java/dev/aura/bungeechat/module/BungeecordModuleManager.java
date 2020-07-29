@@ -4,7 +4,7 @@ import dev.aura.bungeechat.api.module.BungeeChatModule;
 import dev.aura.bungeechat.api.module.ModuleManager;
 import dev.aura.bungeechat.module.perms.LuckPerms5Module;
 import dev.aura.bungeechat.module.perms.PowerfulPermsModule;
-import net.kyori.text.format.TextColor;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +42,7 @@ public class BungeecordModuleManager extends ModuleManager {
   public static final StaffChatModule STAFF_CHAT_MODULE = new StaffChatModule();
   public static final VanishModule VANISHER_MODULE = new VanishModule();
   public static final WelcomeMessageModule WELCOME_MESSAGE_MODULE = new WelcomeMessageModule();
-  public static final String MODULE_CONCATENATOR = TextColor.WHITE + ", " + TextColor.GREEN;
+  public static final String MODULE_CONCATENATOR = NamedTextColor.WHITE + ", " + NamedTextColor.GREEN;
 
   private static boolean modulesAdded = false;
   private static List<BungeeChatModule> localModules = null;

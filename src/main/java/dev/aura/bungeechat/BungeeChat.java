@@ -49,7 +49,7 @@ import javax.inject.Inject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import net.kyori.text.format.TextColor;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.slf4j.Logger;
 
 @Plugin(id = "bungeechat", name = "BungeeChat", version = "0.1-SNAPSHOT",
@@ -242,30 +242,30 @@ public class BungeeChat implements BungeeChatApi {
 
     if (size != StartupBannerSize.SHORT) {
       LoggerHelper.info(
-              TextColor.GOLD
+              NamedTextColor.GOLD
               + "---------------- "
-              + TextColor.AQUA
+              + NamedTextColor.AQUA
               + "Bungee Chat"
-              + TextColor.GOLD
+              + NamedTextColor.GOLD
               + " ----------------");
       LoggerHelper.info(getPeopleMessage("Authors", BungeeChatApi.AUTHORS));
     }
 
     if (size == StartupBannerSize.LONG) {
-      LoggerHelper.info(TextColor.YELLOW + "Modules:");
+      LoggerHelper.info(NamedTextColor.YELLOW + "Modules:");
 
       ModuleManager.getAvailableModulesStream()
           .map(
               module -> {
-                if (module.isEnabled()) return "\t" + TextColor.GREEN + "On  - " + module.getName();
-                else return "\t" + TextColor.RED + "Off - " + module.getName();
+                if (module.isEnabled()) return "\t" + NamedTextColor.GREEN + "On  - " + module.getName();
+                else return "\t" + NamedTextColor.RED + "Off - " + module.getName();
               })
           .forEachOrdered(LoggerHelper::info);
     } else {
       LoggerHelper.info(
-          TextColor.YELLOW
+          NamedTextColor.YELLOW
               + "Modules: "
-              + TextColor.GREEN
+              + NamedTextColor.GREEN
               + BungeecordModuleManager.getActiveModuleString());
     }
 
@@ -276,7 +276,7 @@ public class BungeeChat implements BungeeChatApi {
     }
 
     if (size != StartupBannerSize.SHORT) {
-      LoggerHelper.info(TextColor.GOLD + "---------------------------------------------");
+      LoggerHelper.info(NamedTextColor.GOLD + "---------------------------------------------");
     }
   }
 
@@ -285,7 +285,7 @@ public class BungeeChat implements BungeeChatApi {
         .collect(
             Collectors.joining(
                 BungeecordModuleManager.MODULE_CONCATENATOR,
-                TextColor.YELLOW + name + ": " + TextColor.GREEN,
+                NamedTextColor.YELLOW + name + ": " + NamedTextColor.GREEN,
                 ""));
   }
 

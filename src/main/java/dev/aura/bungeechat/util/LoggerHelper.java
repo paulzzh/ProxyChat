@@ -7,7 +7,6 @@ import lombok.AccessLevel;
 import lombok.Cleanup;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
-import net.kyori.text.format.TextColor;
 import org.slf4j.Logger;
 
 @UtilityClass

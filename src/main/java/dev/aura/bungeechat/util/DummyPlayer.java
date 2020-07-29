@@ -1,15 +1,8 @@
 package dev.aura.bungeechat.util;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.List;
 import java.util.Optional;
-import java.net.SocketAddress;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Locale;
-import java.util.Map;
 import java.util.UUID;
 
 import com.velocitypowered.api.network.ProtocolVersion;

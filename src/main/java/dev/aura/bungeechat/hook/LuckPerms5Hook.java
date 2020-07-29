@@ -10,7 +10,7 @@ import dev.aura.bungeechat.api.hook.HookManager;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.cacheddata.CachedMetaData;
@@ -74,8 +74,9 @@ public class LuckPerms5Hook implements BungeeChatHook {
     if(e.getPlayer().hasPermission("bungeechat.muted")) {
       e.setResult(PlayerChatEvent.ChatResult.denied());
       e.getPlayer().sendMessage(
-              LegacyComponentSerializer.legacyLinking()
-                                        .deserialize("&cYou have been muted and cannot chat right now. Please see &ehttps://minecraft.rtgame.co.uk/bans &rfor more information", '&'));
+              LegacyComponentSerializer.builder()
+                      .extractUrls().character('&').hexColors().build()
+                      .deserialize("&cYou have been muted and cannot chat right now. Please see &ehttps://minecraft.rtgame.co.uk/bans &rfor more information"));
     }
   }
 }

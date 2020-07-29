@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
-import net.kyori.text.format.TextColor;
 
 @UtilityClass
 public class PlaceHolderUtil {

@@ -25,7 +25,8 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import lombok.Setter;
 import lombok.experimental.UtilityClass;
-import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 @UtilityClass
 public class MessagesService {
@@ -441,9 +442,17 @@ public class MessagesService {
         : account -> true;
   }
 
-	public static void sendMessage(CommandSource recipient, String message) {
+	public void sendMessage(CommandSource recipient, String message) {
 		if ((message == null) || message.isEmpty()) return;
 
-		recipient.sendMessage(LegacyComponentSerializer.legacyLinking().deserialize(message));
+		recipient.sendMessage(LegacyComponentSerializer.builder()
+									  .extractUrls().character('&').hexColors().build()
+									  .deserialize(message));
+	}
+
+	public void sendMessage(CommandSource recipient, Component message) {
+		if ((message == null)) return;
+
+		recipient.sendMessage(message);
 	}
 }
