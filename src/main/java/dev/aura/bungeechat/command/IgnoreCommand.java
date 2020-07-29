@@ -128,8 +128,6 @@ public class IgnoreCommand extends BaseCommand {
 
   @Override
   public List<String> suggest(CommandSource sender, String[] args) {
-    BungeeChat.getInstance().getLogger().info(Arrays.toString(args));
-
     if(args.length == 0) {
       return arg1Completetions;
     }

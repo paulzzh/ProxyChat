@@ -1,46 +1,55 @@
 package dev.aura.bungeechat.module;
 
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigList;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigValue;
 import com.velocitypowered.api.scheduler.ScheduledTask;
 import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.task.AutomaticBroadcastTask;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class AutoBroadcastModule extends Module {
-  private static final TimeUnit TIME_UNIT = TimeUnit.SECONDS;
+	private static final TimeUnit TIME_UNIT = TimeUnit.SECONDS;
 
-  private ScheduledTask automaticBroadcastTask;
+	private List<ScheduledTask> automaticBroadcastTasks;
 
-  @Override
-  public String getName() {
-    return "AutoBroadcast";
-  }
+	@Override
+	public String getName() {
+		return "AutoBroadcast";
+	}
 
-  @Override
-  public void onEnable() {
-    Config section = getModuleSection();
+	@Override
+	public void onEnable() {
+		automaticBroadcastTasks = new ArrayList<>();
+		ConfigList section = getModuleSection().getList("broadcasts");
 
-    long interval = section.getDuration("interval", TIME_UNIT);
-    long delay = Math.min(10, interval / 2);
+		section.forEach((ConfigValue broadcast) -> {
+			Config broadcastConfig = ((ConfigObject) broadcast).toConfig();
 
-    automaticBroadcastTask =
-        BungeeChat.getInstance().getProxy()
-            .getScheduler()
-            .buildTask(
-                BungeeChat.getInstance(),
-                new AutomaticBroadcastTask(
-                    MessagesService.getServerListPredicate(section.getConfig("serverList")),
-                    section.getStringList("messages"), section.getBoolean("random")))
-            .delay(delay, TIME_UNIT)
-            .repeat(interval, TIME_UNIT)
-            .schedule();
-  }
+			long interval = broadcastConfig.getDuration("interval", TIME_UNIT);
+			long delay = Math.min(10, interval / 2);
 
-  @Override
-  public void onDisable() {
-    automaticBroadcastTask.cancel();
-  }
+			ScheduledTask task = BungeeChat.getInstance().getProxy().getScheduler()
+					.buildTask(
+							BungeeChat.getInstance(),
+							new AutomaticBroadcastTask(
+									MessagesService.getServerListPredicate(broadcastConfig.getConfig("serverList")),
+									broadcastConfig.getStringList("messages"), broadcastConfig.getBoolean("random")))
+					.delay(delay, TIME_UNIT)
+					.repeat(interval, TIME_UNIT)
+					.schedule();
+
+			automaticBroadcastTasks.add(task);
+		});
+	}
+
+	@Override
+	public void onDisable() {
+		automaticBroadcastTasks.forEach(ScheduledTask::cancel);
+	}
 }

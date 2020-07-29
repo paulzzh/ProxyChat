@@ -240,6 +240,20 @@ public class Configuration implements Config {
                 .withoutPath("PrefixDefaults")
                 .withValue("PrefixSuffixSettings", config.getValue("PrefixDefaults"));
 
+      case "11.6":
+        List<ConfigValue> broadcasts = new ArrayList<>();
+        ConfigValue enabled = config.getValue("Modules.AutoBroadcast.enabled");
+        ConfigValue existing = config.getObject("Modules.AutoBroadcast").withoutKey("broadcasts").withoutKey("enabled");
+
+        broadcasts.add(existing);
+
+        // Convert autobroadcast settings to a list
+        config =
+            config
+                .withoutPath("Modules.AutoBroadcast")
+                .withValue("Modules.AutoBroadcast.broadcasts", ConfigValueFactory.fromIterable(broadcasts))
+                .withValue("Modules.AutoBroadcast.enabled", enabled);
+
       default:
         // Unknow Version or old version
         // -> Update version
@@ -247,7 +261,7 @@ public class Configuration implements Config {
             config.withValue(
                 "Version", ConfigValueFactory.fromAnyRef(BungeeChatApi.CONFIG_VERSION));
 
-      case "11.6":
+      case "11.7":
         // Up to date
         // -> No action needed
     }
