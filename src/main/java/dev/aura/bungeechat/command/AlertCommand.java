@@ -1,7 +1,6 @@
 package dev.aura.bungeechat.command;
 
 import com.velocitypowered.api.command.CommandSource;
-import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.message.Context;
 import dev.aura.bungeechat.message.Format;
 import dev.aura.bungeechat.message.Messages;
@@ -10,7 +9,6 @@ import dev.aura.bungeechat.message.PlaceHolderUtil;
 import dev.aura.bungeechat.module.AlertModule;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
-import net.kyori.text.TextComponent;
 
 public class AlertCommand extends BaseCommand {
   public AlertCommand(AlertModule alertModule) {
@@ -30,7 +28,7 @@ public class AlertCommand extends BaseCommand {
                     String.join(" ", args));
         String format = Format.ALERT.get(new Context(sender, finalMessage));
 
-        BungeeChat.getInstance().getProxy().broadcast(TextComponent.of(format));
+        MessagesService.sendToMatchingPlayers(format, MessagesService.getGlobalPredicate());
       }
     }
   }
