@@ -5,6 +5,7 @@ import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
+import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.enums.ChannelType;
@@ -44,13 +45,14 @@ public class LocalChatListener {
     if (account.getChannelType() == ChannelType.LOCAL) {
       if (!MessagesService.getLocalPredicate().test(account)) {
         MessagesService.sendMessage(sender, Messages.NOT_IN_LOCAL_SERVER.get());
+        e.setResult(PlayerChatEvent.ChatResult.denied());
 
         return;
       }
 
       // Check we send to this server
-      boolean cancel = !(passToBackendServer
-              || (serverListDisabled || passthruServers.contains(account.getServerName())));
+      boolean cancel = !passToBackendServer
+              || (!serverListDisabled && !passthruServers.contains(account.getServerName()));
 
       e.setResult(cancel ? PlayerChatEvent.ChatResult.denied() : PlayerChatEvent.ChatResult.allowed());
 

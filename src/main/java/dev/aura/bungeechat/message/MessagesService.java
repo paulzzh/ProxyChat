@@ -4,6 +4,7 @@ import com.typesafe.config.Config;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
+import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.AccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
@@ -408,8 +409,7 @@ public class MessagesService {
 
     return Stream.of(serverList, passThruServerList)
         .flatMap(MessagesService::serverListToPredicate)
-        .collect(
-            () -> ((Predicate<BungeeChatAccount>) account -> true), Predicate::and, Predicate::and);
+			.reduce(Predicate::or).orElse(account -> true);
   }
 
   private static Stream<Predicate<BungeeChatAccount>> serverListToPredicate(Config section) {
@@ -417,7 +417,9 @@ public class MessagesService {
       // TODO: Use wildcard string
       List<String> allowedServers = section.getStringList("list");
 
-      return Stream.of(account -> allowedServers.contains(account.getServerName()));
+      return Stream.of(account -> {
+      	return allowedServers.contains(account.getServerName());
+	  });
     } else {
       return Stream.empty();
     }
