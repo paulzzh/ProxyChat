@@ -1,11 +1,14 @@
 package dev.aura.bungeechat.module.perms;
 
+import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.api.hook.HookManager;
 import dev.aura.bungeechat.config.Configuration;
 import dev.aura.bungeechat.hook.LuckPerms5Hook;
 import dev.aura.bungeechat.util.ClassUtil;
 
 public class LuckPerms5Module extends PermissionPluginModule {
+  private LuckPerms5Hook hook;
+
   @Override
   public String getName() {
     return "LuckPerms5";
@@ -21,11 +24,21 @@ public class LuckPerms5Module extends PermissionPluginModule {
     final boolean fixContext =
         Configuration.get().getBoolean("PrefixSuffixSettings.fixLuckPermsContext");
 
-    HookManager.addHook(getName(), new LuckPerms5Hook(fixContext));
+    LuckPerms5Hook hook = new LuckPerms5Hook(fixContext);
+    BungeeChat.getInstance().getProxy()
+        .getEventManager()
+        .register(BungeeChat.getInstance(), hook);
+
+    HookManager.addHook(getName(), hook);
   }
 
   @Override
   public void onDisable() {
+    if(hook != null) {
+      BungeeChat.getInstance().getProxy()
+        .getEventManager()
+        .unregisterListener(BungeeChat.getInstance(), hook);
+    }
     HookManager.removeHook(getName());
   }
 }
