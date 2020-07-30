@@ -13,9 +13,8 @@ import dev.aura.bungeechat.permission.PermissionManager;
 import dev.aura.lib.messagestranslator.MessagesTranslator;
 import dev.aura.lib.messagestranslator.PluginMessagesTranslator;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
@@ -55,7 +54,11 @@ public class PlaceHolderUtil {
           .put(Permission.USE_CHAT_FORMAT_UNDERLINE, 'n')
           .put(Permission.USE_CHAT_FORMAT_ITALIC, 'o')
           .put(Permission.USE_CHAT_FORMAT_RESET, 'r')
+          .put(Permission.USE_CHAT_FORMAT_RGB, '#')
           .build();
+
+  private static final Pattern urlEscapePattern = Pattern.compile("(?:(?:https?)://)?(?:[-\\w_.]+\\.\\w{2,})(?:/\\S*)?");
+
   private static final Map<Integer, Optional<Pattern>> patternCache = new HashMap<>();
   private static final char placeholderChar = PlaceHolderManager.placeholderChar;
   private static final String placeholderString = String.valueOf(placeholderChar);
@@ -153,6 +156,15 @@ public class PlaceHolderUtil {
     }
 
     Optional<Pattern> pattern = patternCache.get(key);
+    List<String> urls = new ArrayList<>();
+    Matcher matcher = urlEscapePattern.matcher(message);
+
+    //Save and remove URLs before colour code replacement
+    while(matcher.find()) {
+      urls.add(matcher.group());
+    }
+
+    message = urlEscapePattern.matcher(message).replaceAll("%url%");
 
     if (pattern.isPresent()) {
       message = pattern.get().matcher(message).replaceAll(colorCodeReplacement);
@@ -160,11 +172,32 @@ public class PlaceHolderUtil {
 
     message = duplicateDection.matcher(message).replaceAll(altColorString);
 
+    //Readd urls
+    for (String url : urls) {
+      message = message.replaceFirst("%url%", url);
+    }
+
     return message;
   }
 
   public static String escapeAltColorCodes(String message) {
-    return message.replace(altColorString, altColorString + altColorString);
+    List<String> urls = new ArrayList<>();
+    Matcher matcher = urlEscapePattern.matcher(message);
+
+    //Save and remove URLs before colour code replacement
+    while(matcher.find()) {
+      urls.add(matcher.group());
+    }
+
+    message = urlEscapePattern.matcher(message).replaceAll("%url%");
+    message = message.replace(altColorString, altColorString + altColorString);
+
+    //Readd urls
+    for (String url : urls) {
+      message = message.replaceFirst("%url%", url);
+    }
+
+    return message;
   }
 
   public static String escapePlaceholders(String message) {

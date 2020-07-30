@@ -12,8 +12,6 @@ import dev.aura.bungeechat.module.BungeecordModuleManager;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 import dev.aura.bungeechat.util.LoggerHelper;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.io.IOException;
 import java.io.StreamTokenizer;
@@ -24,7 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class BungeeChatCommand extends BaseCommand {
-  private final String prefix = NamedTextColor.BLUE + "Bungee Chat " + NamedTextColor.DARK_GRAY + "// ";
+  private final String prefix = "&9Bungee Chat &8// ";
   private static final List<String> arg1Completetions =
       Arrays.asList("modules", "reload", "setprefix", "setsuffix");
 
@@ -48,7 +46,7 @@ public class BungeeChatCommand extends BaseCommand {
                   instance.onEnable(false);
 
                   MessagesService.sendMessage(
-                      sender, TextComponent.of(prefix + NamedTextColor.GREEN + "The plugin has been reloaded!"));
+                      sender, prefix + "&aThe plugin has been reloaded!");
                 }).schedule();
 
         return;
@@ -118,9 +116,7 @@ public class BungeeChatCommand extends BaseCommand {
         MessagesService.sendMessage(
             sender,
             prefix
-                + NamedTextColor.GRAY
-                + "Active Modules: "
-                + NamedTextColor.GREEN
+                + "&7Active Modules: &a"
                 + BungeecordModuleManager.getActiveModuleString());
         return;
       }
@@ -129,13 +125,9 @@ public class BungeeChatCommand extends BaseCommand {
     MessagesService.sendMessage(
         sender,
         prefix
-            + NamedTextColor.GRAY
-            + "Coded by "
-            + NamedTextColor.GOLD
+            + "&7Coded by &6"
             + BungeeChatApi.AUTHOR_BRAINSTONE
-            + NamedTextColor.GRAY
-            + " and "
-            + NamedTextColor.GOLD
+            + "&7 and &6"
             + BungeeChatApi.AUTHOR_SHAWN
             + ".");
   }
