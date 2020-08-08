@@ -1,13 +1,11 @@
 package dev.aura.bungeechat.filter;
 
-import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.filter.BungeeChatFilter;
 import dev.aura.bungeechat.api.filter.FilterManager;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
@@ -18,12 +16,14 @@ public class EmoteFilter implements BungeeChatFilter {
 	private final static char emoteCharacter = '\ue000';
 	private final List<String> emotes;
 	private final boolean noPermissions;
+	private final String prefix;
 
-	public EmoteFilter(List<String> whitelisted) {
-		this(whitelisted, false);
+	public EmoteFilter(List<String> emotes, String prefix) {
+		this(emotes, prefix, false);
 	}
 
-	public EmoteFilter(List<String> emotes, boolean noPermissions) {
+	public EmoteFilter(List<String> emotes, String prefix, boolean noPermissions) {
+		this.prefix = prefix;
 		this.emotes = emotes.stream().map(String::toLowerCase).collect(Collectors.toList());
 		this.noPermissions = noPermissions;
 	}
@@ -35,7 +35,7 @@ public class EmoteFilter implements BungeeChatFilter {
 		}
 
 		return emotePattern.matcher(message).replaceAll((MatchResult result) -> {
-			int emoteIndex = emotes.indexOf(result.group(2).toLowerCase());
+			int emoteIndex = emotes.indexOf(result.group(2).replace(prefix, "").toLowerCase());
 
 			return emoteIndex > -1 ? result.group(1) + new String(
 					Character.toChars(emoteCharacter + emoteIndex)) : result.group();

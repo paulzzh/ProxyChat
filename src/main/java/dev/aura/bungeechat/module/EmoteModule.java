@@ -11,7 +11,8 @@ public class EmoteModule extends Module {
 
 	@Override
 	public void onEnable() {
-		FilterManager.addFilter(getName(), new EmoteFilter(getModuleSection().getStringList("emoteNames")));
+		FilterManager.addFilter(getName(), new EmoteFilter(getModuleSection().getStringList("emoteNames"),
+														   getModuleSection().getString("prefix")));
 	}
 
 	@Override
