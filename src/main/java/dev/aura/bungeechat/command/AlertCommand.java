@@ -1,6 +1,5 @@
 package dev.aura.bungeechat.command;
 
-import com.velocitypowered.api.command.CommandSource;
 import dev.aura.bungeechat.message.Context;
 import dev.aura.bungeechat.message.Format;
 import dev.aura.bungeechat.message.Messages;
@@ -17,16 +16,16 @@ public class AlertCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSource sender, String[] args) {
-    if (PermissionManager.hasPermission(sender, Permission.COMMAND_ALERT)) {
-      if (args.length < 1) {
+  public void execute(Invocation invocation) {
+    if (PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_ALERT)) {
+      if (invocation.arguments().length < 1) {
         MessagesService.sendMessage(
-            sender, Messages.INCORRECT_USAGE.get(sender, "/alert <message>"));
+            invocation.source(), Messages.INCORRECT_USAGE.get(invocation.source(), "/alert <message>"));
       } else {
         String finalMessage =
             PlaceHolderUtil.transformAltColorCodes(
-                    String.join(" ", args));
-        String format = Format.ALERT.get(new Context(sender, finalMessage));
+                    String.join(" ", invocation.arguments()));
+        String format = Format.ALERT.get(new Context(invocation.source(), finalMessage));
 
         MessagesService.sendToMatchingPlayers(format, MessagesService.getGlobalPredicate());
       }

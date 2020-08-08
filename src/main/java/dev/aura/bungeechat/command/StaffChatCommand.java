@@ -1,6 +1,5 @@
 package dev.aura.bungeechat.command;
 
-import com.velocitypowered.api.command.CommandSource;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.enums.ChannelType;
@@ -21,29 +20,29 @@ public class StaffChatCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSource sender, String[] args) {
-    if (!PermissionManager.hasPermission(sender, Permission.COMMAND_STAFFCHAT)) return;
+  public void execute(Invocation invocation) {
+    if (!PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_STAFFCHAT)) return;
 
-    if (args.length == 0) {
-      BungeeChatAccount player = BungeecordAccountManager.getAccount(sender).get();
+    if (invocation.arguments().length == 0) {
+      BungeeChatAccount player = BungeecordAccountManager.getAccount(invocation.source()).get();
 
       if (player.getChannelType() == ChannelType.STAFF) {
         ChannelType defaultChannelType = player.getDefaultChannelType();
         player.setChannelType(defaultChannelType);
 
         if (defaultChannelType == ChannelType.LOCAL) {
-          MessagesService.sendMessage(sender, Messages.ENABLE_LOCAL.get());
+          MessagesService.sendMessage(invocation.source(), Messages.ENABLE_LOCAL.get());
         } else {
-          MessagesService.sendMessage(sender, Messages.ENABLE_GLOBAL.get());
+          MessagesService.sendMessage(invocation.source(), Messages.ENABLE_GLOBAL.get());
         }
       } else {
         player.setChannelType(ChannelType.STAFF);
-        MessagesService.sendMessage(sender, Messages.ENABLE_STAFFCHAT.get());
+        MessagesService.sendMessage(invocation.source(), Messages.ENABLE_STAFFCHAT.get());
       }
     } else {
-      String finalMessage = Arrays.stream(args).collect(Collectors.joining(" "));
+      String finalMessage = Arrays.stream(invocation.arguments()).collect(Collectors.joining(" "));
 
-      MessagesService.sendStaffMessage(sender, finalMessage);
+      MessagesService.sendStaffMessage(invocation.source(), finalMessage);
     }
   }
 }

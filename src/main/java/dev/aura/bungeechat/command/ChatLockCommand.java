@@ -1,6 +1,5 @@
 package dev.aura.bungeechat.command;
 
-import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
@@ -11,7 +10,6 @@ import dev.aura.bungeechat.module.ChatLockModule;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 import dev.aura.bungeechat.util.ServerNameUtil;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,25 +28,26 @@ public class ChatLockCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSource sender, String[] args) {
+  public void execute(Invocation invocation) {
     // The permission check sends the no permission message
-    if (!PermissionManager.hasPermission(sender, Permission.COMMAND_CHAT_LOCK)) return;
+    if (!PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_CHAT_LOCK)) return;
 
-    BungeeChatAccount player = BungeecordAccountManager.getAccount(sender).get();
+    BungeeChatAccount player = BungeecordAccountManager.getAccount(invocation.source()).get();
 
-    if ((args.length < 1) || (args.length > 2)) {
-      MessagesService.sendMessage(sender, Messages.INCORRECT_USAGE.get(player, USAGE));
+    if ((invocation.arguments().length < 1) || (invocation.arguments().length > 2)) {
+      MessagesService.sendMessage(invocation.source(), Messages.INCORRECT_USAGE.get(player, USAGE));
       return;
     }
 
     final ChatLockModule chatLock = BungeecordModuleManager.CHAT_LOCK_MODULE;
-    final boolean clear = (args.length >= 2) && args[args.length - 1].equalsIgnoreCase("clear");
+    final boolean clear = (invocation.arguments().length >= 2)
+            && invocation.arguments()[invocation.arguments().length - 1].equalsIgnoreCase("clear");
     final int emptyLines = clear ? chatLock.getModuleSection().getInt("emptyLinesOnClear") : 0;
 
-    if (args[0].equalsIgnoreCase("global")) {
+    if (invocation.arguments()[0].equalsIgnoreCase("global")) {
       if (chatLock.isGlobalChatLockEnabled()) {
         chatLock.disableGlobalChatLock();
-        MessagesService.sendMessage(sender, Messages.DISABLE_CHATLOCK.get(player));
+        MessagesService.sendMessage(invocation.source(), Messages.DISABLE_CHATLOCK.get(player));
       } else {
         chatLock.enableGlobalChatLock();
 
@@ -59,17 +58,17 @@ public class ChatLockCommand extends BaseCommand {
         MessagesService.sendToMatchingPlayers(
             Messages.ENABLE_CHATLOCK.get(player), MessagesService.getGlobalPredicate());
       }
-    } else if (args[0].equalsIgnoreCase("local")) {
-      boolean serverSpecified = args.length == (clear ? 3 : 2);
+    } else if (invocation.arguments()[0].equalsIgnoreCase("local")) {
+      boolean serverSpecified = invocation.arguments().length == (clear ? 3 : 2);
 
-      if (!serverSpecified && !(sender instanceof Player)) {
-        MessagesService.sendMessage(sender, Messages.INCORRECT_USAGE.get(player, USAGE));
+      if (!serverSpecified && !(invocation.source() instanceof Player)) {
+        MessagesService.sendMessage(invocation.source(), Messages.INCORRECT_USAGE.get(player, USAGE));
         return;
       }
 
       Optional<String> optServerName =
           ServerNameUtil.verifyServerName(
-              serverSpecified ? args[1] : player.getServerName(), sender);
+              serverSpecified ? invocation.arguments()[1] : player.getServerName(), invocation.source());
 
       if (!optServerName.isPresent()) return;
 
@@ -77,7 +76,7 @@ public class ChatLockCommand extends BaseCommand {
 
       if (chatLock.isLocalChatLockEnabled(serverName)) {
         chatLock.disableLocalChatLock(serverName);
-        MessagesService.sendMessage(sender, Messages.DISABLE_CHATLOCK.get(player));
+        MessagesService.sendMessage(invocation.source(), Messages.DISABLE_CHATLOCK.get(player));
       } else {
         chatLock.enableLocalChatLock(serverName);
 
@@ -89,24 +88,24 @@ public class ChatLockCommand extends BaseCommand {
             Messages.ENABLE_CHATLOCK.get(player), MessagesService.getLocalPredicate(serverName));
       }
     } else {
-      MessagesService.sendMessage(sender, Messages.INCORRECT_USAGE.get(player, USAGE));
+      MessagesService.sendMessage(invocation.source(), Messages.INCORRECT_USAGE.get(player, USAGE));
     }
   }
 
   @Override
-  public List<String> suggest(CommandSource sender, String[] args) {
-    if(args.length == 0) {
+  public List<String> suggest(Invocation invocation) {
+    if(invocation.arguments().length == 0) {
       return ClearChatCommand.arg1Completetions;
     }
 
-    final String location = args[0];
+    final String location = invocation.arguments()[0];
 
-    if (args.length == 1 && !ClearChatCommand.arg1Completetions.contains(location)) {
+    if (invocation.arguments().length == 1 && !ClearChatCommand.arg1Completetions.contains(location)) {
       return ClearChatCommand.arg1Completetions.stream()
           .filter(completion -> completion.startsWith(location))
           .collect(Collectors.toList());
-    } else if ((args.length == 2) && ClearChatCommand.arg1Completetions.contains(location)) {
-      final String param2 = args[1];
+    } else if ((invocation.arguments().length == 2) && ClearChatCommand.arg1Completetions.contains(location)) {
+      final String param2 = invocation.arguments()[1];
       final List<String> suggestions = new LinkedList<>();
 
       if (CLEAR.startsWith(param2)) {
@@ -118,13 +117,13 @@ public class ChatLockCommand extends BaseCommand {
       }
 
       return suggestions;
-    } else if ((args.length == 3)
+    } else if ((invocation.arguments().length == 3)
         && "local".equals(location)
-        && !CLEAR.equals(args[1])
-        && CLEAR.startsWith(args[2])) {
+        && !CLEAR.equals(invocation.arguments()[1])
+        && CLEAR.startsWith(invocation.arguments()[2])) {
       return Collections.singletonList(CLEAR);
     }
 
-    return super.suggest(sender, args);
+    return super.suggest(invocation);
   }
 }

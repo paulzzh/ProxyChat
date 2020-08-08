@@ -1,6 +1,5 @@
 package dev.aura.bungeechat.command;
 
-import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
@@ -19,21 +18,21 @@ public class SocialSpyCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSource sender, String[] args) {
-    if (!PermissionManager.hasPermission(sender, Permission.COMMAND_SOCIALSPY)) return;
+  public void execute(Invocation invocation) {
+    if (!PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_SOCIALSPY)) return;
 
-    if (!(sender instanceof Player)) {
-      MessagesService.sendMessage(sender, Messages.NOT_A_PLAYER.get());
+    if (!(invocation.source() instanceof Player)) {
+      MessagesService.sendMessage(invocation.source(), Messages.NOT_A_PLAYER.get());
       return;
     }
 
-    BungeeChatAccount player = BungeecordAccountManager.getAccount(sender).get();
+    BungeeChatAccount player = BungeecordAccountManager.getAccount(invocation.source()).get();
     player.toggleSocialSpy();
 
     if (player.hasSocialSpyEnabled()) {
-      MessagesService.sendMessage(sender, Messages.ENABLE_SOCIAL_SPY.get(player));
+      MessagesService.sendMessage(invocation.source(), Messages.ENABLE_SOCIAL_SPY.get(player));
     } else {
-      MessagesService.sendMessage(sender, Messages.DISABLE_SOCIAL_SPY.get(player));
+      MessagesService.sendMessage(invocation.source(), Messages.DISABLE_SOCIAL_SPY.get(player));
     }
   }
 }

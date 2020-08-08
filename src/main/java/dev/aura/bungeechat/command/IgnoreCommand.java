@@ -2,7 +2,6 @@ package dev.aura.bungeechat.command;
 
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
-import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.AccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
@@ -27,23 +26,24 @@ public class IgnoreCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSource sender, String[] args) {
-    if (!(sender instanceof Player)) {
-      MessagesService.sendMessage(sender, Messages.NOT_A_PLAYER.get());
+  public void execute(Invocation invocation) {
+    if (!(invocation.source() instanceof Player)) {
+      MessagesService.sendMessage(invocation.source(), Messages.NOT_A_PLAYER.get());
       return;
     }
 
-    if (!PermissionManager.hasPermission(sender, Permission.COMMAND_IGNORE)) return;
+    if (!PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_IGNORE)) return;
 
-    if (args.length < 1) {
+    if (invocation.arguments().length < 1) {
       MessagesService.sendMessage(
-          sender, Messages.INCORRECT_USAGE.get(sender, "/ignore <list|add|remove> [player]"));
+          invocation.source(), Messages.INCORRECT_USAGE
+                      .get(invocation.source(), "/ignore <list|add|remove> [player]"));
       return;
     }
 
-    BungeeChatAccount player = BungeecordAccountManager.getAccount(sender).get();
+    BungeeChatAccount player = BungeecordAccountManager.getAccount(invocation.source()).get();
 
-    if (args[0].equalsIgnoreCase("list")) {
+    if (invocation.arguments()[0].equalsIgnoreCase("list")) {
       List<Optional<BungeeChatAccount>> ignored =
           player.getIgnored().stream()
               .map(AccountManager::getAccount)
@@ -51,104 +51,105 @@ public class IgnoreCommand extends BaseCommand {
               .collect(Collectors.toList());
 
       if (ignored.size() <= 0) {
-        MessagesService.sendMessage(sender, Messages.IGNORE_NOBODY.get(player));
+        MessagesService.sendMessage(invocation.source(), Messages.IGNORE_NOBODY.get(player));
       } else {
         String list =
             ignored.stream()
                 .map(account -> account.get().getName())
                 .collect(Collectors.joining(", "));
 
-        MessagesService.sendMessage(sender, Messages.IGNORE_LIST.get(player, list));
+        MessagesService.sendMessage(invocation.source(), Messages.IGNORE_LIST.get(player, list));
       }
-    } else if (args[0].equalsIgnoreCase("add")) {
-      if (args.length < 2) {
+    } else if (invocation.arguments()[0].equalsIgnoreCase("add")) {
+      if (invocation.arguments().length < 2) {
         MessagesService.sendMessage(
-            sender, Messages.INCORRECT_USAGE.get(sender, "/ignore add <player>"));
+            invocation.source(), Messages.INCORRECT_USAGE.get(invocation.source(), "/ignore add <player>"));
         return;
       }
 
-      Optional<BungeeChatAccount> targetAccount = AccountManager.getAccount(args[1]);
+      Optional<BungeeChatAccount> targetAccount = AccountManager.getAccount(invocation.arguments()[1]);
 
       if (!targetAccount.isPresent()
           || (targetAccount.get().isVanished()
-              && !PermissionManager.hasPermission(sender, Permission.COMMAND_VANISH_VIEW))) {
-        MessagesService.sendMessage(sender, Messages.PLAYER_NOT_FOUND.get());
+              && !PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_VANISH_VIEW))) {
+        MessagesService.sendMessage(invocation.source(), Messages.PLAYER_NOT_FOUND.get());
         return;
       }
 
       CommandSource target = BungeecordAccountManager.getCommandSource(targetAccount.get()).get();
 
-      if (target == sender) {
-        MessagesService.sendMessage(sender, Messages.IGNORE_YOURSELF.get());
+      if (target == invocation.source()) {
+        MessagesService.sendMessage(invocation.source(), Messages.IGNORE_YOURSELF.get());
         return;
       }
 
       if (player.hasIgnored(targetAccount.get().getUniqueId())) {
-        MessagesService.sendMessage(sender, Messages.ALREADY_IGNORED.get());
+        MessagesService.sendMessage(invocation.source(), Messages.ALREADY_IGNORED.get());
         return;
       }
 
       player.addIgnore(targetAccount.get().getUniqueId());
-      MessagesService.sendMessage(sender, Messages.ADD_IGNORE.get(target));
-    } else if (args[0].equalsIgnoreCase("remove")) {
-      if (args.length < 2) {
+      MessagesService.sendMessage(invocation.source(), Messages.ADD_IGNORE.get(target));
+    } else if (invocation.arguments()[0].equalsIgnoreCase("remove")) {
+      if (invocation.arguments().length < 2) {
         MessagesService.sendMessage(
-            sender, Messages.INCORRECT_USAGE.get(sender, "/ignore remove <player>"));
+            invocation.source(), Messages.INCORRECT_USAGE.get(invocation.source(), "/ignore remove <player>"));
         return;
       }
 
-      Optional<BungeeChatAccount> targetAccount = AccountManager.getAccount(args[1]);
+      Optional<BungeeChatAccount> targetAccount = AccountManager.getAccount(invocation.arguments()[1]);
 
       if (!targetAccount.isPresent()
           || (targetAccount.get().isVanished()
-              && !PermissionManager.hasPermission(sender, Permission.COMMAND_VANISH_VIEW))) {
-        MessagesService.sendMessage(sender, Messages.PLAYER_NOT_FOUND.get());
+              && !PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_VANISH_VIEW))) {
+        MessagesService.sendMessage(invocation.source(), Messages.PLAYER_NOT_FOUND.get());
         return;
       }
 
       CommandSource target = BungeecordAccountManager.getCommandSource(targetAccount.get()).get();
 
-      if (target == sender) {
-        MessagesService.sendMessage(sender, Messages.UNIGNORE_YOURSELF.get());
+      if (target == invocation.source()) {
+        MessagesService.sendMessage(invocation.source(), Messages.UNIGNORE_YOURSELF.get());
         return;
       }
 
       if (!player.hasIgnored(targetAccount.get().getUniqueId())) {
-        MessagesService.sendMessage(sender, Messages.NOT_IGNORED.get());
+        MessagesService.sendMessage(invocation.source(), Messages.NOT_IGNORED.get());
         return;
       }
 
       player.removeIgnore(targetAccount.get().getUniqueId());
-      MessagesService.sendMessage(sender, Messages.REMOVE_IGNORE.get(target));
+      MessagesService.sendMessage(invocation.source(), Messages.REMOVE_IGNORE.get(target));
     } else {
       MessagesService.sendMessage(
-          sender, Messages.INCORRECT_USAGE.get(sender, "/ignore <list|add|remove> [player]"));
+          invocation.source(), Messages.INCORRECT_USAGE
+                      .get(invocation.source(), "/ignore <list|add|remove> [player]"));
     }
   }
 
   @Override
-  public List<String> suggest(CommandSource sender, String[] args) {
-    if(args.length == 0) {
+  public List<String> suggest(Invocation invocation) {
+    if(invocation.arguments().length == 0) {
       return arg1Completetions;
     }
 
-    final String param1 = args[0];
+    final String param1 = invocation.arguments()[0];
 
-    if (args.length == 1 && !arg1Completetions.contains(args[0])) {
+    if (invocation.arguments().length == 1 && !arg1Completetions.contains(invocation.arguments()[0])) {
       return arg1Completetions.stream()
-              .filter(completion -> completion.startsWith(args[0]))
+              .filter(completion -> completion.startsWith(invocation.arguments()[0]))
               .collect(Collectors.toList());
     }
 
-    if(args.length == 2 && ("add".equals(param1) || "remove".equals(param1))) {
-      final BungeeChatAccount senderAccount = BungeecordAccountManager.getAccount(sender).get();
+    if(invocation.arguments().length == 2 && ("add".equals(param1) || "remove".equals(param1))) {
+      final BungeeChatAccount senderAccount = BungeecordAccountManager.getAccount(invocation.source()).get();
 
-        return BungeecordAccountManager.getAccountsForPartialName(args[1], sender).stream()
+        return BungeecordAccountManager.getAccountsForPartialName(invocation.arguments()[1], invocation.source()).stream()
                 .filter(account -> !senderAccount.equals(account))
                 .map(BungeeChatAccount::getName)
                 .collect(Collectors.toList());
     }
 
-    return super.suggest(sender, args);
+    return super.suggest(invocation.source(), invocation.arguments());
   }
 }

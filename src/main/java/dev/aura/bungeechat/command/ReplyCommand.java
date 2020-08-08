@@ -9,10 +9,8 @@ import dev.aura.bungeechat.module.MessengerModule;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class ReplyCommand extends BaseCommand {
   private static HashMap<CommandSource, CommandSource> replies;
@@ -40,35 +38,36 @@ public class ReplyCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSource sender, String[] args) {
-    if (!PermissionManager.hasPermission(sender, Permission.COMMAND_MESSAGE)) return;
+  public void execute(Invocation invocation) {
+    if (!PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_MESSAGE)) return;
 
-    if (args.length < 1) {
-      MessagesService.sendMessage(sender, Messages.INCORRECT_USAGE.get(sender, "/reply <message>"));
+    if (invocation.arguments().length < 1) {
+      MessagesService.sendMessage(invocation.source(), Messages.INCORRECT_USAGE
+              .get(invocation.source(), "/reply <message>"));
       return;
     }
 
     Optional<BungeeChatAccount> targetAccount =
-        BungeecordAccountManager.getAccount(getReplier(sender));
+        BungeecordAccountManager.getAccount(getReplier(invocation.source()));
 
-    if (!targetAccount.isPresent()
+    if (targetAccount.isEmpty()
         || (targetAccount.get().isVanished()
-            && !PermissionManager.hasPermission(sender, Permission.COMMAND_VANISH_VIEW))) {
-      MessagesService.sendMessage(sender, Messages.NO_REPLY.get());
+            && !PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_VANISH_VIEW))) {
+      MessagesService.sendMessage(invocation.source(), Messages.NO_REPLY.get());
       return;
     }
 
     CommandSource target = BungeecordAccountManager.getCommandSource(targetAccount.get()).get();
 
     if (!targetAccount.get().hasMessangerEnabled()
-        && !PermissionManager.hasPermission(sender, Permission.BYPASS_TOGGLE_MESSAGE)) {
-      MessagesService.sendMessage(sender, Messages.HAS_MESSAGER_DISABLED.get(target));
+        && !PermissionManager.hasPermission(invocation.source(), Permission.BYPASS_TOGGLE_MESSAGE)) {
+      MessagesService.sendMessage(invocation.source(), Messages.HAS_MESSAGER_DISABLED.get(target));
       return;
     }
 
-    String finalMessage = String.join(" ", args);
+    String finalMessage = String.join(" ", invocation.arguments());
 
-    MessagesService.sendPrivateMessage(sender, target, finalMessage);
-    ReplyCommand.setReply(sender, target);
+    MessagesService.sendPrivateMessage(invocation.source(), target, finalMessage);
+    ReplyCommand.setReply(invocation.source(), target);
   }
 }

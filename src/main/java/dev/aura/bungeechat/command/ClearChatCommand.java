@@ -1,6 +1,5 @@
 package dev.aura.bungeechat.command;
 
-import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
@@ -32,29 +31,29 @@ public class ClearChatCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSource sender, String[] args) {
-    if (!PermissionManager.hasPermission(sender, Permission.COMMAND_CLEAR_CHAT)) return;
+  public void execute(Invocation invocation) {
+    if (!PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_CLEAR_CHAT)) return;
 
-    if ((args.length < 1) || (args.length > 3)) {
-      MessagesService.sendMessage(sender, Messages.INCORRECT_USAGE.get(sender, USAGE));
+    if ((invocation.arguments().length < 1) || (invocation.arguments().length > 3)) {
+      MessagesService.sendMessage(invocation.source(), Messages.INCORRECT_USAGE.get(invocation.source(), USAGE));
     } else {
 
       final int lines =
           BungeecordModuleManager.CLEAR_CHAT_MODULE.getModuleSection().getInt("emptyLines");
-      final BungeeChatAccount bungeeChatAccount = BungeecordAccountManager.getAccount(sender).get();
+      final BungeeChatAccount bungeeChatAccount = BungeecordAccountManager.getAccount(invocation.source()).get();
 
-      if (args[0].equalsIgnoreCase("local")) {
-        boolean serverSpecified = args.length == 2;
+      if (invocation.arguments()[0].equalsIgnoreCase("local")) {
+        boolean serverSpecified = invocation.arguments().length == 2;
 
-          if (!serverSpecified && !(sender instanceof Player)) {
+          if (!serverSpecified && !(invocation.source() instanceof Player)) {
             MessagesService.sendMessage(
-                sender, Messages.INCORRECT_USAGE.get(bungeeChatAccount, USAGE));
+                invocation.source(), Messages.INCORRECT_USAGE.get(bungeeChatAccount, USAGE));
             return;
           }
 
         Optional<String> optServerName =
             ServerNameUtil.verifyServerName(
-                serverSpecified ? args[1] : bungeeChatAccount.getServerName(), sender);
+                serverSpecified ? invocation.arguments()[1] : bungeeChatAccount.getServerName(), invocation.source());
 
         if (!optServerName.isPresent()) return;
 
@@ -63,37 +62,37 @@ public class ClearChatCommand extends BaseCommand {
         clearLocalChat(serverName, lines);
 
         MessagesService.sendToMatchingPlayers(
-            Messages.CLEARED_LOCAL.get(sender), MessagesService.getLocalPredicate(serverName));
-      } else if (args[0].equalsIgnoreCase("global")) {
+            Messages.CLEARED_LOCAL.get(invocation.source()), MessagesService.getLocalPredicate(serverName));
+      } else if (invocation.arguments()[0].equalsIgnoreCase("global")) {
         clearGlobalChat(lines);
 
         MessagesService.sendToMatchingPlayers(
-            Messages.CLEARED_GLOBAL.get(sender), MessagesService.getGlobalPredicate());
+            Messages.CLEARED_GLOBAL.get(invocation.source()), MessagesService.getGlobalPredicate());
       } else {
-        MessagesService.sendMessage(sender, Messages.INCORRECT_USAGE.get(sender, USAGE));
+        MessagesService.sendMessage(invocation.source(), Messages.INCORRECT_USAGE.get(invocation.source(), USAGE));
       }
     }
   }
 
   @Override
-  public List<String> suggest(CommandSource sender, String[] args) {
-    if (args.length == 0) {
+  public List<String> suggest(Invocation invocation) {
+    if (invocation.arguments().length == 0) {
       return arg1Completetions;
     }
 
-    final String location = args[0];
+    final String location = invocation.arguments()[0];
 
-    if (args.length == 1 && !arg1Completetions.contains(location)) {
+    if (invocation.arguments().length == 1 && !arg1Completetions.contains(location)) {
       return arg1Completetions.stream()
           .filter(completion -> completion.startsWith(location))
           .collect(Collectors.toList());
-    } else if ((args.length == 2) && ("local".equals(location))) {
-      final String serverName = args[1];
+    } else if ((invocation.arguments().length == 2) && ("local".equals(location))) {
+      final String serverName = invocation.arguments()[1];
 
       return ServerNameUtil.getMatchingServerNames(serverName);
     }
 
-    return super.suggest(sender, args);
+    return super.suggest(invocation);
   }
 
   public static void clearGlobalChat(int emptyLines) {

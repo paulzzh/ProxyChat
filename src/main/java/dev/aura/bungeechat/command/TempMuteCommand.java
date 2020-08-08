@@ -1,6 +1,5 @@
 package dev.aura.bungeechat.command;
 
-import com.velocitypowered.api.command.CommandSource;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.AccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
@@ -31,50 +30,50 @@ public class TempMuteCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSource sender, String[] args) {
-    if (!PermissionManager.hasPermission(sender, Permission.COMMAND_TEMPMUTE)) return;
+  public void execute(Invocation invocation) {
+    if (!PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_TEMPMUTE)) return;
 
-    if (args.length < 2) {
+    if (invocation.arguments().length < 2) {
       MessagesService.sendMessage(
-          sender, Messages.INCORRECT_USAGE.get(sender, "/tempmute <player> <time>"));
+          invocation.source(), Messages.INCORRECT_USAGE.get(invocation.source(), "/tempmute <player> <time>"));
       return;
     }
 
-    Optional<BungeeChatAccount> targetAccount = AccountManager.getAccount(args[0]);
+    Optional<BungeeChatAccount> targetAccount = AccountManager.getAccount(invocation.arguments()[0]);
 
     if (!targetAccount.isPresent()) {
-      MessagesService.sendMessage(sender, Messages.PLAYER_NOT_FOUND.get());
+      MessagesService.sendMessage(invocation.source(), Messages.PLAYER_NOT_FOUND.get());
       return;
     }
 
     if (targetAccount.get().isMuted()) {
-      MessagesService.sendMessage(sender, Messages.MUTE_IS_MUTED.get());
+      MessagesService.sendMessage(invocation.source(), Messages.MUTE_IS_MUTED.get());
       return;
     }
 
-    final double timeAmount = TimeUtil.convertStringTimeToDouble(args[1]);
+    final double timeAmount = TimeUtil.convertStringTimeToDouble(invocation.arguments()[1]);
     final double currentTime = System.currentTimeMillis();
     final java.sql.Timestamp timeStamp = new java.sql.Timestamp((long) (currentTime + timeAmount));
     targetAccount.get().setMutedUntil(timeStamp);
-    MessagesService.sendMessage(sender, Messages.TEMPMUTE.get(targetAccount.get()));
+    MessagesService.sendMessage(invocation.source(), Messages.TEMPMUTE.get(targetAccount.get()));
   }
 
   @Override
-  public List<String> suggest(CommandSource sender, String[] args) {
-    if(args.length == 0) {
+  public List<String> suggest(Invocation invocation) {
+    if(invocation.arguments().length == 0) {
       return BungeecordAccountManager.getAccounts().stream()
           .filter(account -> account.getAccountType() == AccountType.PLAYER)
           .map(BungeeChatAccount::getName)
           .collect(Collectors.toList());
     }
 
-    if (args.length == 1) {
-      return BungeecordAccountManager.getAccountsForPartialName(args[0], sender).stream()
+    if (invocation.arguments().length == 1) {
+      return BungeecordAccountManager.getAccountsForPartialName(invocation.arguments()[0], invocation.source()).stream()
           .filter(account -> account.getAccountType() == AccountType.PLAYER)
           .map(BungeeChatAccount::getName)
           .collect(Collectors.toList());
-    } else if (args.length == 2) {
-      final String time = args[1];
+    } else if (invocation.arguments().length == 2) {
+      final String time = invocation.arguments()[1];
       String digits = null;
 
       Matcher match = digitsAndUnit.matcher(time);
@@ -95,6 +94,6 @@ public class TempMuteCommand extends BaseCommand {
       }
     }
 
-    return super.suggest(sender, args);
+    return super.suggest(invocation);
   }
 }

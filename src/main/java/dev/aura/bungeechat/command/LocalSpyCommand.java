@@ -1,6 +1,5 @@
 package dev.aura.bungeechat.command;
 
-import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
@@ -19,18 +18,18 @@ public class LocalSpyCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSource sender, String[] args) {
-    if (PermissionManager.hasPermission(sender, Permission.COMMAND_LOCALSPY)) {
-      if (!(sender instanceof Player)) {
-        MessagesService.sendMessage(sender, Messages.NOT_A_PLAYER.get());
+  public void execute(Invocation invocation) {
+    if (PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_LOCALSPY)) {
+      if (!(invocation.source() instanceof Player)) {
+        MessagesService.sendMessage(invocation.source(), Messages.NOT_A_PLAYER.get());
       } else {
-        BungeeChatAccount player = BungeecordAccountManager.getAccount(sender).get();
+        BungeeChatAccount player = BungeecordAccountManager.getAccount(invocation.source()).get();
         player.toggleLocalSpy();
 
         if (player.hasLocalSpyEnabled()) {
-          MessagesService.sendMessage(sender, Messages.ENABLE_LOCAL_SPY.get(player));
+          MessagesService.sendMessage(invocation.source(), Messages.ENABLE_LOCAL_SPY.get(player));
         } else {
-          MessagesService.sendMessage(sender, Messages.DISABLE_LOCAL_SPY.get(player));
+          MessagesService.sendMessage(invocation.source(), Messages.DISABLE_LOCAL_SPY.get(player));
         }
       }
     }

@@ -1,6 +1,5 @@
 package dev.aura.bungeechat.command;
 
-import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.AccountManager;
@@ -11,7 +10,6 @@ import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.module.MessengerModule;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,31 +23,31 @@ public class MessageToggleCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSource sender, String[] args) {
-    if (!PermissionManager.hasPermission(sender, Permission.COMMAND_TOGGLE_MESSAGE)) return;
+  public void execute(Invocation invocation) {
+    if (!PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_TOGGLE_MESSAGE)) return;
 
-    if (args.length == 0) {
-      if (!(sender instanceof Player)) {
-        MessagesService.sendMessage(sender, Messages.NOT_A_PLAYER.get());
+    if (invocation.arguments().length == 0) {
+      if (!(invocation.source() instanceof Player)) {
+        MessagesService.sendMessage(invocation.source(), Messages.NOT_A_PLAYER.get());
         return;
       }
 
-      BungeeChatAccount player = BungeecordAccountManager.getAccount(sender).get();
+      BungeeChatAccount player = BungeecordAccountManager.getAccount(invocation.source()).get();
       player.toggleMessanger();
 
       if (player.hasMessangerEnabled()) {
-        MessagesService.sendMessage(sender, Messages.ENABLE_MESSAGER.get());
+        MessagesService.sendMessage(invocation.source(), Messages.ENABLE_MESSAGER.get());
       } else {
-        MessagesService.sendMessage(sender, Messages.DISABLE_MESSAGER.get());
+        MessagesService.sendMessage(invocation.source(), Messages.DISABLE_MESSAGER.get());
       }
-    } else if (args.length == 1) {
-      if (!PermissionManager.hasPermission(sender, Permission.COMMAND_TOGGLE_MESSAGE_OTHERS))
+    } else if (invocation.arguments().length == 1) {
+      if (!PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_TOGGLE_MESSAGE_OTHERS))
         return;
 
-      Optional<BungeeChatAccount> targetAccount = AccountManager.getAccount(args[0]);
+      Optional<BungeeChatAccount> targetAccount = AccountManager.getAccount(invocation.arguments()[0]);
 
       if (targetAccount.map(target -> target.getAccountType() != AccountType.PLAYER).orElse(true)) {
-        MessagesService.sendMessage(sender, Messages.PLAYER_NOT_FOUND.get());
+        MessagesService.sendMessage(invocation.source(), Messages.PLAYER_NOT_FOUND.get());
         return;
       }
 
@@ -57,29 +55,29 @@ public class MessageToggleCommand extends BaseCommand {
 
       if (targetAccount.get().hasMessangerEnabled()) {
         MessagesService.sendMessage(
-            sender, Messages.ENABLE_MESSAGER_OTHERS.get(targetAccount.get()));
+            invocation.source(), Messages.ENABLE_MESSAGER_OTHERS.get(targetAccount.get()));
       } else {
         MessagesService.sendMessage(
-            sender, Messages.DISABLE_MESSAGER_OTHERS.get(targetAccount.get()));
+            invocation.source(), Messages.DISABLE_MESSAGER_OTHERS.get(targetAccount.get()));
       }
     } else {
       MessagesService.sendMessage(
-          sender, Messages.INCORRECT_USAGE.get(sender, "/msgtoggle [player]"));
+          invocation.source(), Messages.INCORRECT_USAGE.get(invocation.source(), "/msgtoggle [player]"));
     }
   }
 
   @Override
-  public List<String> suggest(CommandSource sender, String[] args) {
-    if (args.length == 1) {
-      final BungeeChatAccount senderAccount = BungeecordAccountManager.getAccount(sender).get();
+  public List<String> suggest(Invocation invocation) {
+    if (invocation.arguments().length == 1) {
+      final BungeeChatAccount senderAccount = BungeecordAccountManager.getAccount(invocation.source()).get();
 
-      return BungeecordAccountManager.getAccountsForPartialName(args[0], sender).stream()
+      return BungeecordAccountManager.getAccountsForPartialName(invocation.arguments()[0], invocation.source()).stream()
           .filter(account -> account.getAccountType() == AccountType.PLAYER)
           .filter(account -> !senderAccount.equals(account))
           .map(BungeeChatAccount::getName)
           .collect(Collectors.toList());
     }
 
-    return super.suggest(sender, args);
+    return super.suggest(invocation);
   }
 }

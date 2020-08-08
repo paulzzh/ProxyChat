@@ -1,6 +1,5 @@
 package dev.aura.bungeechat.command;
 
-import com.velocitypowered.api.command.CommandSource;
 import dev.aura.bungeechat.message.Context;
 import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.message.MessagesService;
@@ -22,35 +21,36 @@ public class LocalToCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSource sender, String[] args) {
-    if (!PermissionManager.hasPermission(sender, Permission.COMMAND_LOCALTO)) return;
+  public void execute(Invocation invocation) {
+    if (!PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_LOCALTO)) return;
 
-    if (args.length < 2) {
+    if (invocation.arguments().length < 2) {
       MessagesService.sendMessage(
-          sender, Messages.INCORRECT_USAGE.get(sender, "/localto <server> <message>"));
+          invocation.source(), Messages.INCORRECT_USAGE.get(invocation.source(), "/localto <server> <message>"));
       return;
     }
 
-    Optional<String> optServerName = ServerNameUtil.verifyServerName(args[0], sender);
+    Optional<String> optServerName = ServerNameUtil.verifyServerName(invocation.arguments()[0], invocation.source());
 
     if (!optServerName.isPresent()) return;
 
     String serverName = optServerName.get();
 
-    String finalMessage = Arrays.stream(args, 1, args.length).collect(Collectors.joining(" "));
-    MessagesService.sendLocalMessage(new Context(sender, finalMessage, serverName));
+    String finalMessage = Arrays.stream(invocation.arguments(), 1, invocation.arguments().length)
+            .collect(Collectors.joining(" "));
+    MessagesService.sendLocalMessage(new Context(invocation.source(), finalMessage, serverName));
   }
 
   @Override
-  public List<String> suggest(CommandSource sender, String[] args) {
-    if(args.length == 0) {
+  public List<String> suggest(Invocation invocation) {
+    if(invocation.arguments().length == 0) {
       return ServerNameUtil.getServerNames();
     }
 
-    if (args.length == 1) {
-      return ServerNameUtil.getMatchingServerNames(args[0]);
+    if (invocation.arguments().length == 1) {
+      return ServerNameUtil.getMatchingServerNames(invocation.arguments()[0]);
     }
 
-    return super.suggest(sender, args);
+    return super.suggest(invocation);
   }
 }

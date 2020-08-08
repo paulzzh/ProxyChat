@@ -31,10 +31,10 @@ public class BungeeChatCommand extends BaseCommand {
   }
 
   @Override
-  public void execute(CommandSource sender, String[] args) {
-    if (args.length != 0) {
-      if (args[0].equalsIgnoreCase("reload")
-          && PermissionManager.hasPermission(sender, Permission.BUNGEECHAT_RELOAD)) {
+  public void execute(Invocation invocation) {
+    if (invocation.arguments().length != 0) {
+      if (invocation.arguments()[0].equalsIgnoreCase("reload")
+          && PermissionManager.hasPermission(invocation.source(), Permission.BUNGEECHAT_RELOAD)) {
         final BungeeChat instance = BungeeChat.getInstance();
 
         BungeeChat.getInstance().getProxy()
@@ -46,75 +46,77 @@ public class BungeeChatCommand extends BaseCommand {
                   instance.onEnable(false);
 
                   MessagesService.sendMessage(
-                      sender, prefix + "&aThe plugin has been reloaded!");
+                      invocation.source(), prefix + "&aThe plugin has been reloaded!");
                 }).schedule();
 
         return;
-      } else if (args[0].equalsIgnoreCase("setprefix")
-          && PermissionManager.hasPermission(sender, Permission.BUNGEECHAT_SETPREFIX)) {
+      } else if (invocation.arguments()[0].equalsIgnoreCase("setprefix")
+          && PermissionManager.hasPermission(invocation.source(), Permission.BUNGEECHAT_SETPREFIX)) {
 
-        if (args.length < 2) {
+        if (invocation.arguments().length < 2) {
           MessagesService.sendMessage(
-              sender,
-              Messages.INCORRECT_USAGE.get(sender, "/bungeechat setprefix <player> [new prefix]"));
+              invocation.source(),
+              Messages.INCORRECT_USAGE.get(invocation.source(), "/bungeechat setprefix <player> [new prefix]"));
         } else {
-          Optional<BungeeChatAccount> targetAccount = AccountManager.getAccount(args[1]);
+          Optional<BungeeChatAccount> targetAccount = AccountManager.getAccount(invocation.arguments()[1]);
 
-          if (!targetAccount.isPresent()) {
-            MessagesService.sendMessage(sender, Messages.PLAYER_NOT_FOUND.get());
+          if (targetAccount.isEmpty()) {
+            MessagesService.sendMessage(invocation.source(), Messages.PLAYER_NOT_FOUND.get());
           } else {
             CommandSource target =
                 BungeecordAccountManager.getCommandSource(targetAccount.get()).get();
 
-            if (args.length < 3) {
+            if (invocation.arguments().length < 3) {
               targetAccount.get().setStoredPrefix(Optional.empty());
-              MessagesService.sendMessage(sender, prefix + Messages.PREFIX_REMOVED.get(target));
+              MessagesService.sendMessage(invocation.source(), prefix + Messages.PREFIX_REMOVED.get(target));
             } else {
               String newPrefix =
                   getUnquotedString(
-                      Arrays.stream(args, 2, args.length).collect(Collectors.joining(" ")));
+                      Arrays.stream(invocation.arguments(), 2, invocation.arguments().length)
+                              .collect(Collectors.joining(" ")));
 
               targetAccount.get().setStoredPrefix(Optional.of(newPrefix));
-              MessagesService.sendMessage(sender, prefix + Messages.PREFIX_SET.get(target));
+              MessagesService.sendMessage(invocation.source(), prefix + Messages.PREFIX_SET.get(target));
             }
           }
         }
         return;
-      } else if (args[0].equalsIgnoreCase("setsuffix")
-          && PermissionManager.hasPermission(sender, Permission.BUNGEECHAT_SETSUFFIX)) {
+      } else if (invocation.arguments()[0].equalsIgnoreCase("setsuffix")
+          && PermissionManager.hasPermission(invocation.source(), Permission.BUNGEECHAT_SETSUFFIX)) {
 
-        if (args.length < 2) {
+        if (invocation.arguments().length < 2) {
           MessagesService.sendMessage(
-              sender,
-              Messages.INCORRECT_USAGE.get(sender, "/bungeechat setsuffix <player> [new suffix]"));
+              invocation.source(),
+              Messages.INCORRECT_USAGE.get(invocation.source(), "/bungeechat setsuffix <player> [new suffix]"));
         } else {
-          Optional<BungeeChatAccount> targetAccount = AccountManager.getAccount(args[1]);
+          Optional<BungeeChatAccount> targetAccount = AccountManager.getAccount(invocation.arguments()[1]);
 
-          if (!targetAccount.isPresent()) {
-            MessagesService.sendMessage(sender, Messages.PLAYER_NOT_FOUND.get());
+          if (targetAccount.isEmpty()) {
+            MessagesService.sendMessage(invocation.source(), Messages.PLAYER_NOT_FOUND.get());
           } else {
             CommandSource target =
                 BungeecordAccountManager.getCommandSource(targetAccount.get()).get();
 
-            if (args.length < 3) {
+            if (invocation.arguments().length < 3) {
               targetAccount.get().setStoredSuffix(Optional.empty());
-              MessagesService.sendMessage(sender, prefix + Messages.SUFFIX_REMOVED.get(target));
+              MessagesService.sendMessage(invocation.source(), prefix + Messages.SUFFIX_REMOVED.get(target));
             } else {
               String newSuffix =
                   getUnquotedString(
-                      Arrays.stream(args, 2, args.length).collect(Collectors.joining(" ")));
+                      Arrays.stream(invocation.arguments(), 2, invocation.arguments().length)
+                              .collect(Collectors.joining(" ")));
 
               targetAccount.get().setStoredSuffix(Optional.of(newSuffix));
-              MessagesService.sendMessage(sender, prefix + Messages.SUFFIX_SET.get(target));
+              MessagesService.sendMessage(invocation.source(), prefix + Messages.SUFFIX_SET.get(target));
             }
           }
         }
 
         return;
-      } else if (args[0].equalsIgnoreCase("modules")
-          && PermissionManager.hasPermission(sender, Permission.BUNGEECHAT_MODULES)) {
+      } else if (invocation.arguments()[0].equalsIgnoreCase("modules")
+          && PermissionManager.hasPermission(invocation.source(), Permission.BUNGEECHAT_MODULES)) {
         MessagesService.sendMessage(
-            sender,
+            invocation.source(),
             prefix
                 + "&7Active Modules: &a"
                 + BungeecordModuleManager.getActiveModuleString());
@@ -123,7 +125,7 @@ public class BungeeChatCommand extends BaseCommand {
     }
 
     MessagesService.sendMessage(
-        sender,
+        invocation.source(),
         prefix
             + "&7Coded by &6"
             + BungeeChatApi.AUTHOR_BRAINSTONE
@@ -133,24 +135,24 @@ public class BungeeChatCommand extends BaseCommand {
   }
 
   @Override
-  public List<String> suggest(CommandSource sender, String[] args) {
-    if(args.length == 0) {
+  public List<String> suggest(Invocation invocation) {
+    if(invocation.arguments().length == 0) {
       return arg1Completetions;
     }
 
-    final String param1 = args[0];
+    final String param1 = invocation.arguments()[0];
 
-    if (args.length == 1 && !arg1Completetions.contains(args[0])) {
+    if (invocation.arguments().length == 1 && !arg1Completetions.contains(invocation.arguments()[0])) {
       return arg1Completetions.stream()
           .filter(completion -> completion.startsWith(param1))
           .collect(Collectors.toList());
-    } else if ((args.length == 2) && ("setprefix".equals(param1) || "setsuffix".equals(param1))) {
-      return BungeecordAccountManager.getAccountsForPartialName(args[1], sender).stream()
+    } else if ((invocation.arguments().length == 2) && ("setprefix".equals(param1) || "setsuffix".equals(param1))) {
+      return BungeecordAccountManager.getAccountsForPartialName(invocation.arguments()[1], invocation.source()).stream()
           .map(BungeeChatAccount::getName)
           .collect(Collectors.toList());
     }
 
-    return super.suggest(sender, args);
+    return super.suggest(invocation);
   }
 
   private String getUnquotedString(String str) {
