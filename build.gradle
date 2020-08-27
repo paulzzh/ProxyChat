@@ -49,7 +49,13 @@ repositories {
         url 'https://repo.velocitypowered.com/snapshots/'
     }
     maven {
-        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+        url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        url "https://repo.nukkitx.com/maven-snapshots"
+    }
+    maven {
+        url "https://repo.nukkitx.com/maven-releases"
     }
     flatDir {
         dirs 'libs'
@@ -61,11 +67,13 @@ dependencies {
     compile project(":BungeeChatApi")
 
     compile name: "MessagesTranslator-1.4.3.41-DEV"
-    compile 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
-    compile 'org.spongepowered:configurate-yaml:3.6'
+    compileOnly 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
+    compileOnly 'org.spongepowered:configurate-yaml:3.6'
     compile "de.dytanic.cloudnet:cloudnet-api-bridge:${cloudnetapi_version}"
     compileOnly "net.luckperms:api:${luckperms5_version}"
-    compile "com.github.CheeseSoftware:PowerfulPermsAPI:${powerfulperms_version}"
+    compileOnly group: 'org.geysermc', name: 'floodgate-common', version:'1.0-SNAPSHOT'
+    compileOnly group: 'org.geysermc', name: 'floodgate-velocity', version:'1.0-SNAPSHOT'
+    compileOnly "com.github.CheeseSoftware:PowerfulPermsAPI:${powerfulperms_version}"
 
     annotationProcessor 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
 

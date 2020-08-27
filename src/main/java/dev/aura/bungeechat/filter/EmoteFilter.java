@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class EmoteFilter implements BungeeChatFilter {
 	private final static Pattern emotePattern = Pattern.compile("([^\\\\]|^):(\\w+):");
-	private final static char emoteCharacter = '\ue000';
+	private final static char emoteCharacter = '\ue110';
 	private final List<String> emotes;
 	private final boolean noPermissions;
 	private final String prefix;

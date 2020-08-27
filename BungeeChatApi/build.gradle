@@ -54,12 +54,12 @@ repositories {
 }
 
 dependencies {
-    compile 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
-    compile 'org.spongepowered:configurate-hocon:3.6'
-    compile 'org.spongepowered:configurate-yaml:3.6'
-    compile "de.dytanic.cloudnet:cloudnet-api-bridge:${cloudnetapi_version}"
+    compileOnly 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
+    compileOnly 'org.spongepowered:configurate-hocon:3.6'
+    compileOnly 'org.spongepowered:configurate-yaml:3.6'
+    compileOnly "de.dytanic.cloudnet:cloudnet-api-bridge:${cloudnetapi_version}"
     compileOnly "net.luckperms:api:${luckperms5_version}"
-    compile "com.github.CheeseSoftware:PowerfulPermsAPI:${powerfulperms_version}"
+    compileOnly "com.github.CheeseSoftware:PowerfulPermsAPI:${powerfulperms_version}"
 
     annotationProcessor 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
 
