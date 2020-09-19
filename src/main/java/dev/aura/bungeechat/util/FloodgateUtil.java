@@ -26,13 +26,13 @@ public class FloodgateUtil {
 		}
 
 		if(!FloodgateUtil.isBedrockPlayer(player)) {
-			return "";
+			return null;
 		}
 
 		FloodgatePlayer floodgatePlayer = FloodgateAPI.getPlayer(player.getUniqueId());
 
 		if(floodgatePlayer == null) {
-			return "";
+			return null;
 		}
 
 		switch(floodgatePlayer.getDeviceOS()) {
