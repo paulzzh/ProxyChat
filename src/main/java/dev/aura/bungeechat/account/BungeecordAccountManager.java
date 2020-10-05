@@ -127,7 +127,7 @@ public class BungeecordAccountManager extends AccountManager {
     }
   }
 
-  @Subscribe(order = PostOrder.LATE)
+  @Subscribe(order = PostOrder.FIRST)
   public void onPlayerConnect(BungeeChatJoinEvent event) {
     loadAccount(event.getPlayer().getUniqueId());
   }
