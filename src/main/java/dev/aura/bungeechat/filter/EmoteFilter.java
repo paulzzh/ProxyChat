@@ -5,9 +5,10 @@ import dev.aura.bungeechat.api.filter.BungeeChatFilter;
 import dev.aura.bungeechat.api.filter.FilterManager;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 
 import java.util.List;
-import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -29,16 +30,26 @@ public class EmoteFilter implements BungeeChatFilter {
 	}
 
 	@Override
-	public String applyFilter(BungeeChatAccount sender, String message) {
+	public Component applyFilter(BungeeChatAccount sender, Component message) {
 		if(!noPermissions && PermissionManager.hasPermission(sender, Permission.USE_EMOTES)) {
 			return message;
 		}
 
-		return emotePattern.matcher(message).replaceAll((MatchResult result) -> {
-			int emoteIndex = emotes.indexOf(result.group(2).replace(prefix, "").toLowerCase());
+		return message.replaceText(emotePattern, (TextComponent.Builder result) -> {
+			String content = result.content();
+			String beforeEmote = content.substring(content.indexOf(':') - 1);
+			String emote = content.substring(content.indexOf(':'), content.length() - 1)
+					.replace(prefix, "").toLowerCase();
 
-			return emoteIndex > -1 ? result.group(1) + new String(
-					Character.toChars(emoteCharacter + emoteIndex)) : result.group();
+			int emoteIndex = emotes.indexOf(emote);
+
+			if(emoteIndex > -1) {
+				result.content(beforeEmote + new String(Character.toChars(emoteCharacter + emoteIndex)));
+				result.hoverEvent(Component.text(":" + emote + ":"));
+				result.insertion(":" + emote + ":");
+			}
+
+			return message;
 		});
 	}
 

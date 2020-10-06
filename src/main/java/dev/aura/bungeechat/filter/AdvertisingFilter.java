@@ -8,6 +8,9 @@ import dev.aura.bungeechat.api.utils.RegexUtil;
 import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -46,22 +49,20 @@ public class AdvertisingFilter implements BungeeChatFilter {
   }
 
   @Override
-  public String applyFilter(BungeeChatAccount sender, String message) throws BlockMessageException {
+  public Component applyFilter(BungeeChatAccount sender, Component message) throws BlockMessageException {
     if (!noPermissions
         && PermissionManager.hasPermission(sender, Permission.BYPASS_ANTI_ADVERTISEMENT))
       return message;
 
-    Matcher matches = url.matcher(message);
-    boolean matchOk;
-    String match;
+    message.replaceText(url, (TextComponent.Builder result) -> {
+      boolean matchOk = whitelisted.test(result.content());
 
-    while (matches.find()) {
-      match = matches.group();
-      matchOk = whitelisted.test(match);
+      if (!matchOk) {
+        //throw new ExtendedBlockMessageException(Messages.ANTI_ADVERTISE, sender, message);
+      }
 
-      if (!matchOk)
-        throw new ExtendedBlockMessageException(Messages.ANTI_ADVERTISE, sender, message);
-    }
+      return result;
+    });
 
     return message;
   }

@@ -209,7 +209,7 @@ public class PlaceHolders {
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
                 "message",
-                context -> PlaceHolderUtil.escape(context.getMessage().get()),
+                context -> "",//context.getMessage().get(),
                 BungeeChatContext.HAS_MESSAGE)
             .createAliases("command", "unknown_server"));
     PlaceHolderManager.registerPlaceholder(

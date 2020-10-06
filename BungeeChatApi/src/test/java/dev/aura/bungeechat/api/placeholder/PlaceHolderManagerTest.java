@@ -80,7 +80,7 @@ public class PlaceHolderManagerTest {
     }
 
     @Override
-    public String getReplacement(String name, BungeeChatContext context) {
+    public Component getReplacement(String name, BungeeChatContext context) {
       return replacement;
     }
   }

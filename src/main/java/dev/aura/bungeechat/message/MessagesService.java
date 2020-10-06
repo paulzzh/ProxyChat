@@ -65,20 +65,20 @@ public class MessagesService {
 			return;
 		}
 
-		Optional<String> messageSender =
+		Optional<Component> messageSender =
 				preProcessMessage(context, account, Format.MESSAGE_SENDER, filterPrivateMessages);
 
 		if (messageSender.isPresent()) {
 			MessagesService.sendMessage(sender, messageSender.get());
 
-			String messageTarget =
+			Component messageTarget =
 					preProcessMessage(context, account, Format.MESSAGE_TARGET, filterPrivateMessages, true)
 							.get();
 			MessagesService.sendMessage(target, messageTarget);
 
 			if (ModuleManager.isModuleActive(BungeecordModuleManager.SPY_MODULE)
 					&& !PermissionManager.hasPermission(account.get(), Permission.COMMAND_SOCIALSPY_EXEMPT)) {
-				String socialSpyMessage =
+				Component socialSpyMessage =
 						preProcessMessage(context, account, Format.SOCIAL_SPY, false).get();
 
 				sendToMatchingPlayers(
@@ -134,7 +134,7 @@ public class MessagesService {
 		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE);
 
 		Optional<BungeeChatAccount> account = context.getSender();
-		Optional<String> finalMessage = preProcessMessage(context, Format.GLOBAL_CHAT);
+		Optional<Component> finalMessage = preProcessMessage(context, Format.GLOBAL_CHAT);
 
 		sendToMatchingPlayers(finalMessage, getGlobalPredicate(), getNotIgnoredPredicate(account));
 
@@ -150,7 +150,7 @@ public class MessagesService {
 		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE);
 
 		Optional<BungeeChatAccount> account = context.getSender();
-		Optional<String> finalMessage = preProcessMessage(context, Format.LOCAL_CHAT);
+		Optional<Component> finalMessage = preProcessMessage(context, Format.LOCAL_CHAT);
 		String localServerName =
 				context.hasServer() ? context.getServer().get() : context.getSender().get().getServerName();
 		Predicate<BungeeChatAccount> isLocal = getLocalPredicate(localServerName);
@@ -161,7 +161,7 @@ public class MessagesService {
 		ChatLoggingManager.logMessage(ChannelType.LOCAL, context);
 
 		if (ModuleManager.isModuleActive(BungeecordModuleManager.SPY_MODULE)) {
-			String localSpyMessage = preProcessMessage(context, account, Format.LOCAL_SPY, false).get();
+			Component localSpyMessage = preProcessMessage(context, account, Format.LOCAL_SPY, false).get();
 			Predicate<BungeeChatAccount> isNotLocal = isLocal.negate();
 
 			sendToMatchingPlayers(
@@ -181,7 +181,7 @@ public class MessagesService {
 
 		if (ModuleManager.isModuleActive(BungeecordModuleManager.SPY_MODULE)
 				&& !PermissionManager.hasPermission(account.get(), Permission.COMMAND_LOCALSPY_EXEMPT)) {
-			String localSpyMessage = preProcessMessage(context, account, Format.LOCAL_SPY, false).get();
+			Component localSpyMessage = preProcessMessage(context, account, Format.LOCAL_SPY, false).get();
 			Predicate<BungeeChatAccount> isNotLocal = isLocal.negate();
 
 			sendToMatchingPlayers(localSpyMessage, BungeeChatAccount::hasLocalSpyEnabled, isNotLocal);
@@ -196,7 +196,7 @@ public class MessagesService {
 	public void sendStaffMessage(BungeeChatContext context) throws InvalidContextError {
 		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE);
 
-		Optional<String> finalMessage = preProcessMessage(context, Format.STAFF_CHAT);
+		Optional<Component> finalMessage = preProcessMessage(context, Format.STAFF_CHAT);
 
 		sendToMatchingPlayers(
 				finalMessage, pp -> PermissionManager.hasPermission(pp, Permission.COMMAND_STAFFCHAT_VIEW));
@@ -212,7 +212,7 @@ public class MessagesService {
 	public void sendHelpMessage(BungeeChatContext context) throws InvalidContextError {
 		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE);
 
-		Optional<String> finalMessage = preProcessMessage(context, Format.HELP_OP);
+		Optional<Component> finalMessage = preProcessMessage(context, Format.HELP_OP);
 		BungeeChatAccount sender = context.getSender().get();
 
 		sendToMatchingPlayers(
@@ -231,7 +231,7 @@ public class MessagesService {
 	public void sendJoinMessage(BungeeChatContext context) throws InvalidContextError {
 		context.require(BungeeChatContext.HAS_SENDER);
 
-		String finalMessage = Format.JOIN_MESSAGE.get(context);
+		Component finalMessage = Format.JOIN_MESSAGE.get(context);
 		Predicate<BungeeChatAccount> predicate = getPermissionPredicate(Permission.MESSAGE_JOIN_VIEW);
 
 		// This condition checks if the player is present and vanished
@@ -252,7 +252,7 @@ public class MessagesService {
 	public void sendLeaveMessage(BungeeChatContext context) throws InvalidContextError {
 		context.require(BungeeChatContext.HAS_SENDER);
 
-		String finalMessage = Format.LEAVE_MESSAGE.get(context);
+		Component finalMessage = Format.LEAVE_MESSAGE.get(context);
 		Predicate<BungeeChatAccount> predicate = getPermissionPredicate(Permission.MESSAGE_LEAVE_VIEW);
 
 		// This condition checks if the player is present and vanished
@@ -282,7 +282,7 @@ public class MessagesService {
 	public void sendSwitchMessage(BungeeChatContext context) throws InvalidContextError {
 		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_SERVER);
 
-		String finalMessage = Format.SERVER_SWITCH.get(context);
+		Component finalMessage = Format.SERVER_SWITCH.get(context);
 		Predicate<BungeeChatAccount> predicate = getPermissionPredicate(Permission.MESSAGE_SWITCH_VIEW);
 
 		// This condition checks if the player is present and vanished
@@ -296,18 +296,18 @@ public class MessagesService {
 		ChatLoggingManager.logMessage("SWITCH", context);
 	}
 
-	public Optional<String> preProcessMessage(BungeeChatContext context, Format format)
+	public Optional<Component> preProcessMessage(BungeeChatContext context, Format format)
 			throws InvalidContextError {
 		return preProcessMessage(context, context.getSender(), format, true);
 	}
 
-	public Optional<String> preProcessMessage(
+	public Optional<Component> preProcessMessage(
 			BungeeChatContext context, Optional<BungeeChatAccount> account, Format format)
 			throws InvalidContextError {
 		return preProcessMessage(context, account, format, true);
 	}
 
-	public Optional<String> preProcessMessage(
+	public Optional<Component> preProcessMessage(
 			BungeeChatContext context,
 			Optional<BungeeChatAccount> account,
 			Format format,
@@ -315,7 +315,7 @@ public class MessagesService {
 		return preProcessMessage(context, account, format, runFilters, false);
 	}
 
-	public Optional<String> preProcessMessage(
+	public Optional<Component> preProcessMessage(
 			BungeeChatContext context,
 			Optional<BungeeChatAccount> account,
 			Format format,
@@ -326,7 +326,7 @@ public class MessagesService {
 
 		BungeeChatAccount playerAccount = account.get();
 		CommandSource player = BungeecordAccountManager.getCommandSource(playerAccount).get();
-		String message = PlaceHolderUtil.transformAltColorCodes(context.getMessage().get(), account);
+		Component message = PlaceHolderUtil.filterFormatting(context.getMessage().get(), account);
 
 		if (runFilters) {
 			try {
@@ -346,13 +346,12 @@ public class MessagesService {
 	}
 
 	@SafeVarargs
-	public void sendToMatchingPlayers(
-			Optional<String> finalMessage, Predicate<BungeeChatAccount>... playerFilters) {
+	public void sendToMatchingPlayers(Optional<Component> finalMessage, Predicate<BungeeChatAccount>... playerFilters) {
 		finalMessage.ifPresent(s -> sendToMatchingPlayers(s, playerFilters));
 	}
 
 	@SafeVarargs
-	public void sendToMatchingPlayers(String finalMessage, Predicate<BungeeChatAccount>... playerFilters) {
+	public void sendToMatchingPlayers(Component finalMessage, Predicate<BungeeChatAccount>... playerFilters) {
 		Predicate<BungeeChatAccount> playerFiler =
 				Arrays.stream(playerFilters).reduce(Predicate::and).orElse(acc -> true);
 

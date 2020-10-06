@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
+import net.kyori.adventure.text.Component;
 
 @UtilityClass
 public class ChatLoggingManager {
@@ -24,7 +25,7 @@ public class ChatLoggingManager {
     loggers.remove(logger);
   }
 
-  public static void logMessage(String channel, BungeeChatAccount sender, String message) {
+  public static void logMessage(String channel, BungeeChatAccount sender, Component message) {
     BungeeChatContext context = new BungeeChatContext(sender, message);
     context.setChannel(channel);
 
@@ -53,7 +54,7 @@ public class ChatLoggingManager {
       if (pattern.matcher(command).find()) return;
     }
 
-    logMessage("COMMAND", account, command);
+//    logMessage("COMMAND", account, command);
   }
 
   public static void loadFilteredCommands(List<String> commands) {

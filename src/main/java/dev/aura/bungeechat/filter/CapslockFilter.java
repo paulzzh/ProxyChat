@@ -8,6 +8,10 @@ import dev.aura.bungeechat.api.filter.FilterManager;
 import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import org.w3c.dom.Text;
 
 public class CapslockFilter implements BungeeChatFilter {
   private final int minimumLetterCount;
@@ -26,14 +30,16 @@ public class CapslockFilter implements BungeeChatFilter {
   }
 
   @Override
-  public String applyFilter(BungeeChatAccount sender, String message) throws BlockMessageException {
+  public Component applyFilter(BungeeChatAccount sender, Component message) throws BlockMessageException {
     if (!noPermissions && PermissionManager.hasPermission(sender, Permission.BYPASS_ANTI_CAPSLOCK))
       return message;
 
     int uppercase = 0;
     int lowercase = 0;
 
-    for (char c : message.toCharArray()) {
+    String text = PlainComponentSerializer.plain().serialize(message);
+
+    for (char c : text.toCharArray()) {
       if (Character.isUpperCase(c)) {
         uppercase++;
       } else if (Character.isLowerCase(c)) {
@@ -46,7 +52,7 @@ public class CapslockFilter implements BungeeChatFilter {
     if (total < minimumLetterCount) return message;
 
     if (((uppercase * 100) / total) > maximumCapsPercentage)
-      throw new ExtendedBlockMessageException(Messages.ANTI_CAPSLOCK, sender, message);
+      throw new ExtendedBlockMessageException(Messages.ANTI_CAPSLOCK, sender);
 
     return message;
   }

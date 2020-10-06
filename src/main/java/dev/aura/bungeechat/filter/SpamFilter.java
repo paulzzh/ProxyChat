@@ -8,6 +8,8 @@ import dev.aura.bungeechat.api.filter.FilterManager;
 import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
+import net.kyori.adventure.text.Component;
+
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.UUID;
@@ -34,7 +36,7 @@ public class SpamFilter implements BungeeChatFilter {
   }
 
   @Override
-  public String applyFilter(BungeeChatAccount sender, String message) throws BlockMessageException {
+  public Component applyFilter(BungeeChatAccount sender, Component message) throws BlockMessageException {
     if (!noPermissions && PermissionManager.hasPermission(sender, Permission.BYPASS_ANTI_SPAM))
       return message;
 
@@ -53,7 +55,7 @@ public class SpamFilter implements BungeeChatFilter {
     }
 
     if (timePoints.size() >= messagesPerMinute)
-      throw new ExtendedBlockMessageException(Messages.ANTI_SPAM, sender, message);
+      throw new ExtendedBlockMessageException(Messages.ANTI_SPAM, sender);
 
     timePoints.add(now);
 

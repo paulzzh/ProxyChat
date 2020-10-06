@@ -6,6 +6,7 @@ import dev.aura.bungeechat.api.placeholder.BungeeChatContext;
 import dev.aura.lib.messagestranslator.Message;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.kyori.adventure.text.Component;
 
 @RequiredArgsConstructor
 public enum Messages implements Message {
@@ -92,27 +93,27 @@ public enum Messages implements Message {
 
   @Getter private final String stringPath;
 
-  public String get() {
+  public Component get() {
     return PlaceHolderUtil.getFullMessage(this);
   }
 
-  public String get(BungeeChatAccount sender) {
+  public Component get(BungeeChatAccount sender) {
     return get(new BungeeChatContext(sender));
   }
 
-  public String get(BungeeChatAccount sender, String command) {
+  public Component get(BungeeChatAccount sender, String command) {
     return get(new BungeeChatContext(sender, command));
   }
 
-  public String get(BungeeChatContext context) {
+  public Component get(BungeeChatContext context) {
     return PlaceHolderUtil.getFullMessage(this, context);
   }
 
-  public String get(CommandSource sender) {
+  public Component get(CommandSource sender) {
     return get(new Context(sender));
   }
 
-  public String get(CommandSource sender, String command) {
+  public Component get(CommandSource sender, String command) {
     return get(new Context(sender, command));
   }
 }

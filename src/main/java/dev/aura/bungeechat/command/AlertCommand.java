@@ -8,6 +8,7 @@ import dev.aura.bungeechat.message.PlaceHolderUtil;
 import dev.aura.bungeechat.module.AlertModule;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
+import net.kyori.adventure.text.Component;
 
 public class AlertCommand extends BaseCommand {
   public AlertCommand(AlertModule alertModule) {
@@ -22,10 +23,7 @@ public class AlertCommand extends BaseCommand {
         MessagesService.sendMessage(
             invocation.source(), Messages.INCORRECT_USAGE.get(invocation.source(), "/alert <message>"));
       } else {
-        String finalMessage =
-            PlaceHolderUtil.transformAltColorCodes(
-                    String.join(" ", invocation.arguments()));
-        String format = Format.ALERT.get(new Context(invocation.source(), finalMessage));
+        Component format = Format.ALERT.get(new Context(invocation.source(), String.join(" ", invocation.arguments())));
 
         MessagesService.sendToMatchingPlayers(format, MessagesService.getGlobalPredicate());
       }

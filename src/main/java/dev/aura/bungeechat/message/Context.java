@@ -5,6 +5,8 @@ import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.AccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.placeholder.BungeeChatContext;
+import net.kyori.adventure.text.Component;
+
 import java.util.UUID;
 
 public class Context extends BungeeChatContext {
@@ -32,6 +34,12 @@ public class Context extends BungeeChatContext {
     super(BungeecordAccountManager.getAccount(sender).get());
   }
 
+  public Context(CommandSource player, Component message) {
+    this(player);
+
+    setMessage(message);
+  }
+
   public Context(CommandSource player, String message) {
     this(player);
 
@@ -48,6 +56,12 @@ public class Context extends BungeeChatContext {
     super(
         BungeecordAccountManager.getAccount(sender).get(),
         BungeecordAccountManager.getAccount(target).get());
+  }
+
+  public Context(CommandSource sender, CommandSource target, Component message) {
+    this(sender, target);
+
+    setMessage(message);
   }
 
   public Context(CommandSource sender, CommandSource target, String message) {

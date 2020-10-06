@@ -18,6 +18,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.format.TextFormat;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 @UtilityClass
 public class PlaceHolderUtil {
@@ -28,38 +35,36 @@ public class PlaceHolderUtil {
 
   private static final char altColorChar = '&';
   private static final String altColorString = String.valueOf(altColorChar);
-  private static final String colorCodeReplacement = "\u00A7$1";
-  private static final Pattern duplicateDection = Pattern.compile(altColorString + altColorString);
-  private static final ImmutableMap<Permission, Character> colorCodeMap =
-      ImmutableMap.<Permission, Character>builder()
-          .put(Permission.USE_CHAT_COLOR_BLACK, '0')
-          .put(Permission.USE_CHAT_COLOR_DARK_BLUE, '1')
-          .put(Permission.USE_CHAT_COLOR_DARK_GREEN, '2')
-          .put(Permission.USE_CHAT_COLOR_DARK_AQUA, '3')
-          .put(Permission.USE_CHAT_COLOR_DARK_RED, '4')
-          .put(Permission.USE_CHAT_COLOR_DARK_PURPLE, '5')
-          .put(Permission.USE_CHAT_COLOR_GOLD, '6')
-          .put(Permission.USE_CHAT_COLOR_GRAY, '7')
-          .put(Permission.USE_CHAT_COLOR_DARK_GRAY, '8')
-          .put(Permission.USE_CHAT_COLOR_BLUE, '9')
-          .put(Permission.USE_CHAT_COLOR_GREEN, 'a')
-          .put(Permission.USE_CHAT_COLOR_AQUA, 'b')
-          .put(Permission.USE_CHAT_COLOR_RED, 'c')
-          .put(Permission.USE_CHAT_COLOR_LIGHT_PURPLE, 'd')
-          .put(Permission.USE_CHAT_COLOR_YELLOW, 'e')
-          .put(Permission.USE_CHAT_COLOR_WHITE, 'f')
-          .put(Permission.USE_CHAT_FORMAT_OBFUSCATED, 'k')
-          .put(Permission.USE_CHAT_FORMAT_BOLD, 'l')
-          .put(Permission.USE_CHAT_FORMAT_STRIKETHROUGH, 'm')
-          .put(Permission.USE_CHAT_FORMAT_UNDERLINE, 'n')
-          .put(Permission.USE_CHAT_FORMAT_ITALIC, 'o')
-          .put(Permission.USE_CHAT_FORMAT_RESET, 'r')
-          .put(Permission.USE_CHAT_FORMAT_RGB, '#')
+//  private static final String colorCodeReplacement = "\u00A7$1";
+
+  private static final ImmutableMap<TextFormat, Permission> colorCodeMap =
+      ImmutableMap.<TextFormat, Permission>builder()
+          .put(NamedTextColor.BLACK, Permission.USE_CHAT_COLOR_BLACK)
+          .put(NamedTextColor.DARK_BLUE, Permission.USE_CHAT_COLOR_DARK_BLUE)
+          .put(NamedTextColor.DARK_GREEN, Permission.USE_CHAT_COLOR_DARK_GREEN)
+          .put(NamedTextColor.DARK_AQUA, Permission.USE_CHAT_COLOR_DARK_AQUA)
+          .put(NamedTextColor.DARK_RED, Permission.USE_CHAT_COLOR_DARK_RED)
+          .put(NamedTextColor.DARK_PURPLE, Permission.USE_CHAT_COLOR_DARK_PURPLE)
+          .put(NamedTextColor.GOLD, Permission.USE_CHAT_COLOR_GOLD)
+          .put(NamedTextColor.GRAY, Permission.USE_CHAT_COLOR_GRAY)
+          .put(NamedTextColor.DARK_GRAY, Permission.USE_CHAT_COLOR_DARK_GRAY)
+          .put(NamedTextColor.BLUE, Permission.USE_CHAT_COLOR_BLUE)
+          .put(NamedTextColor.GREEN, Permission.USE_CHAT_COLOR_GREEN)
+          .put(NamedTextColor.AQUA, Permission.USE_CHAT_COLOR_AQUA)
+          .put(NamedTextColor.RED, Permission.USE_CHAT_COLOR_RED)
+          .put(NamedTextColor.LIGHT_PURPLE, Permission.USE_CHAT_COLOR_LIGHT_PURPLE)
+          .put(NamedTextColor.YELLOW, Permission.USE_CHAT_COLOR_YELLOW)
+          .put(NamedTextColor.WHITE, Permission.USE_CHAT_COLOR_WHITE)
+          .put(TextDecoration.OBFUSCATED, Permission.USE_CHAT_FORMAT_OBFUSCATED)
+          .put(TextDecoration.BOLD, Permission.USE_CHAT_FORMAT_BOLD)
+          .put(TextDecoration.STRIKETHROUGH, Permission.USE_CHAT_FORMAT_STRIKETHROUGH)
+          .put(TextDecoration.UNDERLINED, Permission.USE_CHAT_FORMAT_UNDERLINE)
+          .put(TextDecoration.ITALIC, Permission.USE_CHAT_FORMAT_ITALIC)
           .build();
 
-  private static final Pattern urlEscapePattern = Pattern.compile("(?:(?:https?)://)?(?:[-\\w_.]+\\.\\w{2,})(?:/\\S*)?");
+//  private static final Pattern urlEscapePattern = Pattern.compile("(?:(?:https?)://)?(?:[-\\w_.]+\\.\\w{2,})(?:/\\S*)?");
 
-  private static final Map<Integer, Optional<Pattern>> patternCache = new HashMap<>();
+//  private static final Map<Integer, Optional<Pattern>> patternCache = new HashMap<>();
   private static final char placeholderChar = PlaceHolderManager.placeholderChar;
   private static final String placeholderString = String.valueOf(placeholderChar);
 
@@ -85,118 +90,102 @@ public class PlaceHolderUtil {
         new PluginMessagesTranslator(dir, language, BungeeChat.getInstance(), BungeeChat.ID);
   }
 
-  public static String getFormat(Format format) {
+  public static Component getFormat(Format format) {
     try {
       if (formatsBase == null) {
         loadFormatsBase();
       }
 
-      return formatsBase.getString(format.getStringPath());
+      return LegacyComponentSerializer.legacyAmpersand().deserialize(formatsBase.getString(format.getStringPath()));
     } catch (RuntimeException e) {
-      return format.getStringPath();
+      return LegacyComponentSerializer.legacyAmpersand().deserialize(format.getStringPath());
     }
   }
 
-  public static String getMessage(Messages message) {
+  public static Component getMessage(Messages message) {
     try {
       if (messageBase == null) {
         loadMessageBase();
       }
 
-      return messageBase.translateWithFallback(message);
+      return LegacyComponentSerializer.legacyAmpersand().deserialize(messageBase.translateWithFallback(message));
     } catch (RuntimeException e) {
-      return message.getStringPath();
+      return LegacyComponentSerializer.legacyAmpersand().deserialize(message.getStringPath());
     }
   }
 
-  public static String getFullFormatMessage(Format format, BungeeChatContext context) {
+  public static Component getFullFormatMessage(Format format, BungeeChatContext context) {
     return formatMessage(getFormat(format), context);
   }
 
-  public static String getFullMessage(Messages message) {
+  public static Component getFullMessage(Messages message) {
     return formatMessage(getMessage(message), new BungeeChatContext());
   }
 
-  public static String getFullMessage(Messages message, BungeeChatContext context) {
+  public static Component getFullMessage(Messages message, BungeeChatContext context) {
     return formatMessage(getMessage(message), context);
   }
 
-  public static String formatMessage(String message, BungeeChatContext context) {
-    return transformAltColorCodes(PlaceHolderManager.processMessage(message, context));
+  public static Component formatMessage(String message, BungeeChatContext context) {
+    Component m = LegacyComponentSerializer.legacyAmpersand().deserialize(message);
+
+    return filterFormatting(PlaceHolderManager.processMessage(m, context));
   }
 
-  public static String transformAltColorCodes(String message) {
-    return transformAltColorCodes(message, Optional.empty());
+  public static Component formatMessage(Component message, BungeeChatContext context) {
+    return filterFormatting(PlaceHolderManager.processMessage(message, context));
   }
 
-  public static String transformAltColorCodes(String message, Optional<BungeeChatAccount> account) {
+  public static Component filterFormatting(Component message) {
+    return filterFormatting(message, Optional.empty());
+  }
+
+  public static Component filterFormatting(Component message, Optional<BungeeChatAccount> account) {
     BungeeChatAccount permsAccount = account.orElseGet(AccountManager::getConsoleAccount);
+    Map<TextDecoration, TextDecoration.State> decorations = message.decorations();
 
-    Integer key =
-        colorCodeMap.keySet().stream()
-            .map(perm -> PermissionManager.hasPermission(permsAccount, perm))
-            .reduce(0, (in, bool) -> (in << 1) | (bool ? 1 : 0), (a, b) -> b);
+    TextColor color = message.color();
 
-    if (!patternCache.containsKey(key)) {
-      if (key == 0) {
-        patternCache.put(key, Optional.empty());
-      } else {
-        Pattern pattern =
-            Pattern.compile(
-                colorCodeMap.entrySet().stream()
-                    .filter(entry -> PermissionManager.hasPermission(permsAccount, entry.getKey()))
-                    .map(entry -> entry.getValue().toString())
-                    .collect(
-                        Collectors.joining(
-                            "", "(?<!" + altColorChar + ')' + altColorChar + "([", "])")),
-                Pattern.CASE_INSENSITIVE);
+    if(color instanceof NamedTextColor && !PermissionManager.hasPermission(permsAccount, colorCodeMap.get(color))) {
+      message.color(null);
+    } else if(!PermissionManager.hasPermission(permsAccount, Permission.USE_CHAT_FORMAT_RGB)) {
+      message.color(null);
+    }
 
-        patternCache.put(key, Optional.of(pattern));
+    for (Map.Entry<TextDecoration, TextDecoration.State> entry : decorations.entrySet()) {
+      Permission perm = colorCodeMap.get(entry.getKey());
+
+      if(perm != null && !PermissionManager.hasPermission(permsAccount, perm)) {
+        entry.setValue(TextDecoration.State.NOT_SET);
       }
     }
 
-    Optional<Pattern> pattern = patternCache.get(key);
-    List<String> urls = new ArrayList<>();
-    Matcher matcher = urlEscapePattern.matcher(message);
+    message.decorations(decorations);
 
-    //Save and remove URLs before colour code replacement
-    while(matcher.find()) {
-      urls.add(matcher.group());
-    }
-
-    message = urlEscapePattern.matcher(message).replaceAll("%url%");
-
-    if (pattern.isPresent()) {
-      message = pattern.get().matcher(message).replaceAll(colorCodeReplacement);
-    }
-
-    message = duplicateDection.matcher(message).replaceAll(altColorString);
-
-    //Readd urls
-    for (String url : urls) {
-      message = message.replaceFirst("%url%", url);
+    if(!message.children().isEmpty()) {
+      message.children().forEach(child -> filterFormatting(child, account));
     }
 
     return message;
   }
 
   public static String escapeAltColorCodes(String message) {
-    List<String> urls = new ArrayList<>();
-    Matcher matcher = urlEscapePattern.matcher(message);
-
-    //Save and remove URLs before colour code replacement
-    while(matcher.find()) {
-      urls.add(matcher.group());
-    }
-
-    message = urlEscapePattern.matcher(message).replaceAll("%url%");
-    message = message.replace(altColorString, altColorString + altColorString);
-
-    //Readd urls
-    for (String url : urls) {
-      message = message.replaceFirst("%url%", url);
-    }
-
+//    List<String> urls = new ArrayList<>();
+//    Matcher matcher = urlEscapePattern.matcher(message);
+//
+//    //Save and remove URLs before colour code replacement
+//    while(matcher.find()) {
+//      urls.add(matcher.group());
+//    }
+//
+//    message = urlEscapePattern.matcher(message).replaceAll("%url%");
+//    message = message.replace(altColorString, altColorString + altColorString);
+//
+//    //Readd urls
+//    for (String url : urls) {
+//      message = message.replaceFirst("%url%", url);
+//    }
+//
     return message;
   }
 

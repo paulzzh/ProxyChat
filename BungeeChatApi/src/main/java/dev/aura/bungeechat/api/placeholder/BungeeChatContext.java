@@ -1,6 +1,7 @@
 package dev.aura.bungeechat.api.placeholder;
 
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -9,6 +10,8 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import lombok.Data;
 import lombok.experimental.Tolerate;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 /**
  * This class represents a context for a message or other chat related action.<br>
@@ -84,7 +87,7 @@ public class BungeeChatContext {
 
   private Optional<BungeeChatAccount> sender;
   private Optional<BungeeChatAccount> target;
-  private Optional<String> message;
+  private Optional<Component> message;
   private Optional<String> channel;
   private Optional<String> server;
 
@@ -102,13 +105,19 @@ public class BungeeChatContext {
     this.sender = Optional.ofNullable(sender);
   }
 
-  public BungeeChatContext(String message) {
+  public BungeeChatContext(Component message) {
     this();
 
     this.message = Optional.ofNullable(message);
   }
 
   public BungeeChatContext(BungeeChatAccount sender, String message) {
+    this(sender);
+
+    this.message = message != null ? Optional.of(LegacyComponentSerializer.legacyAmpersand().deserialize(message)) : Optional.empty();
+  }
+
+  public BungeeChatContext(BungeeChatAccount sender, Component message) {
     this(sender);
 
     this.message = Optional.ofNullable(message);
@@ -120,13 +129,13 @@ public class BungeeChatContext {
     this.target = Optional.ofNullable(target);
   }
 
-  public BungeeChatContext(BungeeChatAccount sender, BungeeChatAccount target, String message) {
+  public BungeeChatContext(BungeeChatAccount sender, BungeeChatAccount target, Component message) {
     this(sender, target);
 
     this.message = Optional.ofNullable(message);
   }
 
-  public BungeeChatContext(BungeeChatAccount sender, String message, String server) {
+  public BungeeChatContext(BungeeChatAccount sender, Component message, String server) {
     this(sender, message);
 
     this.server = Optional.ofNullable(server);
@@ -196,8 +205,17 @@ public class BungeeChatContext {
   }
 
   @Tolerate
-  public void setMessage(String message) {
+  public void setMessage(Component message) {
     setMessage(Optional.ofNullable(message));
+  }
+
+  @Tolerate
+  public void setMessage(String message) {
+    if(message != null) {
+      setMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));
+    } else {
+      setMessage((Component) null);
+    }
   }
 
   @Tolerate

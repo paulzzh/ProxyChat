@@ -10,6 +10,8 @@ import dev.aura.bungeechat.module.ClearChatModule;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 import dev.aura.bungeechat.util.ServerNameUtil;
+import net.kyori.adventure.text.Component;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +23,7 @@ public class ClearChatCommand extends BaseCommand {
   static final List<String> arg1Completetions = Arrays.asList("local", "global");
 
   private static final String USAGE = "/clearchat <local [server]|global>";
-  private static final String EMPTY_LINE = " ";
+  private static final Component EMPTY_LINE = Component.newline();
 
   public ClearChatCommand(ClearChatModule clearChatModule) {
     super(

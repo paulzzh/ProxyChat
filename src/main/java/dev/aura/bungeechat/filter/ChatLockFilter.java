@@ -8,6 +8,8 @@ import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
+import net.kyori.adventure.text.Component;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,11 +18,11 @@ public class ChatLockFilter implements BungeeChatFilter {
   private List<String> lockedServers = new LinkedList<>();
 
   @Override
-  public String applyFilter(BungeeChatAccount sender, String message) throws BlockMessageException {
+  public Component applyFilter(BungeeChatAccount sender, Component message) throws BlockMessageException {
     if (PermissionManager.hasPermission(sender, Permission.BYPASS_CHAT_LOCK)
         || !((globalLock && MessagesService.getGlobalPredicate().test(sender))
             || lockedServers.contains(sender.getServerName()))) return message;
-    else throw new ExtendedBlockMessageException(Messages.CHAT_IS_DISABLED, sender, message);
+    else throw new ExtendedBlockMessageException(Messages.CHAT_IS_DISABLED, sender);
   }
 
   @Override

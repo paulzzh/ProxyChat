@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.function.Predicate;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 
 @EqualsAndHashCode(of = "placeholder")
 public class PlaceHolder implements BungeeChatPlaceHolder {
   @Getter private final String placeholder;
-  private final ReplacementSupplier replacementSupplier;
+  private ReplacementSupplier replacementSupplier;
+  private ComponentReplacementSupplier componentReplacementSupplier = context -> Component.text(replacementSupplier.get(context));
   private final List<Predicate<? super BungeeChatContext>> requirements = new LinkedList<>();
 
   @SafeVarargs
@@ -30,6 +32,18 @@ public class PlaceHolder implements BungeeChatPlaceHolder {
     this.requirements.addAll(requirements);
   }
 
+  public PlaceHolder(
+      String placeholder,
+      ReplacementSupplier replacementSupplier,
+      ComponentReplacementSupplier componentReplacementSupplier,
+      List<Predicate<? super BungeeChatContext>> requirements) {
+    this.placeholder = placeholder;
+    this.replacementSupplier = replacementSupplier;
+    this.componentReplacementSupplier = componentReplacementSupplier;
+    this.requirements.addAll(requirements);
+  }
+
+
   @Override
   public boolean isContextApplicable(BungeeChatContext context) {
     for (Predicate<? super BungeeChatContext> requirement : requirements) {
@@ -37,6 +51,11 @@ public class PlaceHolder implements BungeeChatPlaceHolder {
     }
 
     return true;
+  }
+
+  @Override
+  public Component getReplacementComponent(String name, BungeeChatContext context) {
+    return componentReplacementSupplier.get(context);
   }
 
   @Override

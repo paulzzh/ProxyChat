@@ -6,6 +6,9 @@ import dev.aura.bungeechat.api.filter.FilterManager;
 import dev.aura.bungeechat.api.utils.RegexUtil;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -37,11 +40,14 @@ public class SwearWordsFilter implements BungeeChatFilter {
   }
 
   @Override
-  public String applyFilter(BungeeChatAccount sender, String message) {
+  public Component applyFilter(BungeeChatAccount sender, Component message) {
     if (PermissionManager.hasPermission(sender, Permission.BYPASS_ANTI_SWEAR)) return message;
 
     for (Pattern p : swearWords) {
-      message = p.matcher(message).replaceAll(replacement);
+      message = message.replaceText(p, (TextComponent.Builder result) -> {
+        result.content(replacement);
+        return result;
+      });
     }
 
     return message;

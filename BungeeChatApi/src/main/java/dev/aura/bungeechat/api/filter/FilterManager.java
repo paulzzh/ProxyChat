@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
+import net.kyori.adventure.text.Component;
 
 @UtilityClass
 public class FilterManager {
@@ -35,7 +36,7 @@ public class FilterManager {
     return out;
   }
 
-  public static String applyFilters(BungeeChatAccount sender, String message)
+  public static Component applyFilters(BungeeChatAccount sender, Component message)
       throws UnsupportedOperationException, BlockMessageException {
     for (BungeeChatFilter filter : filters.values()) {
       message = filter.applyFilter(sender, message);

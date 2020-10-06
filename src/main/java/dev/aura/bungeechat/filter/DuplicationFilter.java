@@ -15,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import lombok.Value;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 
 public class DuplicationFilter implements BungeeChatFilter {
   private final ConcurrentMap<UUID, Queue<TimePointMessage>> playerMessagesStorage;
@@ -35,7 +37,7 @@ public class DuplicationFilter implements BungeeChatFilter {
   }
 
   @Override
-  public String applyFilter(BungeeChatAccount sender, String message) throws BlockMessageException {
+  public Component applyFilter(BungeeChatAccount sender, Component message) throws BlockMessageException {
     if (!noPermissions && PermissionManager.hasPermission(sender, Permission.BYPASS_ANTI_DUPLICATE))
       return message;
 
@@ -53,14 +55,14 @@ public class DuplicationFilter implements BungeeChatFilter {
       playerMessages.poll();
     }
 
-    if (playerMessages.stream().map(TimePointMessage::getMessage).anyMatch(message::equals))
-      throw new ExtendedBlockMessageException(Messages.ANTI_DUPLICATION, sender, message);
+//    if (playerMessages.stream().map(TimePointMessage::getMessage).anyMatch(message::equals))
+//      throw new ExtendedBlockMessageException(Messages.ANTI_DUPLICATION, sender, message);
 
     if (playerMessages.size() == checkPastMessages) {
       playerMessages.remove();
     }
 
-    playerMessages.add(new TimePointMessage(now, message));
+    playerMessages.add(new TimePointMessage(now, ((TextComponent) message).content()));
 
     return message;
   }

@@ -3,6 +3,7 @@ package dev.aura.bungeechat.message;
 import dev.aura.bungeechat.api.placeholder.BungeeChatContext;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.kyori.adventure.text.Component;
 
 @RequiredArgsConstructor
 public enum Format {
@@ -25,7 +26,7 @@ public enum Format {
 
   @Getter private final String stringPath;
 
-  public String get(BungeeChatContext context) {
+  public Component get(BungeeChatContext context) {
     return PlaceHolderUtil.getFullFormatMessage(this, context);
   }
 }
