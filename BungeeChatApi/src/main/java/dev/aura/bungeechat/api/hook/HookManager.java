@@ -94,7 +94,7 @@ public class HookManager {
 
   public Component getFullNameComponent(BungeeChatAccount account) {
     return legacySerializer.deserialize(getPrefix(account) + account.getName() + getSuffix(account))
-            .clickEvent(ClickEvent.suggestCommand("/w " + account.getName()))
+            .clickEvent(ClickEvent.suggestCommand("/w " + account.getName() + " "))
             .hoverEvent(Component.text("Click to whisper " + account.getName()));
   }
 
