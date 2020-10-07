@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.command;
 
+import dev.aura.bungeechat.api.placeholder.BungeeChatContext;
 import dev.aura.bungeechat.message.Context;
 import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.message.MessagesService;
@@ -38,7 +39,10 @@ public class LocalToCommand extends BaseCommand {
 
     String finalMessage = Arrays.stream(invocation.arguments(), 1, invocation.arguments().length)
             .collect(Collectors.joining(" "));
-    MessagesService.sendLocalMessage(new Context(invocation.source(), finalMessage, serverName));
+    BungeeChatContext context = new Context(invocation.source(), finalMessage, serverName);
+    MessagesService.parseMessage(context, false);
+
+    MessagesService.sendLocalMessage(context);
   }
 
   @Override
