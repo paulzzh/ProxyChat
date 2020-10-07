@@ -39,4 +39,21 @@ public class VivecraftUtil {
 
 		return isVR(player) ? String.valueOf('\uE1DC') : String.valueOf('\uE1DE');
 	}
+
+	public static String getPlatformName(BungeeChatAccount player) {
+		if(vivecraftEnabled == null) {
+			vivecraftEnabled = BungeeChat.getInstance().getProxy().getPluginManager()
+					.getPlugin("vivecraft-velocity-extensions").isPresent();
+		}
+
+		if(!isVivecraftPlayer(player)) {
+			return null;
+		}
+
+		return isVR(player) ? "Vivecraft - VR" : "Vivecraft - No VR";
+	}
+
+	public static String getPlatformVersion(BungeeChatAccount player) {
+		return "";
+	}
 }
