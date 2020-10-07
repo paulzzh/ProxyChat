@@ -3,11 +3,16 @@ package dev.aura.bungeechat.api.placeholder;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import dev.aura.bungeechat.api.utils.TextReplacementRenderer;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
+import net.kyori.adventure.text.PatternReplacementResult;
 import net.kyori.adventure.text.TextComponent;
 
 @UtilityClass
@@ -28,7 +33,7 @@ public class PlaceHolderManager {
     final List<BungeeChatPlaceHolder> placeholders =
         getApplicableStream(context).collect(Collectors.toList());
 
-    return message.replaceText(placeholderPattern, (TextComponent.Builder match) -> {
+    Function<TextComponent.Builder, ComponentLike> replacement = (TextComponent.Builder match) -> {
       String placeholderName = match.content().substring(1, match.content().length() -1);
 
       if(placeholderName.charAt(0) == '%') {
@@ -38,12 +43,19 @@ public class PlaceHolderManager {
                 placeholders.stream().filter(p -> p.matchesName(placeholderName)).findFirst();
 
         if(placeholder.isPresent()) {
-          return placeholder.get().getReplacementComponent(placeholderName, context);
+          match.content("");
+          match.append(placeholder.get().getReplacementComponent(placeholderName, context));
         }
       }
 
       return match;
-    });
+    };
+
+    return TextReplacementRenderer.INSTANCE.render(message,
+                                                   new TextReplacementRenderer.State(placeholderPattern,
+                                                                                     (result, builder) -> replacement.apply(builder),
+                                                                                     (index, replaced) -> PatternReplacementResult.REPLACE));
+
   }
 
   public static String processMessage(String message, BungeeChatContext context) {

@@ -1,7 +1,6 @@
 package dev.aura.bungeechat.api.placeholder;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 
 public interface BungeeChatPlaceHolder {
   public boolean isContextApplicable(BungeeChatContext context);
