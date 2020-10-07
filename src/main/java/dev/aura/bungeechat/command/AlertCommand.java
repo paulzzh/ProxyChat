@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.command;
 
+import dev.aura.bungeechat.api.placeholder.BungeeChatContext;
 import dev.aura.bungeechat.message.Context;
 import dev.aura.bungeechat.message.Format;
 import dev.aura.bungeechat.message.Messages;
@@ -23,8 +24,10 @@ public class AlertCommand extends BaseCommand {
         MessagesService.sendMessage(
             invocation.source(), Messages.INCORRECT_USAGE.get(invocation.source(), "/alert <message>"));
       } else {
-        Component format = Format.ALERT.get(new Context(invocation.source(), String.join(" ", invocation.arguments())));
+        BungeeChatContext context = new Context(invocation.source(), String.join(" ", invocation.arguments()));
+        MessagesService.parseMessage(context, false);
 
+        Component format = Format.ALERT.get(context);
         MessagesService.sendToMatchingPlayers(format, MessagesService.getGlobalPredicate());
       }
     }
