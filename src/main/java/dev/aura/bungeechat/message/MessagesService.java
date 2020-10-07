@@ -263,7 +263,7 @@ public class MessagesService {
 	public void sendJoinMessage(BungeeChatContext context) throws InvalidContextError {
 		context.require(BungeeChatContext.HAS_SENDER);
 
-		Component finalMessage = Format.JOIN_MESSAGE.get(context);
+		String message = Format.JOIN_MESSAGE.getRaw(context);
 		Predicate<BungeeChatAccount> predicate = getPermissionPredicate(Permission.MESSAGE_JOIN_VIEW);
 
 		// This condition checks if the player is present and vanished
@@ -271,8 +271,9 @@ public class MessagesService {
 			predicate = predicate.and(getPermissionPredicate(Permission.COMMAND_VANISH_VIEW));
 		}
 
-		context.setParsedMessage(finalMessage);
-		sendToMatchingPlayers(finalMessage, predicate);
+		context.setMessage(message);
+		MessagesService.parseMessage(context, false);
+		sendToMatchingPlayers(context.getParsedMessage(), predicate);
 
 		ChatLoggingManager.logMessage("JOIN", context);
 	}
@@ -284,7 +285,7 @@ public class MessagesService {
 	public void sendLeaveMessage(BungeeChatContext context) throws InvalidContextError {
 		context.require(BungeeChatContext.HAS_SENDER);
 
-		Component finalMessage = Format.LEAVE_MESSAGE.get(context);
+		String message = Format.LEAVE_MESSAGE.getRaw(context);
 		Predicate<BungeeChatAccount> predicate = getPermissionPredicate(Permission.MESSAGE_LEAVE_VIEW);
 
 		// This condition checks if the player is present and vanished
@@ -292,8 +293,9 @@ public class MessagesService {
 			predicate = predicate.and(getPermissionPredicate(Permission.COMMAND_VANISH_VIEW));
 		}
 
-		context.setParsedMessage(finalMessage);
-		sendToMatchingPlayers(finalMessage, predicate);
+		context.setMessage(message);
+		MessagesService.parseMessage(context, false);
+		sendToMatchingPlayers(context.getParsedMessage(), predicate);
 
 		ChatLoggingManager.logMessage("LEAVE", context);
 	}

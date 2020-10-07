@@ -102,7 +102,9 @@ public enum Messages implements Message {
   }
 
   public Component get(BungeeChatAccount sender, String command) {
-    return get(new BungeeChatContext(sender, command));
+    BungeeChatContext context = new BungeeChatContext(sender, command);
+    MessagesService.parseMessage(context, false);
+    return get(context);
   }
 
   public Component get(BungeeChatContext context) {

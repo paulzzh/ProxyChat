@@ -132,7 +132,7 @@ public class BungeecordAccountManager extends AccountManager {
     loadAccount(event.getPlayer().getUniqueId());
   }
 
-  @Subscribe(order = PostOrder.LATE)
+  @Subscribe(order = PostOrder.LAST)
   public void onPlayerDisconnect(BungeeChatLeaveEvent event) {
     unloadAccount(event.getPlayer().getUniqueId());
   }

@@ -1,6 +1,5 @@
 package dev.aura.bungeechat.listener;
 
-import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.event.BungeeChatLeaveEvent;
@@ -9,7 +8,7 @@ import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 
 public class LeaveMessageListener {
-  @Subscribe(order = PostOrder.LATE)
+  @Subscribe
   public void onPlayerLeave(BungeeChatLeaveEvent e) {
     Player player = e.getPlayer();
 
