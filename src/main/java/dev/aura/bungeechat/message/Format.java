@@ -29,4 +29,8 @@ public enum Format {
   public Component get(BungeeChatContext context) {
     return PlaceHolderUtil.getFullFormatMessage(this, context);
   }
+
+  public String getRaw(BungeeChatContext context) {
+    return PlaceHolderUtil.getFullFormatMessageRaw(this, context);
+  }
 }

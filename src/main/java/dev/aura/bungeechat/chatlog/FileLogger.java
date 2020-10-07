@@ -29,7 +29,7 @@ public class FileLogger implements ChatLogger, AutoCloseable {
   public void log(BungeeChatContext context) {
     initLogFile();
 
-    pw.println(Format.CHAT_LOGGING_FILE.get(context));
+    pw.println(Format.CHAT_LOGGING_FILE.getRaw(context));
     pw.flush();
   }
 

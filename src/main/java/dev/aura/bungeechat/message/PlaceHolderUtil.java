@@ -88,6 +88,18 @@ public class PlaceHolderUtil {
     }
   }
 
+  public static String getFormatRaw(Format format) {
+    try {
+      if (formatsBase == null) {
+        loadFormatsBase();
+      }
+
+      return formatsBase.getString(format.getStringPath());
+    } catch (RuntimeException e) {
+      return format.getStringPath();
+    }
+  }
+
   public static Component getMessage(Messages message) {
     try {
       if (messageBase == null) {
@@ -104,6 +116,10 @@ public class PlaceHolderUtil {
     return formatMessage(getFormat(format), context);
   }
 
+  public static String getFullFormatMessageRaw(Format format, BungeeChatContext context) {
+    return formatMessageRaw(getFormatRaw(format), context);
+  }
+
   public static Component getFullMessage(Messages message) {
     return formatMessage(getMessage(message), new BungeeChatContext());
   }
@@ -112,13 +128,11 @@ public class PlaceHolderUtil {
     return formatMessage(getMessage(message), context);
   }
 
-//  public static Component formatMessage(String message, BungeeChatContext context) {
-//    Component m = legacySerializer.deserialize(message);
-//
-//    return PlaceHolderManager.processMessage(m, context);
-//  }
-
   public static Component formatMessage(Component message, BungeeChatContext context) {
+    return PlaceHolderManager.processMessage(message, context);
+  }
+
+  public static String formatMessageRaw(String message, BungeeChatContext context) {
     return PlaceHolderManager.processMessage(message, context);
   }
 
