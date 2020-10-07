@@ -5,11 +5,12 @@ import dev.aura.bungeechat.message.Context;
 import dev.aura.bungeechat.message.Format;
 import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.message.MessagesService;
-import dev.aura.bungeechat.message.PlaceHolderUtil;
 import dev.aura.bungeechat.module.AlertModule;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 import net.kyori.adventure.text.Component;
+
+import java.util.Optional;
 
 public class AlertCommand extends BaseCommand {
   public AlertCommand(AlertModule alertModule) {
@@ -26,9 +27,9 @@ public class AlertCommand extends BaseCommand {
       } else {
         BungeeChatContext context = new Context(invocation.source(), String.join(" ", invocation.arguments()));
         MessagesService.parseMessage(context, false);
+        Optional<Component> message = MessagesService.preProcessMessage(context, Format.ALERT);
 
-        Component format = Format.ALERT.get(context);
-        MessagesService.sendToMatchingPlayers(format, MessagesService.getGlobalPredicate());
+        MessagesService.sendToMatchingPlayers(message, MessagesService.getGlobalPredicate());
       }
     }
   }
