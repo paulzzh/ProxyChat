@@ -350,7 +350,11 @@ public class MessagesService {
 
 		BungeeChatAccount playerAccount = account.get();
 		CommandSource player = BungeecordAccountManager.getCommandSource(playerAccount).get();
-		Component message = PlaceHolderUtil.filterFormatting(context.getParsedMessage().get(), account);
+		Component message = context.getParsedMessage().get();
+
+		if(account.isPresent()) {
+			message = PlaceHolderUtil.filterFormatting(context.getParsedMessage().get(), account.get());
+		}
 
 		if (runFilters) {
 			try {
@@ -386,7 +390,7 @@ public class MessagesService {
 			}
 		}
 
-		context.setParsedMessage(PlaceHolderUtil.filterFormatting(legacySerializer.deserialize(message)));
+		context.setParsedMessage(PlaceHolderUtil.filterFormatting(legacySerializer.deserialize(message), playerAccount));
 
 		return true;
 	}

@@ -3,7 +3,6 @@ package dev.aura.bungeechat.message;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import dev.aura.bungeechat.BungeeChat;
-import dev.aura.bungeechat.api.account.AccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.placeholder.BungeeChatContext;
 import dev.aura.bungeechat.api.placeholder.PlaceHolderManager;
@@ -14,12 +13,10 @@ import dev.aura.lib.messagestranslator.MessagesTranslator;
 import dev.aura.lib.messagestranslator.PluginMessagesTranslator;
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.format.TextFormat;
+import net.kyori.adventure.text.format.*;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 @UtilityClass
@@ -115,44 +112,46 @@ public class PlaceHolderUtil {
     return formatMessage(getMessage(message), context);
   }
 
-  public static Component formatMessage(String message, BungeeChatContext context) {
-    Component m = legacySerializer.deserialize(message);
-
-    return filterFormatting(PlaceHolderManager.processMessage(m, context));
-  }
+//  public static Component formatMessage(String message, BungeeChatContext context) {
+//    Component m = legacySerializer.deserialize(message);
+//
+//    return PlaceHolderManager.processMessage(m, context);
+//  }
 
   public static Component formatMessage(Component message, BungeeChatContext context) {
-    return filterFormatting(PlaceHolderManager.processMessage(message, context));
+    return PlaceHolderManager.processMessage(message, context);
   }
 
-  public static Component filterFormatting(Component message) {
-    return filterFormatting(message, Optional.empty());
-  }
-
-  public static Component filterFormatting(Component message, Optional<BungeeChatAccount> account) {
-    BungeeChatAccount permsAccount = account.orElseGet(AccountManager::getConsoleAccount);
-    Map<TextDecoration, TextDecoration.State> decorations = message.decorations();
-
+  public static Component filterFormatting(Component message, BungeeChatAccount account) {
+    Style.Builder style = Style.style();
     TextColor color = message.color();
 
-    if(color instanceof NamedTextColor && !PermissionManager.hasPermission(permsAccount, permissionMap.get(color))) {
-      message.color(null);
-    } else if(!PermissionManager.hasPermission(permsAccount, Permission.USE_CHAT_FORMAT_RGB)) {
-      message.color(null);
+    if(color instanceof NamedTextColor) {
+      if(PermissionManager.hasPermission(account, permissionMap.get(color))) {
+        style.color(color);
+      }
+    } else if(color != null && PermissionManager.hasPermission(account, Permission.USE_CHAT_FORMAT_RGB)) {
+      style.color(color);
     }
 
-    for (Map.Entry<TextDecoration, TextDecoration.State> entry : decorations.entrySet()) {
-      Permission perm = permissionMap.get(entry.getKey());
+    for(Map.Entry<TextDecoration, TextDecoration.State> entry : message.decorations().entrySet()) {
+      if(entry.getValue() == TextDecoration.State.TRUE) {
+        Permission perm = permissionMap.get(entry.getKey());
 
-      if(perm != null && !PermissionManager.hasPermission(permsAccount, perm)) {
-        entry.setValue(TextDecoration.State.NOT_SET);
+        if(perm == null || PermissionManager.hasPermission(account, perm)) {
+          style.decoration(entry.getKey(), TextDecoration.State.TRUE);
+        }
+      } else {
+        style.decoration(entry.getKey(), entry.getValue());
       }
     }
 
-    message.decorations(decorations);
+    message = message.style(style);
 
     if(!message.children().isEmpty()) {
-      message.children().forEach(child -> filterFormatting(child, account));
+      message = message.children(message.children().stream()
+                                         .map(child -> filterFormatting(child, account))
+                                         .collect(Collectors.toList()));
     }
 
     return message;
