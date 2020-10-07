@@ -3,20 +3,16 @@ package dev.aura.bungeechat.api.placeholder;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.TextComponent;
 
 @UtilityClass
 public class PlaceHolderManager {
-  public static final char placeholderChar = '%';
+  public static final Pattern placeholderPattern = Pattern.compile("%\\w+?%");
   private static final List<BungeeChatPlaceHolder> placeholders = new LinkedList<>();
 
   public static Stream<BungeeChatPlaceHolder> getPlaceholderStream() {
@@ -28,11 +24,10 @@ public class PlaceHolderManager {
   }
 
   public static Component processMessage(Component message, BungeeChatContext context) {
-    final StringBuilder builder = new StringBuilder();
     final List<BungeeChatPlaceHolder> placeholders =
         getApplicableStream(context).collect(Collectors.toList());
 
-    return message.replaceText(Pattern.compile("%(.*)%"), (TextComponent.Builder match) -> {
+    return message.replaceText(placeholderPattern, (TextComponent.Builder match) -> {
       String placeholderName = match.content().substring(1, match.content().length() -1);
 
       if(placeholderName.charAt(0) == '%') {
