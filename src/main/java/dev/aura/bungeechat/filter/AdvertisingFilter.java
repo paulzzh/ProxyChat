@@ -9,7 +9,7 @@ import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -30,6 +30,8 @@ public class AdvertisingFilter implements BungeeChatFilter {
 
   private final Predicate<String> whitelisted;
   private final boolean noPermissions;
+
+  private static final PlainComponentSerializer serializer = PlainComponentSerializer.plain();
 
   public AdvertisingFilter(List<String> whitelisted) {
     this(whitelisted, false);
@@ -54,15 +56,19 @@ public class AdvertisingFilter implements BungeeChatFilter {
         && PermissionManager.hasPermission(sender, Permission.BYPASS_ANTI_ADVERTISEMENT))
       return message;
 
-    message.replaceText(url, (TextComponent.Builder result) -> {
-      boolean matchOk = whitelisted.test(result.content());
+    String text = serializer.serialize(message);
 
-      if (!matchOk) {
-        //throw new ExtendedBlockMessageException(Messages.ANTI_ADVERTISE, sender, message);
-      }
+    Matcher matches = url.matcher(text);
+    boolean matchOk;
+    String match;
 
-      return result;
-    });
+    while (matches.find()) {
+      match = matches.group();
+      matchOk = whitelisted.test(match);
+
+      if (!matchOk)
+        throw new ExtendedBlockMessageException(Messages.ANTI_ADVERTISE, sender);
+    }
 
     return message;
   }

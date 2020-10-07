@@ -9,14 +9,13 @@ import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
-import org.w3c.dom.Text;
 
 public class CapslockFilter implements BungeeChatFilter {
   private final int minimumLetterCount;
   private final int maximumCapsPercentage;
   private final boolean noPermissions;
+  private static final PlainComponentSerializer serializer = PlainComponentSerializer.plain();
 
   public CapslockFilter(int minimumLetterCount, int maximumCapsPercentage) {
     this(minimumLetterCount, maximumCapsPercentage, false);
@@ -37,7 +36,7 @@ public class CapslockFilter implements BungeeChatFilter {
     int uppercase = 0;
     int lowercase = 0;
 
-    String text = PlainComponentSerializer.plain().serialize(message);
+    String text = serializer.serialize(message);
 
     for (char c : text.toCharArray()) {
       if (Character.isUpperCase(c)) {

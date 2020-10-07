@@ -17,12 +17,14 @@ import java.util.concurrent.TimeUnit;
 import lombok.Value;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 
 public class DuplicationFilter implements BungeeChatFilter {
   private final ConcurrentMap<UUID, Queue<TimePointMessage>> playerMessagesStorage;
   private final int checkPastMessages;
   private final long expiryTimer;
   private final boolean noPermissions;
+  private static final PlainComponentSerializer serializer = PlainComponentSerializer.plain();
 
   public DuplicationFilter(int checkPastMessages, int expireAfter) {
     this(checkPastMessages, expireAfter, false);
@@ -42,6 +44,7 @@ public class DuplicationFilter implements BungeeChatFilter {
       return message;
 
     final UUID uuid = sender.getUniqueId();
+    String text = serializer.serialize(message);
 
     if (!playerMessagesStorage.containsKey(uuid)) {
       playerMessagesStorage.put(uuid, new ArrayDeque<>(checkPastMessages));
@@ -55,8 +58,8 @@ public class DuplicationFilter implements BungeeChatFilter {
       playerMessages.poll();
     }
 
-//    if (playerMessages.stream().map(TimePointMessage::getMessage).anyMatch(message::equals))
-//      throw new ExtendedBlockMessageException(Messages.ANTI_DUPLICATION, sender, message);
+    if (playerMessages.stream().map(TimePointMessage::getMessage).anyMatch(text::equals))
+      throw new ExtendedBlockMessageException(Messages.ANTI_DUPLICATION, sender);
 
     if (playerMessages.size() == checkPastMessages) {
       playerMessages.remove();
