@@ -7,13 +7,15 @@ import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
 
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class EmoteFilter implements BungeeChatFilter {
-	private final static Pattern emotePattern = Pattern.compile("([^\\\\]|^):(\\w+):");
+	private final static Pattern emotePattern = Pattern.compile(":(\\w+):");
 	private final static char emoteCharacter = '\ue110';
 	private final List<String> emotes;
 	private final boolean noPermissions;
@@ -37,19 +39,21 @@ public class EmoteFilter implements BungeeChatFilter {
 
 		return message.replaceText(emotePattern, (TextComponent.Builder result) -> {
 			String content = result.content();
-			String beforeEmote = content.substring(content.indexOf(':') - 1);
-			String emote = content.substring(content.indexOf(':'), content.length() - 1)
-					.replace(prefix, "").toLowerCase();
-
+			String emote = content.substring(1, content.length() - 1).replace(prefix, "").toLowerCase();
 			int emoteIndex = emotes.indexOf(emote);
+			String emoteChar = new String(Character.toChars(emoteCharacter + emoteIndex));
 
 			if(emoteIndex > -1) {
-				result.content(beforeEmote + new String(Character.toChars(emoteCharacter + emoteIndex)));
-				result.hoverEvent(Component.text(":" + emote + ":"));
+				result.content(emoteChar);
+				result.hoverEvent(Component.text(emoteChar + " " + emote)
+										  .append(Component.newline())
+										  .append(Component.text("Shift + Click to use",
+																 Style.style().color(NamedTextColor.YELLOW).build()
+										  )));
 				result.insertion(":" + emote + ":");
 			}
 
-			return message;
+			return result;
 		});
 	}
 
