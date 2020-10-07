@@ -23,6 +23,15 @@ public class PlaceHolder implements BungeeChatPlaceHolder {
     this(placeholder, replacementSupplier, Arrays.asList(requirements));
   }
 
+  @SafeVarargs
+  public PlaceHolder(
+      String placeholder,
+      ReplacementSupplier replacementSupplier,
+      ComponentReplacementSupplier componentReplacementSupplier,
+      Predicate<? super BungeeChatContext>... requirements) {
+    this(placeholder, replacementSupplier, componentReplacementSupplier, Arrays.asList(requirements));
+  }
+
   public PlaceHolder(
       String placeholder,
       ReplacementSupplier replacementSupplier,

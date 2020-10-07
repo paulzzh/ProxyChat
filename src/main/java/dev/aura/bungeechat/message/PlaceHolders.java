@@ -8,6 +8,7 @@ import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.enums.AccountType;
 import dev.aura.bungeechat.api.hook.HookManager;
 import dev.aura.bungeechat.api.placeholder.BungeeChatContext;
+import dev.aura.bungeechat.api.placeholder.ComponentReplacementSupplier;
 import dev.aura.bungeechat.api.placeholder.PlaceHolder;
 import dev.aura.bungeechat.api.placeholder.PlaceHolderManager;
 import dev.aura.bungeechat.api.utils.TimeUtil;
@@ -15,6 +16,7 @@ import dev.aura.bungeechat.util.ServerNameUtil;
 import java.net.SocketAddress;
 import java.text.SimpleDateFormat;
 import lombok.experimental.UtilityClass;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 
 @UtilityClass
 public class PlaceHolders {
@@ -49,24 +51,28 @@ public class PlaceHolders {
         new PlaceHolder(
                 "fullname",
                 context -> HookManager.getFullName(context.getSender().get()),
+                (ComponentReplacementSupplier) context -> HookManager.getFullNameComponent(context.getSender().get()),
                 BungeeChatContext.HAS_SENDER)
             .createAliases("sender_fullname"));
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
                 "fulldisplayname",
                 context -> HookManager.getFullDisplayName(context.getSender().get()),
+                (ComponentReplacementSupplier) context -> HookManager.getFullDisplayNameComponent(context.getSender().get()),
                 BungeeChatContext.HAS_SENDER)
             .createAliases("sender_displayfullname"));
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
                 "prefix",
                 context -> HookManager.getPrefix(context.getSender().get()),
+                (ComponentReplacementSupplier) context -> HookManager.getPrefixComponent(context.getSender().get()),
                 BungeeChatContext.HAS_SENDER)
             .createAliases("sender_prefix"));
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
                 "suffix",
                 context -> HookManager.getSuffix(context.getSender().get()),
+                (ComponentReplacementSupplier) context -> HookManager.getSuffixComponent(context.getSender().get()),
                 BungeeChatContext.HAS_SENDER)
             .createAliases("sender_suffix"));
     PlaceHolderManager.registerPlaceholder(
@@ -209,7 +215,8 @@ public class PlaceHolders {
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
                 "message",
-                context -> "",//context.getMessage().get(),
+                context -> PlainComponentSerializer.plain().serialize(context.getMessage().get()),
+                (ComponentReplacementSupplier) context -> context.getMessage().get(),
                 BungeeChatContext.HAS_MESSAGE)
             .createAliases("command", "unknown_server"));
     PlaceHolderManager.registerPlaceholder(
