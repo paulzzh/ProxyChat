@@ -27,7 +27,7 @@ public class FileLogger implements ChatLogger, AutoCloseable {
 
   @Override
   public void log(BungeeChatContext context) {
-    //initLogFile();
+    initLogFile();
 
     pw.println(Format.CHAT_LOGGING_FILE.get(context));
     pw.flush();
@@ -39,23 +39,23 @@ public class FileLogger implements ChatLogger, AutoCloseable {
     pw.close();
   }
 
-//  private void initLogFile() {
-//    String newFile = PlaceHolderManager.processMessage(logFile, context);
-//
-//    if (oldFile.equals(newFile)) return;
-//
-//    try {
-//      saveTo = new File(pluginDir, newFile);
-//      Optional.ofNullable(saveTo.getParentFile()).ifPresent(File::mkdirs);
-//
-//      if (!saveTo.exists() && !saveTo.createNewFile()) {
-//        throw new IOException("Could not create " + saveTo);
-//      }
-//
-//      fw = new OutputStreamWriter(new FileOutputStream(saveTo, true), StandardCharsets.UTF_8);
-//      pw = new PrintWriter(fw);
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    }
-//  }
+  private void initLogFile() {
+    String newFile = PlaceHolderManager.processMessage(logFile, context);
+
+    if (oldFile.equals(newFile)) return;
+
+    try {
+      saveTo = new File(pluginDir, newFile);
+      Optional.ofNullable(saveTo.getParentFile()).ifPresent(File::mkdirs);
+
+      if (!saveTo.exists() && !saveTo.createNewFile()) {
+        throw new IOException("Could not create " + saveTo);
+      }
+
+      fw = new OutputStreamWriter(new FileOutputStream(saveTo, true), StandardCharsets.UTF_8);
+      pw = new PrintWriter(fw);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 }
