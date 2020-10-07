@@ -11,7 +11,11 @@ import java.util.function.Predicate;
 import lombok.Data;
 import lombok.experimental.Tolerate;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
 
 /**
  * This class represents a context for a message or other chat related action.<br>
@@ -20,6 +24,10 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
  */
 @Data
 public class BungeeChatContext {
+  private static final LegacyComponentSerializer legacySerializer = LegacyComponentSerializer.builder()
+          .extractUrls(Style.style().color(TextColor.fromHexString("#8194e4")).decoration(TextDecoration.UNDERLINED, true).build())
+          .character('&').hexColors().useUnusualXRepeatedCharacterHexFormat().build();
+
   /**
    * Predefined Predicate to check if a context has a sender.
    *
@@ -114,7 +122,7 @@ public class BungeeChatContext {
   public BungeeChatContext(BungeeChatAccount sender, String message) {
     this(sender);
 
-    this.message = message != null ? Optional.of(LegacyComponentSerializer.legacyAmpersand().deserialize(message)) : Optional.empty();
+    this.message = message != null ? Optional.of(legacySerializer.deserialize(message)) : Optional.empty();
   }
 
   public BungeeChatContext(BungeeChatAccount sender, Component message) {
@@ -212,7 +220,7 @@ public class BungeeChatContext {
   @Tolerate
   public void setMessage(String message) {
     if(message != null) {
-      setMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));
+      setMessage(legacySerializer.deserialize(message));
     } else {
       setMessage((Component) null);
     }
