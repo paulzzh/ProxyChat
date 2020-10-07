@@ -271,9 +271,9 @@ public class MessagesService {
 			predicate = predicate.and(getPermissionPredicate(Permission.COMMAND_VANISH_VIEW));
 		}
 
+		context.setParsedMessage(finalMessage);
 		sendToMatchingPlayers(finalMessage, predicate);
 
-		context.setParsedMessage(finalMessage);
 		ChatLoggingManager.logMessage("JOIN", context);
 	}
 
@@ -292,9 +292,9 @@ public class MessagesService {
 			predicate = predicate.and(getPermissionPredicate(Permission.COMMAND_VANISH_VIEW));
 		}
 
+		context.setParsedMessage(finalMessage);
 		sendToMatchingPlayers(finalMessage, predicate);
 
-		context.setParsedMessage(finalMessage);
 		ChatLoggingManager.logMessage("LEAVE", context);
 	}
 
