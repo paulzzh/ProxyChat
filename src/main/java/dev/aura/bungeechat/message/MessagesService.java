@@ -28,10 +28,18 @@ import java.util.stream.Stream;
 import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 @UtilityClass
 public class MessagesService {
+	private static final LegacyComponentSerializer legacySerializer = LegacyComponentSerializer.builder()
+          .extractUrls(
+				  Style.style().color(TextColor.fromHexString("#8194e4")).decoration(TextDecoration.UNDERLINED, true).build())
+          .character('&').hexColors().useUnusualXRepeatedCharacterHexFormat().build();
+
 	@Setter
 	private List<List<String>> multiCastServerGroups = null;
 
@@ -39,14 +47,18 @@ public class MessagesService {
 		setMultiCastServerGroups(null);
 	}
 
-	public void sendPrivateMessage(CommandSource sender, CommandSource target, String message)
-			throws InvalidContextError {
-		sendPrivateMessage(new Context(sender, target, message));
+	public void sendPrivateMessage(CommandSource sender, CommandSource target, String message) throws InvalidContextError {
+		BungeeChatContext context = new Context(sender, target, message);
+		boolean allowed = parseMessage(context, true);
+
+		if(allowed) {
+			sendPrivateMessage(context);
+		}
 	}
 
 	public void sendPrivateMessage(BungeeChatContext context) throws InvalidContextError {
-		context.require(
-				BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_TARGET, BungeeChatContext.HAS_MESSAGE);
+		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_TARGET,
+						BungeeChatContext.HAS_MESSAGE, BungeeChatContext.IS_PARSED);
 
 		Optional<BungeeChatAccount> account = context.getSender();
 		BungeeChatAccount senderAccount = account.get();
@@ -97,14 +109,18 @@ public class MessagesService {
 		}
 	}
 
-	public void sendChannelMessage(CommandSource sender, ChannelType channel, String message)
-			throws InvalidContextError {
-		sendChannelMessage(new Context(sender, message), channel);
+	public void sendChannelMessage(CommandSource sender, ChannelType channel, String message) throws InvalidContextError {
+		BungeeChatContext context = new Context(sender, message);
+		boolean allowed = parseMessage(context, true);
+
+		if(allowed) {
+			sendChannelMessage(context, channel);
+		}
 	}
 
 	public void sendChannelMessage(BungeeChatContext context, ChannelType channel)
 			throws InvalidContextError {
-		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE);
+		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE, BungeeChatContext.IS_PARSED);
 
 		switch (channel) {
 			case GLOBAL:
@@ -125,13 +141,17 @@ public class MessagesService {
 		}
 	}
 
-	public void sendGlobalMessage(CommandSource sender, String message)
-			throws InvalidContextError {
-		sendGlobalMessage(new Context(sender, message));
+	public void sendGlobalMessage(CommandSource sender, String message) throws InvalidContextError {
+		BungeeChatContext context = new Context(sender, message);
+		boolean allowed = parseMessage(context, true);
+
+		if(allowed) {
+			sendGlobalMessage(context);
+		}
 	}
 
 	public void sendGlobalMessage(BungeeChatContext context) throws InvalidContextError {
-		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE);
+		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE, BungeeChatContext.IS_PARSED);
 
 		Optional<BungeeChatAccount> account = context.getSender();
 		Optional<Component> finalMessage = preProcessMessage(context, Format.GLOBAL_CHAT);
@@ -141,13 +161,17 @@ public class MessagesService {
 		ChatLoggingManager.logMessage(ChannelType.GLOBAL, context);
 	}
 
-	public void sendLocalMessage(CommandSource sender, String message)
-			throws InvalidContextError {
-		sendLocalMessage(new Context(sender, message));
+	public void sendLocalMessage(CommandSource sender, String message) throws InvalidContextError {
+		BungeeChatContext context = new Context(sender, message);
+		boolean allowed = parseMessage(context, true);
+
+		if(allowed) {
+			sendLocalMessage(context);
+		}
 	}
 
 	public void sendLocalMessage(BungeeChatContext context) throws InvalidContextError {
-		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE);
+		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE, BungeeChatContext.IS_PARSED);
 
 		Optional<BungeeChatAccount> account = context.getSender();
 		Optional<Component> finalMessage = preProcessMessage(context, Format.LOCAL_CHAT);
@@ -170,7 +194,7 @@ public class MessagesService {
 	}
 
 	public void sendTransparentMessage(BungeeChatContext context) throws InvalidContextError {
-		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE);
+		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE, BungeeChatContext.IS_PARSED);
 
 		Optional<BungeeChatAccount> account = context.getSender();
 		String localServerName =
@@ -188,13 +212,17 @@ public class MessagesService {
 		}
 	}
 
-	public void sendStaffMessage(CommandSource sender, String message)
-			throws InvalidContextError {
-		sendStaffMessage(new Context(sender, message));
+	public void sendStaffMessage(CommandSource sender, String message) throws InvalidContextError {
+		BungeeChatContext context = new Context(sender, message);
+		boolean allowed = parseMessage(context, true);
+
+		if(allowed) {
+			sendStaffMessage(context);
+		}
 	}
 
 	public void sendStaffMessage(BungeeChatContext context) throws InvalidContextError {
-		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE);
+		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE, BungeeChatContext.IS_PARSED);
 
 		Optional<Component> finalMessage = preProcessMessage(context, Format.STAFF_CHAT);
 
@@ -204,13 +232,17 @@ public class MessagesService {
 		ChatLoggingManager.logMessage(ChannelType.STAFF, context);
 	}
 
-	public void sendHelpMessage(CommandSource sender, String message)
-			throws InvalidContextError {
-		sendHelpMessage(new Context(sender, message));
+	public void sendHelpMessage(CommandSource sender, String message) throws InvalidContextError {
+		BungeeChatContext context = new Context(sender, message);
+		boolean allowed = parseMessage(context, true);
+
+		if(allowed) {
+			sendHelpMessage(context);
+		}
 	}
 
 	public void sendHelpMessage(BungeeChatContext context) throws InvalidContextError {
-		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE);
+		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE, BungeeChatContext.IS_PARSED);
 
 		Optional<Component> finalMessage = preProcessMessage(context, Format.HELP_OP);
 		BungeeChatAccount sender = context.getSender().get();
@@ -241,7 +273,7 @@ public class MessagesService {
 
 		sendToMatchingPlayers(finalMessage, predicate);
 
-		context.setMessage(finalMessage);
+		context.setParsedMessage(finalMessage);
 		ChatLoggingManager.logMessage("JOIN", context);
 	}
 
@@ -262,17 +294,15 @@ public class MessagesService {
 
 		sendToMatchingPlayers(finalMessage, predicate);
 
-		context.setMessage(finalMessage);
+		context.setParsedMessage(finalMessage);
 		ChatLoggingManager.logMessage("LEAVE", context);
 	}
 
-	public void sendSwitchMessage(CommandSource sender, RegisteredServer server)
-			throws InvalidContextError {
+	public void sendSwitchMessage(CommandSource sender, RegisteredServer server) throws InvalidContextError {
 		sendSwitchMessage(sender, (server == null) ? null : server.getServerInfo().getName());
 	}
 
-	public void sendSwitchMessage(CommandSource sender, String server)
-			throws InvalidContextError {
+	public void sendSwitchMessage(CommandSource sender, String server) throws InvalidContextError {
 		final Context context = new Context(sender);
 		if (server != null) context.setServer(server);
 
@@ -292,19 +322,13 @@ public class MessagesService {
 
 		sendToMatchingPlayers(finalMessage, predicate);
 
-		context.setMessage(finalMessage);
+		context.setParsedMessage(finalMessage);
 		ChatLoggingManager.logMessage("SWITCH", context);
 	}
 
 	public Optional<Component> preProcessMessage(BungeeChatContext context, Format format)
 			throws InvalidContextError {
 		return preProcessMessage(context, context.getSender(), format, true);
-	}
-
-	public Optional<Component> preProcessMessage(
-			BungeeChatContext context, Optional<BungeeChatAccount> account, Format format)
-			throws InvalidContextError {
-		return preProcessMessage(context, account, format, true);
 	}
 
 	public Optional<Component> preProcessMessage(
@@ -326,7 +350,7 @@ public class MessagesService {
 
 		BungeeChatAccount playerAccount = account.get();
 		CommandSource player = BungeecordAccountManager.getCommandSource(playerAccount).get();
-		Component message = PlaceHolderUtil.filterFormatting(context.getMessage().get(), account);
+		Component message = PlaceHolderUtil.filterFormatting(context.getParsedMessage().get(), account);
 
 		if (runFilters) {
 			try {
@@ -340,9 +364,31 @@ public class MessagesService {
 			}
 		}
 
-		context.setMessage(message);
+		context.setParsedMessage(message);
 
 		return Optional.of(PlaceHolderUtil.getFullFormatMessage(format, context));
+	}
+
+	public boolean parseMessage(BungeeChatContext context, boolean runFilters) {
+		context.require(BungeeChatContext.HAS_MESSAGE, BungeeChatContext.HAS_SENDER);
+
+		BungeeChatAccount playerAccount = context.getSender().get();
+		CommandSource player = BungeecordAccountManager.getCommandSource(playerAccount).get();
+		String message = context.getMessage().get();
+
+		if(runFilters) {
+			try {
+				message = FilterManager.applyFilters(playerAccount, message);
+			} catch (BlockMessageException e) {
+				MessagesService.sendMessage(player, e.getMessage());
+
+				return false;
+			}
+		}
+
+		context.setParsedMessage(PlaceHolderUtil.filterFormatting(legacySerializer.deserialize(message)));
+
+		return true;
 	}
 
 	@SafeVarargs

@@ -2,21 +2,19 @@ package dev.aura.bungeechat.filter;
 
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.filter.BlockMessageException;
-import dev.aura.bungeechat.api.filter.BungeeChatFilter;
+import dev.aura.bungeechat.api.filter.BungeeChatPreParseFilter;
 import dev.aura.bungeechat.api.filter.FilterManager;
 import dev.aura.bungeechat.api.utils.RegexUtil;
 import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AdvertisingFilter implements BungeeChatFilter {
+public class AdvertisingFilter implements BungeeChatPreParseFilter {
   /**
    * Regex from <a href=
    * "https://gist.github.com/dperini/729294">https://gist.github.com/dperini/729294</a>. <br>
@@ -30,8 +28,6 @@ public class AdvertisingFilter implements BungeeChatFilter {
 
   private final Predicate<String> whitelisted;
   private final boolean noPermissions;
-
-  private static final PlainComponentSerializer serializer = PlainComponentSerializer.plain();
 
   public AdvertisingFilter(List<String> whitelisted) {
     this(whitelisted, false);
@@ -51,14 +47,12 @@ public class AdvertisingFilter implements BungeeChatFilter {
   }
 
   @Override
-  public Component applyFilter(BungeeChatAccount sender, Component message) throws BlockMessageException {
+  public String applyFilter(BungeeChatAccount sender, String message) throws BlockMessageException {
     if (!noPermissions
         && PermissionManager.hasPermission(sender, Permission.BYPASS_ANTI_ADVERTISEMENT))
       return message;
 
-    String text = serializer.serialize(message);
-
-    Matcher matches = url.matcher(text);
+    Matcher matches = url.matcher(message);
     boolean matchOk;
     String match;
 

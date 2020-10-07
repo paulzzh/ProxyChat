@@ -60,6 +60,13 @@ public class BungeeChatContext {
   public static final Predicate<BungeeChatContext> HAS_SERVER = BungeeChatContext::hasServer;
 
   /**
+   * Predefined Predicate to check if a context has been parsed.
+   *
+   * @see BungeeChatContext#require(Predicate...)
+   */
+  public static final Predicate<BungeeChatContext> IS_PARSED = BungeeChatContext::isParsed;
+
+  /**
    * Predefined Predicate to check if a context does not have a sender.
    *
    * @see BungeeChatContext#require(Predicate...)
@@ -93,60 +100,56 @@ public class BungeeChatContext {
   private static final Map<Predicate<BungeeChatContext>, String> requirementsNameCache =
       new HashMap<>(8);
 
-  private Optional<BungeeChatAccount> sender;
-  private Optional<BungeeChatAccount> target;
-  private Optional<Component> message;
-  private Optional<String> channel;
-  private Optional<String> server;
+  private BungeeChatAccount sender;
+  private BungeeChatAccount target;
+  private String message;
+  private Component parsedMessage;
+  private String channel;
+  private String server;
+  private boolean parsed = false;
 
   public BungeeChatContext() {
-    sender = Optional.empty();
-    target = Optional.empty();
-    message = Optional.empty();
-    channel = Optional.empty();
-    server = Optional.empty();
+    sender = null;
+    target = null;
+    message = null;
+    parsedMessage = null;
+    channel = null;
+    server = null;
   }
 
   public BungeeChatContext(BungeeChatAccount sender) {
     this();
 
-    this.sender = Optional.ofNullable(sender);
+    this.sender = sender;
   }
 
-  public BungeeChatContext(Component message) {
+  public BungeeChatContext(String message) {
     this();
 
-    this.message = Optional.ofNullable(message);
+    this.message = message;
   }
 
   public BungeeChatContext(BungeeChatAccount sender, String message) {
     this(sender);
-
-    this.message = message != null ? Optional.of(legacySerializer.deserialize(message)) : Optional.empty();
-  }
-
-  public BungeeChatContext(BungeeChatAccount sender, Component message) {
-    this(sender);
-
-    this.message = Optional.ofNullable(message);
+    this.message = message;
   }
 
   public BungeeChatContext(BungeeChatAccount sender, BungeeChatAccount target) {
     this(sender);
 
-    this.target = Optional.ofNullable(target);
+    this.target = target;
   }
 
-  public BungeeChatContext(BungeeChatAccount sender, BungeeChatAccount target, Component message) {
+  public BungeeChatContext(BungeeChatAccount sender, BungeeChatAccount target, String message) {
     this(sender, target);
 
-    this.message = Optional.ofNullable(message);
+    this.message = message;
   }
 
-  public BungeeChatContext(BungeeChatAccount sender, Component message, String server) {
+  public BungeeChatContext(BungeeChatAccount sender, String message, String server) {
     this(sender, message);
 
-    this.server = Optional.ofNullable(server);
+    this.server = server;
   }
 
   /**
@@ -183,57 +186,52 @@ public class BungeeChatContext {
   }
 
   public boolean hasSender() {
-    return sender.isPresent();
+    return sender != null;
   }
 
   public boolean hasTarget() {
-    return target.isPresent();
+    return target != null;
   }
 
   public boolean hasMessage() {
-    return message.isPresent();
+    return message != null;
   }
 
   public boolean hasChannel() {
-    return channel.isPresent();
+    return channel != null;
   }
 
   public boolean hasServer() {
-    return server.isPresent();
+    return server != null;
   }
 
-  @Tolerate
-  public void setSender(BungeeChatAccount sender) {
-    setSender(Optional.ofNullable(sender));
+  public Optional<BungeeChatAccount> getSender() {
+    return Optional.ofNullable(sender);
   }
 
-  @Tolerate
-  public void setTarget(BungeeChatAccount target) {
-    setTarget(Optional.ofNullable(target));
+  public Optional<BungeeChatAccount> getTarget() {
+    return Optional.ofNullable(target);
   }
 
-  @Tolerate
-  public void setMessage(Component message) {
-    setMessage(Optional.ofNullable(message));
+  public Optional<String> getMessage() {
+    return Optional.ofNullable(message);
   }
 
-  @Tolerate
-  public void setMessage(String message) {
-    if(message != null) {
-      setMessage(legacySerializer.deserialize(message));
-    } else {
-      setMessage((Component) null);
-    }
+  public Optional<Component> getParsedMessage() {
+    return Optional.ofNullable(parsedMessage);
   }
 
-  @Tolerate
-  public void setChannel(String channel) {
-    setChannel(Optional.ofNullable(channel));
+  public Optional<String> getChannel() {
+    return Optional.ofNullable(channel);
   }
 
-  @Tolerate
-  public void setServer(String server) {
-    setServer(Optional.ofNullable(server));
+  public Optional<String> getServer() {
+    return Optional.ofNullable(server);
+  }
+
+  public void setParsedMessage(Component message) {
+    parsed = true;
+    parsedMessage = message;
   }
 
   // Fill the requirementsNameCache

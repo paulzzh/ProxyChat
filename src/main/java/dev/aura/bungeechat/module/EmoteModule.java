@@ -11,12 +11,12 @@ public class EmoteModule extends Module {
 
 	@Override
 	public void onEnable() {
-		FilterManager.addFilter(getName(), new EmoteFilter(getModuleSection().getStringList("emoteNames"),
+		FilterManager.addPostParseFilter(getName(), new EmoteFilter(getModuleSection().getStringList("emoteNames"),
 														   getModuleSection().getString("prefix")));
 	}
 
 	@Override
 	public void onDisable() {
-		FilterManager.removeFilter(getName());
+		FilterManager.removePostParseFilter(getName());
 	}
 }

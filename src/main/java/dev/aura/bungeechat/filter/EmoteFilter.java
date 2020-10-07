@@ -1,7 +1,7 @@
 package dev.aura.bungeechat.filter;
 
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
-import dev.aura.bungeechat.api.filter.BungeeChatFilter;
+import dev.aura.bungeechat.api.filter.BungeeChatPostParseFilter;
 import dev.aura.bungeechat.api.filter.FilterManager;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
@@ -9,12 +9,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
-
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class EmoteFilter implements BungeeChatFilter {
+public class EmoteFilter implements BungeeChatPostParseFilter {
 	private final static Pattern emotePattern = Pattern.compile(":(\\w+):");
 	private final static char emoteCharacter = '\ue110';
 	private final List<String> emotes;

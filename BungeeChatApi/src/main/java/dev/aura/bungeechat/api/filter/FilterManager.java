@@ -19,26 +19,43 @@ public class FilterManager {
   public static final int LOCK_CHAT_FILTER_PRIORITY = 600;
   public static final int EMOTE_FILTER_PRIORITY = 700;
 
-  private static Map<String, BungeeChatFilter> filters = new LinkedHashMap<>();
+  private static Map<String, BungeeChatPreParseFilter> preParsefilters = new LinkedHashMap<>();
+  private static Map<String, BungeeChatPostParseFilter> postParsefilters = new LinkedHashMap<>();
 
-  public static void addFilter(String name, BungeeChatFilter filter)
-      throws UnsupportedOperationException {
-    filters.put(name, filter);
+  public static void addPreParseFilter(String name, BungeeChatPreParseFilter filter) throws UnsupportedOperationException {
+    preParsefilters.put(name, filter);
 
     sortFilters();
   }
 
-  public static BungeeChatFilter removeFilter(String name) throws UnsupportedOperationException {
-    BungeeChatFilter out = filters.remove(name);
+  public static void addPostParseFilter(String name, BungeeChatPostParseFilter filter) throws UnsupportedOperationException {
+    postParsefilters.put(name, filter);
 
     sortFilters();
+  }
 
-    return out;
+  public static void removePreParseFilter(String name) throws UnsupportedOperationException {
+    preParsefilters.remove(name);
+    sortFilters();
+  }
+
+  public static void removePostParseFilter(String name) throws UnsupportedOperationException {
+    postParsefilters.remove(name);
+    sortFilters();
+  }
+
+  public static String applyFilters(BungeeChatAccount sender, String message)
+      throws UnsupportedOperationException, BlockMessageException {
+    for (BungeeChatPreParseFilter filter : preParsefilters.values()) {
+      message = filter.applyFilter(sender, message);
+    }
+
+    return message;
   }
 
   public static Component applyFilters(BungeeChatAccount sender, Component message)
       throws UnsupportedOperationException, BlockMessageException {
-    for (BungeeChatFilter filter : filters.values()) {
+    for (BungeeChatPostParseFilter filter : postParsefilters.values()) {
       message = filter.applyFilter(sender, message);
     }
 
@@ -46,8 +63,15 @@ public class FilterManager {
   }
 
   private static void sortFilters() {
-    filters =
-        filters.entrySet().stream()
+    preParsefilters =
+        preParsefilters.entrySet().stream()
+            .sorted(Collections.reverseOrder(Entry.comparingByValue()))
+            .collect(
+                Collectors.toMap(
+                    Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+    postParsefilters =
+        postParsefilters.entrySet().stream()
             .sorted(Collections.reverseOrder(Entry.comparingByValue()))
             .collect(
                 Collectors.toMap(

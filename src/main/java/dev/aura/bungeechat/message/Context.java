@@ -34,12 +34,6 @@ public class Context extends BungeeChatContext {
     super(BungeecordAccountManager.getAccount(sender).get());
   }
 
-  public Context(CommandSource player, Component message) {
-    this(player);
-
-    setMessage(message);
-  }
-
   public Context(CommandSource player, String message) {
     this(player);
 
@@ -56,12 +50,6 @@ public class Context extends BungeeChatContext {
     super(
         BungeecordAccountManager.getAccount(sender).get(),
         BungeecordAccountManager.getAccount(target).get());
-  }
-
-  public Context(CommandSource sender, CommandSource target, Component message) {
-    this(sender, target);
-
-    setMessage(message);
   }
 
   public Context(CommandSource sender, CommandSource target, String message) {

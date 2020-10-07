@@ -11,7 +11,7 @@ public class AntiCapslockModule extends Module {
 
   @Override
   public void onEnable() {
-    FilterManager.addFilter(
+    FilterManager.addPreParseFilter(
         getName(),
         new CapslockFilter(
             getModuleSection().getInt("minimumLetterCount"),
@@ -20,6 +20,6 @@ public class AntiCapslockModule extends Module {
 
   @Override
   public void onDisable() {
-    FilterManager.removeFilter(getName());
+    FilterManager.removePreParseFilter(getName());
   }
 }

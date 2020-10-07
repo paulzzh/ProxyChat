@@ -25,7 +25,7 @@ public class ChatLoggingManager {
     loggers.remove(logger);
   }
 
-  public static void logMessage(String channel, BungeeChatAccount sender, Component message) {
+  public static void logMessage(String channel, BungeeChatAccount sender, String message) {
     BungeeChatContext context = new BungeeChatContext(sender, message);
     context.setChannel(channel);
 

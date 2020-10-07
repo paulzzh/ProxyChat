@@ -3,13 +3,11 @@ package dev.aura.bungeechat.filter;
 import com.google.common.annotations.VisibleForTesting;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.filter.BlockMessageException;
-import dev.aura.bungeechat.api.filter.BungeeChatFilter;
+import dev.aura.bungeechat.api.filter.BungeeChatPreParseFilter;
 import dev.aura.bungeechat.api.filter.FilterManager;
 import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
-import net.kyori.adventure.text.Component;
-
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.UUID;
@@ -17,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
-public class SpamFilter implements BungeeChatFilter {
+public class SpamFilter implements BungeeChatPreParseFilter {
   @VisibleForTesting static long expiryTimer = TimeUnit.MINUTES.toNanos(1);
 
   private final ConcurrentMap<UUID, Queue<Long>> playerMessageTimepointStorage;
@@ -36,7 +34,7 @@ public class SpamFilter implements BungeeChatFilter {
   }
 
   @Override
-  public Component applyFilter(BungeeChatAccount sender, Component message) throws BlockMessageException {
+  public String applyFilter(BungeeChatAccount sender, String message) throws BlockMessageException {
     if (!noPermissions && PermissionManager.hasPermission(sender, Permission.BYPASS_ANTI_SPAM))
       return message;
 

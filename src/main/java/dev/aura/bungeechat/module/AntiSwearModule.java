@@ -14,7 +14,7 @@ public class AntiSwearModule extends Module {
   public void onEnable() {
     Config section = getModuleSection();
 
-    FilterManager.addFilter(
+    FilterManager.addPreParseFilter(
         getName(),
         new SwearWordsFilter(
             section.getStringList("words"),
@@ -27,6 +27,6 @@ public class AntiSwearModule extends Module {
 
   @Override
   public void onDisable() {
-    FilterManager.removeFilter(getName());
+    FilterManager.removePreParseFilter(getName());
   }
 }

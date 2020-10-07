@@ -11,12 +11,12 @@ public class AntiAdvertisingModule extends Module {
 
   @Override
   public void onEnable() {
-    FilterManager.addFilter(
+    FilterManager.addPreParseFilter(
         getName(), new AdvertisingFilter(getModuleSection().getStringList("whitelisted")));
   }
 
   @Override
   public void onDisable() {
-    FilterManager.removeFilter(getName());
+    FilterManager.removePreParseFilter(getName());
   }
 }

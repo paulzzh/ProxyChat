@@ -2,23 +2,22 @@ package dev.aura.bungeechat.filter;
 
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.filter.BlockMessageException;
-import dev.aura.bungeechat.api.filter.BungeeChatFilter;
+import dev.aura.bungeechat.api.filter.BungeeChatPreParseFilter;
 import dev.aura.bungeechat.api.filter.FilterManager;
 import dev.aura.bungeechat.message.Messages;
 import dev.aura.bungeechat.message.MessagesService;
 import dev.aura.bungeechat.permission.Permission;
 import dev.aura.bungeechat.permission.PermissionManager;
-import net.kyori.adventure.text.Component;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class ChatLockFilter implements BungeeChatFilter {
+public class ChatLockFilter implements BungeeChatPreParseFilter {
   private boolean globalLock = false;
   private List<String> lockedServers = new LinkedList<>();
 
   @Override
-  public Component applyFilter(BungeeChatAccount sender, Component message) throws BlockMessageException {
+  public String applyFilter(BungeeChatAccount sender, String message) throws BlockMessageException {
     if (PermissionManager.hasPermission(sender, Permission.BYPASS_CHAT_LOCK)
         || !((globalLock && MessagesService.getGlobalPredicate().test(sender))
             || lockedServers.contains(sender.getServerName()))) return message;

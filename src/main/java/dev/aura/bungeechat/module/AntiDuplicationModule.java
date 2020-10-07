@@ -11,7 +11,7 @@ public class AntiDuplicationModule extends Module {
 
   @Override
   public void onEnable() {
-    FilterManager.addFilter(
+    FilterManager.addPreParseFilter(
         getName(),
         new DuplicationFilter(
             getModuleSection().getInt("checkPastMessages"),
@@ -20,6 +20,6 @@ public class AntiDuplicationModule extends Module {
 
   @Override
   public void onDisable() {
-    FilterManager.removeFilter(getName());
+    FilterManager.removePreParseFilter(getName());
   }
 }

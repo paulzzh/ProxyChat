@@ -3,10 +3,10 @@ package dev.aura.bungeechat.api.filter;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import net.kyori.adventure.text.Component;
 
-public interface BungeeChatFilter extends Comparable<BungeeChatFilter> {
-  public Component applyFilter(BungeeChatAccount sender, Component message) throws BlockMessageException;
+public interface BungeeChatFilter<T> extends Comparable<BungeeChatFilter<T>> {
+  T applyFilter(BungeeChatAccount sender, T message) throws BlockMessageException;
 
-  public int getPriority();
+  int getPriority();
 
   @Override
   default int compareTo(BungeeChatFilter other) {

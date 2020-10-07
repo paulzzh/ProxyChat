@@ -215,8 +215,8 @@ public class PlaceHolders {
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
                 "message",
-                context -> PlainComponentSerializer.plain().serialize(context.getMessage().get()),
-                (ComponentReplacementSupplier) context -> context.getMessage().get(),
+                context -> context.getMessage().get(),
+                (ComponentReplacementSupplier) context -> context.getParsedMessage().get(),
                 BungeeChatContext.HAS_MESSAGE)
             .createAliases("command", "unknown_server"));
     PlaceHolderManager.registerPlaceholder(
