@@ -140,6 +140,12 @@ public class PlaceHolderUtil {
     Style.Builder style = Style.style();
     TextColor color = message.color();
 
+    //TODO: Permissions for these?
+    style.clickEvent(message.clickEvent());
+    style.hoverEvent(message.hoverEvent());
+    style.insertion(message.insertion());
+    style.font(message.style().font());
+
     if(color instanceof NamedTextColor) {
       if(PermissionManager.hasPermission(account, permissionMap.get(color))) {
         style.color(color);
@@ -149,6 +155,12 @@ public class PlaceHolderUtil {
     }
 
     for(Map.Entry<TextDecoration, TextDecoration.State> entry : message.decorations().entrySet()) {
+      if(entry.getKey() == TextDecoration.UNDERLINED && entry.getValue() == TextDecoration.State.TRUE
+              && message.clickEvent() != null) {
+        style.decoration(entry.getKey(), TextDecoration.State.TRUE);
+        continue;
+      }
+
       if(entry.getValue() == TextDecoration.State.TRUE) {
         Permission perm = permissionMap.get(entry.getKey());
 
