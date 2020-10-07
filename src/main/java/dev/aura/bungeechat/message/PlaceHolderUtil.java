@@ -14,12 +14,8 @@ import dev.aura.lib.messagestranslator.MessagesTranslator;
 import dev.aura.lib.messagestranslator.PluginMessagesTranslator;
 import java.io.File;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -33,11 +29,10 @@ public class PlaceHolderUtil {
   private static Config formatsBase;
   private static MessagesTranslator messageBase;
 
-  private static final char altColorChar = '&';
-  private static final String altColorString = String.valueOf(altColorChar);
-//  private static final String colorCodeReplacement = "\u00A7$1";
+  private static final LegacyComponentSerializer legacySerializer = LegacyComponentSerializer.builder()
+          .character('&').extractUrls().hexColors().hexCharacter('x').useUnusualXRepeatedCharacterHexFormat().build();
 
-  private static final ImmutableMap<TextFormat, Permission> colorCodeMap =
+  private static final ImmutableMap<TextFormat, Permission> permissionMap =
       ImmutableMap.<TextFormat, Permission>builder()
           .put(NamedTextColor.BLACK, Permission.USE_CHAT_COLOR_BLACK)
           .put(NamedTextColor.DARK_BLUE, Permission.USE_CHAT_COLOR_DARK_BLUE)
@@ -61,12 +56,6 @@ public class PlaceHolderUtil {
           .put(TextDecoration.UNDERLINED, Permission.USE_CHAT_FORMAT_UNDERLINE)
           .put(TextDecoration.ITALIC, Permission.USE_CHAT_FORMAT_ITALIC)
           .build();
-
-//  private static final Pattern urlEscapePattern = Pattern.compile("(?:(?:https?)://)?(?:[-\\w_.]+\\.\\w{2,})(?:/\\S*)?");
-
-//  private static final Map<Integer, Optional<Pattern>> patternCache = new HashMap<>();
-  private static final char placeholderChar = PlaceHolderManager.placeholderChar;
-  private static final String placeholderString = String.valueOf(placeholderChar);
 
   public static void clearConfigSections() {
     formatsBase = null;
@@ -96,9 +85,9 @@ public class PlaceHolderUtil {
         loadFormatsBase();
       }
 
-      return LegacyComponentSerializer.legacyAmpersand().deserialize(formatsBase.getString(format.getStringPath()));
+      return legacySerializer.deserialize(formatsBase.getString(format.getStringPath()));
     } catch (RuntimeException e) {
-      return LegacyComponentSerializer.legacyAmpersand().deserialize(format.getStringPath());
+      return legacySerializer.deserialize(format.getStringPath());
     }
   }
 
@@ -108,9 +97,9 @@ public class PlaceHolderUtil {
         loadMessageBase();
       }
 
-      return LegacyComponentSerializer.legacyAmpersand().deserialize(messageBase.translateWithFallback(message));
+      return legacySerializer.deserialize(messageBase.translateWithFallback(message));
     } catch (RuntimeException e) {
-      return LegacyComponentSerializer.legacyAmpersand().deserialize(message.getStringPath());
+      return legacySerializer.deserialize(message.getStringPath());
     }
   }
 
@@ -127,7 +116,7 @@ public class PlaceHolderUtil {
   }
 
   public static Component formatMessage(String message, BungeeChatContext context) {
-    Component m = LegacyComponentSerializer.legacyAmpersand().deserialize(message);
+    Component m = legacySerializer.deserialize(message);
 
     return filterFormatting(PlaceHolderManager.processMessage(m, context));
   }
@@ -146,14 +135,14 @@ public class PlaceHolderUtil {
 
     TextColor color = message.color();
 
-    if(color instanceof NamedTextColor && !PermissionManager.hasPermission(permsAccount, colorCodeMap.get(color))) {
+    if(color instanceof NamedTextColor && !PermissionManager.hasPermission(permsAccount, permissionMap.get(color))) {
       message.color(null);
     } else if(!PermissionManager.hasPermission(permsAccount, Permission.USE_CHAT_FORMAT_RGB)) {
       message.color(null);
     }
 
     for (Map.Entry<TextDecoration, TextDecoration.State> entry : decorations.entrySet()) {
-      Permission perm = colorCodeMap.get(entry.getKey());
+      Permission perm = permissionMap.get(entry.getKey());
 
       if(perm != null && !PermissionManager.hasPermission(permsAccount, perm)) {
         entry.setValue(TextDecoration.State.NOT_SET);
@@ -167,33 +156,5 @@ public class PlaceHolderUtil {
     }
 
     return message;
-  }
-
-  public static String escapeAltColorCodes(String message) {
-//    List<String> urls = new ArrayList<>();
-//    Matcher matcher = urlEscapePattern.matcher(message);
-//
-//    //Save and remove URLs before colour code replacement
-//    while(matcher.find()) {
-//      urls.add(matcher.group());
-//    }
-//
-//    message = urlEscapePattern.matcher(message).replaceAll("%url%");
-//    message = message.replace(altColorString, altColorString + altColorString);
-//
-//    //Readd urls
-//    for (String url : urls) {
-//      message = message.replaceFirst("%url%", url);
-//    }
-//
-    return message;
-  }
-
-  public static String escapePlaceholders(String message) {
-    return message.replace(placeholderString, placeholderString + placeholderString);
-  }
-
-  public static String escape(String message) {
-    return escapeAltColorCodes(escapePlaceholders(message));
   }
 }
