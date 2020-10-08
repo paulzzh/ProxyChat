@@ -1,11 +1,11 @@
 package dev.aura.bungeechat.message;
 
 import com.velocitypowered.api.command.CommandSource;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.AccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.placeholder.BungeeChatContext;
-import net.kyori.adventure.text.Component;
 
 import java.util.UUID;
 
@@ -40,7 +40,7 @@ public class Context extends BungeeChatContext {
     setMessage(message);
   }
 
-  public Context(CommandSource player, String message, String server) {
+  public Context(CommandSource player, String message, RegisteredServer server) {
     this(player, message);
 
     setServer(server);

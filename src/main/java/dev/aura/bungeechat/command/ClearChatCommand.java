@@ -1,6 +1,7 @@
 package dev.aura.bungeechat.command;
 
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.message.Messages;
@@ -53,18 +54,16 @@ public class ClearChatCommand extends BaseCommand {
             return;
           }
 
-        Optional<String> optServerName =
-            ServerNameUtil.verifyServerName(
-                serverSpecified ? invocation.arguments()[1] : bungeeChatAccount.getServerName(), invocation.source());
+        Optional<RegisteredServer> server = serverSpecified ?
+              ServerNameUtil.verifyServerName(invocation.arguments()[1], invocation.source()) :
+              bungeeChatAccount.getServer();
 
-        if (!optServerName.isPresent()) return;
+        if (server.isEmpty()) return;
 
-        String serverName = optServerName.get();
-
-        clearLocalChat(serverName, lines);
+        clearLocalChat(server.get(), lines);
 
         MessagesService.sendToMatchingPlayers(
-            Messages.CLEARED_LOCAL.get(invocation.source()), MessagesService.getLocalPredicate(serverName));
+            Messages.CLEARED_LOCAL.get(invocation.source()), MessagesService.getLocalPredicate(server.get()));
       } else if (invocation.arguments()[0].equalsIgnoreCase("global")) {
         clearGlobalChat(lines);
 
@@ -101,8 +100,8 @@ public class ClearChatCommand extends BaseCommand {
     clearChat(emptyLines, MessagesService.getGlobalPredicate());
   }
 
-  public static void clearLocalChat(String serverName, int emptyLines) {
-    clearChat(emptyLines, MessagesService.getLocalPredicate(serverName));
+  public static void clearLocalChat(RegisteredServer server, int emptyLines) {
+    clearChat(emptyLines, MessagesService.getLocalPredicate(server));
   }
 
   private static void clearChat(int emptyLines, Predicate<BungeeChatAccount> predicate) {

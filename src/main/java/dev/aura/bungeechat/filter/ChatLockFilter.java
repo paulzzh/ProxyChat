@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.filter;
 
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.filter.BlockMessageException;
 import dev.aura.bungeechat.api.filter.BungeeChatPreParseFilter;
@@ -14,14 +15,20 @@ import java.util.List;
 
 public class ChatLockFilter implements BungeeChatPreParseFilter {
   private boolean globalLock = false;
-  private List<String> lockedServers = new LinkedList<>();
+  private final List<RegisteredServer> lockedServers = new LinkedList<>();
 
   @Override
   public String applyFilter(BungeeChatAccount sender, String message) throws BlockMessageException {
-    if (PermissionManager.hasPermission(sender, Permission.BYPASS_CHAT_LOCK)
-        || !((globalLock && MessagesService.getGlobalPredicate().test(sender))
-            || lockedServers.contains(sender.getServerName()))) return message;
-    else throw new ExtendedBlockMessageException(Messages.CHAT_IS_DISABLED, sender);
+    if (PermissionManager.hasPermission(sender, Permission.BYPASS_CHAT_LOCK)) {
+      return message;
+    }
+
+    if(!((globalLock && MessagesService.getGlobalPredicate().test(sender)) ||
+            sender.getServer().isPresent() && !lockedServers.contains(sender.getServer().get()))) {
+      return message;
+    }
+
+    throw new ExtendedBlockMessageException(Messages.CHAT_IS_DISABLED, sender);
   }
 
   @Override
@@ -33,7 +40,7 @@ public class ChatLockFilter implements BungeeChatPreParseFilter {
     globalLock = true;
   }
 
-  public void enableLocalChatLock(String name) {
+  public void enableLocalChatLock(RegisteredServer name) {
     lockedServers.add(name);
   }
 
@@ -41,7 +48,7 @@ public class ChatLockFilter implements BungeeChatPreParseFilter {
     return globalLock;
   }
 
-  public boolean isLocalChatLockEnabled(String name) {
+  public boolean isLocalChatLockEnabled(RegisteredServer name) {
     return lockedServers.contains(name);
   }
 
@@ -49,7 +56,7 @@ public class ChatLockFilter implements BungeeChatPreParseFilter {
     globalLock = false;
   }
 
-  public void disableLocalChatLock(String name) {
+  public void disableLocalChatLock(RegisteredServer name) {
     lockedServers.remove(name);
   }
 }

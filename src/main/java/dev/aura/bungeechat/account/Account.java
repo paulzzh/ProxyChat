@@ -2,7 +2,7 @@ package dev.aura.bungeechat.account;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
-import com.velocitypowered.api.proxy.server.ServerInfo;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.api.enums.ChannelType;
 import dev.aura.bungeechat.module.BungeecordModuleManager;
@@ -169,21 +169,19 @@ public class Account implements BungeeChatAccount {
   }
 
   @Override
+  public Optional<RegisteredServer> getServer() {
+    Optional<ServerConnection> server = getPlayer().getCurrentServer();
+    return server.map(ServerConnection::getServer);
+  }
+
+  @Override
   public String getServerName() {
-    try {
-      return getServerInfo().getName();
-    } catch (NullPointerException e) {
-      return unknownServer;
-    }
+    return getServer().map(server -> server.getServerInfo().getName()).orElse(unknownServer);
   }
 
   @Override
   public String getServerIP() {
-    try {
-      return getServerInfo().getAddress().toString();
-    } catch (NullPointerException e) {
-      return unknownServer;
-    }
+    return getServer().map(server -> server.getServerInfo().getAddress().toString()).orElse(unknownServer);
   }
 
   @Override
@@ -198,12 +196,5 @@ public class Account implements BungeeChatAccount {
   @Override
   public String toString() {
     return getName();
-  }
-
-  private ServerInfo getServerInfo() {
-    Player player = getPlayer();
-    Optional<ServerConnection> server = player.getCurrentServer();
-
-    return server.map(ServerConnection::getServerInfo).orElse(null);
   }
 }

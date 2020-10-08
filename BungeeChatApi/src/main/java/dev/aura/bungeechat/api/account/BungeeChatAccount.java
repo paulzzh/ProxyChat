@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.api.account;
 
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import dev.aura.bungeechat.api.enums.AccountType;
 import dev.aura.bungeechat.api.enums.ChannelType;
 import java.sql.Timestamp;
@@ -51,6 +52,8 @@ public interface BungeeChatAccount {
   }
 
   public int getPing();
+
+  public Optional<RegisteredServer> getServer();
 
   public String getServerName();
 

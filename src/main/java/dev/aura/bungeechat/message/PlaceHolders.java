@@ -1,7 +1,6 @@
 package dev.aura.bungeechat.message;
 
 import com.velocitypowered.api.proxy.Player;
-import com.velocitypowered.api.proxy.server.ServerInfo;
 import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
@@ -16,7 +15,9 @@ import dev.aura.bungeechat.util.ServerNameUtil;
 import java.net.SocketAddress;
 import java.text.SimpleDateFormat;
 import lombok.experimental.UtilityClass;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 @UtilityClass
 public class PlaceHolders {
@@ -90,13 +91,24 @@ public class PlaceHolders {
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
                 "servername",
-                context -> context.getSender().get().getServerName(),
+                context -> context.getSender().get().getServer().map(server -> server.getServerInfo().getName()).orElse("unknown"),
+                (ComponentReplacementSupplier) context -> {
+                  String serverName = context.getSender().get().getServer().map(server -> server.getServerInfo().getName()).orElse("unknown");
+                  return Component.text().content(serverName)
+                          .hoverEvent(
+                                  Component.text().content(serverName).color(NamedTextColor.YELLOW)
+                                          .append(Component.newline())
+                                          .append(Component.text("Click to join")).build()
+                          )
+                          .clickEvent(ClickEvent.runCommand("/server " + serverName))
+                          .build();
+                },
                 BungeeChatContext.HAS_SENDER)
             .createAliases("sender_servername", "to_servername"));
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
                 "serveralias",
-                context -> ServerNameUtil.getServerAlias(context.getSender().get().getServerName()),
+                context -> ServerNameUtil.getServerAlias(context.getSender().get().getServer().get()),
                 BungeeChatContext.HAS_SENDER)
             .createAliases("sender_serveralias", "to_serveralias"));
     PlaceHolderManager.registerPlaceholder(
@@ -109,26 +121,24 @@ public class PlaceHolders {
         new PlaceHolder(
             "from_servername",
             context ->
-                ServerNameUtil.getServerInfo(context.getServer().get())
-                    .map(ServerInfo::getName)
+                context.getServer().map(server -> server.getServerInfo().getName())
                     .orElse(BungeeChatAccount.unknownServer),
             BungeeChatContext.HAS_SERVER));
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
             "from_serveralias",
             context ->
-                ServerNameUtil.getServerInfo(context.getServer().get())
-                    .map(ServerNameUtil::getServerAlias)
+                context.getSender().get().getServer().map(ServerNameUtil::getServerAlias)
                     .orElse(BungeeChatAccount.unknownServer),
             BungeeChatContext.HAS_SERVER));
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
             "from_serverip",
             context ->
-                ServerNameUtil.getServerInfo(context.getServer().get())
-                    .map(ServerInfo::getAddress)
-                    .map(SocketAddress::toString)
-                    .orElse(BungeeChatAccount.unknownServer),
+                context.getSender().get().getServer()
+                        .map(server -> server.getServerInfo().getAddress())
+                        .map(SocketAddress::toString)
+                        .orElse(BungeeChatAccount.unknownServer),
             BungeeChatContext.HAS_SERVER));
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(

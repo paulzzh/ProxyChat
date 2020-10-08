@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.api.placeholder;
 
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 
 import java.lang.reflect.Field;
@@ -9,7 +10,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import lombok.Data;
-import lombok.experimental.Tolerate;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
@@ -105,7 +105,7 @@ public class BungeeChatContext {
   private String message;
   private Component parsedMessage;
   private String channel;
-  private String server;
+  private RegisteredServer server;
   private boolean parsed = false;
 
   public BungeeChatContext() {
@@ -146,7 +146,7 @@ public class BungeeChatContext {
     this.message = message;
   }
 
-  public BungeeChatContext(BungeeChatAccount sender, String message, String server) {
+  public BungeeChatContext(BungeeChatAccount sender, String message, RegisteredServer server) {
     this(sender, message);
 
     this.server = server;
@@ -225,7 +225,7 @@ public class BungeeChatContext {
     return Optional.ofNullable(channel);
   }
 
-  public Optional<String> getServer() {
+  public Optional<RegisteredServer> getServer() {
     return Optional.ofNullable(server);
   }
 

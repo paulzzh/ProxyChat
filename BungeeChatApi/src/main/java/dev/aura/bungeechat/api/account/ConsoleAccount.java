@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.api.account;
 
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import dev.aura.bungeechat.api.enums.AccountType;
 import dev.aura.bungeechat.api.enums.ChannelType;
 import java.sql.Timestamp;
@@ -80,6 +81,11 @@ public class ConsoleAccount implements BungeeChatAccount {
   @Override
   public int getPing() {
     return 0;
+  }
+
+  @Override
+  public Optional<RegisteredServer> getServer() {
+    return null;
   }
 
   @Override

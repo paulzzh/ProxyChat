@@ -27,18 +27,18 @@ public class ServerNameUtil {
     return server.map(RegisteredServer::getServerInfo);
   }
 
-  public static Optional<String> verifyServerName(String serverName) {
-    return getServerInfo(serverName).map(ServerInfo::getName);
+  public static Optional<RegisteredServer> verifyServerName(String serverName) {
+    return BungeeChat.getInstance().getProxy().getServer(serverName);
   }
 
-  public static Optional<String> verifyServerName(String serverName, CommandSource sender) {
-    final Optional<String> verifiedServerName = verifyServerName(serverName);
+  public static Optional<RegisteredServer> verifyServerName(String serverName, CommandSource sender) {
+    final Optional<RegisteredServer> verifiedServer = verifyServerName(serverName);
 
-    if (!verifiedServerName.isPresent()) {
+    if(verifiedServer.isEmpty()) {
       MessagesService.sendMessage(sender, Messages.UNKNOWN_SERVER.get(sender, serverName));
     }
 
-    return verifiedServerName;
+    return verifiedServer;
   }
 
   public static List<String> getServerNames() {
@@ -56,9 +56,12 @@ public class ServerNameUtil {
     return getServerAlias(server.getName());
   }
 
+  public static String getServerAlias(RegisteredServer server) {
+    return aliasMapping.getOrDefault(server.getServerInfo().getName(), server.getServerInfo().getName());
+  }
+
   public static String getServerAlias(String name) {
-    if (aliasMapping.containsKey(name)) return aliasMapping.get(name);
-    else return name;
+    return aliasMapping.getOrDefault(name, name);
   }
 
   public static void loadAliases() {
@@ -69,6 +72,5 @@ public class ServerNameUtil {
             .collect(
                 Collectors.toMap(
                     Map.Entry::getKey, entry -> entry.getValue().unwrapped().toString()));
-    ;
   }
 }

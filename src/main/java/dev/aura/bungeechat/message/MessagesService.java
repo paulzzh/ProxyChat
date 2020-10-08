@@ -175,9 +175,9 @@ public class MessagesService {
 
 		Optional<BungeeChatAccount> account = context.getSender();
 		Optional<Component> finalMessage = preProcessMessage(context, Format.LOCAL_CHAT);
-		String localServerName =
-				context.hasServer() ? context.getServer().get() : context.getSender().get().getServerName();
-		Predicate<BungeeChatAccount> isLocal = getLocalPredicate(localServerName);
+		RegisteredServer localServer = context.getServer().orElse(context.getSender().get().getServer().orElse(null));
+
+		Predicate<BungeeChatAccount> isLocal = getLocalPredicate(localServer);
 		Predicate<BungeeChatAccount> notIgnored = getNotIgnoredPredicate(account);
 
 		sendToMatchingPlayers(finalMessage, isLocal, notIgnored);
@@ -197,9 +197,8 @@ public class MessagesService {
 		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_MESSAGE, BungeeChatContext.IS_PARSED);
 
 		Optional<BungeeChatAccount> account = context.getSender();
-		String localServerName =
-				context.hasServer() ? context.getServer().get() : context.getSender().get().getServerName();
-		Predicate<BungeeChatAccount> isLocal = getLocalPredicate(localServerName);
+		RegisteredServer localServer = context.getServer().orElse(context.getSender().get().getServer().orElse(null));
+		Predicate<BungeeChatAccount> isLocal = getLocalPredicate(localServer);
 
 		ChatLoggingManager.logMessage(ChannelType.LOCAL, context);
 
@@ -301,20 +300,15 @@ public class MessagesService {
 	}
 
 	public void sendSwitchMessage(CommandSource sender, RegisteredServer server) throws InvalidContextError {
-		sendSwitchMessage(sender, (server == null) ? null : server.getServerInfo().getName());
-	}
-
-	public void sendSwitchMessage(CommandSource sender, String server) throws InvalidContextError {
-		final Context context = new Context(sender);
-		if (server != null) context.setServer(server);
-
+		BungeeChatContext context = new Context(sender);
+		context.setServer(server);
 		sendSwitchMessage(context);
 	}
 
 	public void sendSwitchMessage(BungeeChatContext context) throws InvalidContextError {
 		context.require(BungeeChatContext.HAS_SENDER, BungeeChatContext.HAS_SERVER);
 
-		Component finalMessage = Format.SERVER_SWITCH.get(context);
+		String message = Format.SERVER_SWITCH.getRaw(context);
 		Predicate<BungeeChatAccount> predicate = getPermissionPredicate(Permission.MESSAGE_SWITCH_VIEW);
 
 		// This condition checks if the player is present and vanished
@@ -322,9 +316,10 @@ public class MessagesService {
 			predicate = predicate.and(getPermissionPredicate(Permission.COMMAND_VANISH_VIEW));
 		}
 
-		sendToMatchingPlayers(finalMessage, predicate);
+		context.setMessage(message);
+		MessagesService.parseMessage(context, false);
+		sendToMatchingPlayers(context.getParsedMessage(), predicate);
 
-		context.setParsedMessage(finalMessage);
 		ChatLoggingManager.logMessage("SWITCH", context);
 	}
 
@@ -431,24 +426,25 @@ public class MessagesService {
 				BungeecordModuleManager.GLOBAL_CHAT_MODULE.getModuleSection().getConfig("serverList"));
 	}
 
-	public Predicate<BungeeChatAccount> getServerPredicate(List<String> servers) {
-		return account -> servers.contains(account.getServerName());
+	public Predicate<BungeeChatAccount> getServerPredicate(List<RegisteredServer> servers) {
+		return account -> servers.contains(account.getServer().orElse(null));
 	}
 
-	public Predicate<BungeeChatAccount> getLocalPredicate(String serverName) {
+	public Predicate<BungeeChatAccount> getLocalPredicate(RegisteredServer server) {
 		if (multiCastServerGroups == null) {
-			return account -> serverName.equals(account.getServerName());
+			return account -> server.equals(account.getServer().orElse(null));
 		} else {
 			return account -> {
+				final RegisteredServer accountServer = account.getServer().orElse(null);
 				final String accountServerName = account.getServerName();
 
 				for (List<String> group : multiCastServerGroups) {
 					if (group.contains(accountServerName)) {
-						return group.contains(serverName);
+						return group.contains(server.getServerInfo().getName());
 					}
 				}
 
-				return serverName.equals(accountServerName);
+				return server.equals(accountServer);
 			};
 		}
 	}

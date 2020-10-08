@@ -1,6 +1,7 @@
 package dev.aura.bungeechat.command;
 
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import dev.aura.bungeechat.account.BungeecordAccountManager;
 import dev.aura.bungeechat.api.account.BungeeChatAccount;
 import dev.aura.bungeechat.message.Messages;
@@ -66,26 +67,24 @@ public class ChatLockCommand extends BaseCommand {
         return;
       }
 
-      Optional<String> optServerName =
-          ServerNameUtil.verifyServerName(
-              serverSpecified ? invocation.arguments()[1] : player.getServerName(), invocation.source());
+      Optional<RegisteredServer> server = serverSpecified ?
+              ServerNameUtil.verifyServerName(invocation.arguments()[1], invocation.source()) :
+              player.getServer();
 
-      if (!optServerName.isPresent()) return;
+      if (server.isEmpty()) return;
 
-      String serverName = optServerName.get();
-
-      if (chatLock.isLocalChatLockEnabled(serverName)) {
-        chatLock.disableLocalChatLock(serverName);
+      if (chatLock.isLocalChatLockEnabled(server.get())) {
+        chatLock.disableLocalChatLock(server.get());
         MessagesService.sendMessage(invocation.source(), Messages.DISABLE_CHATLOCK.get(player));
       } else {
-        chatLock.enableLocalChatLock(serverName);
+        chatLock.enableLocalChatLock(server.get());
 
         if (clear) {
-          ClearChatCommand.clearLocalChat(serverName, emptyLines);
+          ClearChatCommand.clearLocalChat(server.get(), emptyLines);
         }
 
         MessagesService.sendToMatchingPlayers(
-            Messages.ENABLE_CHATLOCK.get(player), MessagesService.getLocalPredicate(serverName));
+            Messages.ENABLE_CHATLOCK.get(player), MessagesService.getLocalPredicate(server.get()));
       }
     } else {
       MessagesService.sendMessage(invocation.source(), Messages.INCORRECT_USAGE.get(player, USAGE));

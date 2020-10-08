@@ -1,5 +1,6 @@
 package dev.aura.bungeechat.command;
 
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import dev.aura.bungeechat.api.placeholder.BungeeChatContext;
 import dev.aura.bungeechat.message.Context;
 import dev.aura.bungeechat.message.Messages;
@@ -31,15 +32,13 @@ public class LocalToCommand extends BaseCommand {
       return;
     }
 
-    Optional<String> optServerName = ServerNameUtil.verifyServerName(invocation.arguments()[0], invocation.source());
+    Optional<RegisteredServer> server = ServerNameUtil.verifyServerName(invocation.arguments()[0], invocation.source());
 
-    if (!optServerName.isPresent()) return;
-
-    String serverName = optServerName.get();
+    if (server.isEmpty()) return;
 
     String finalMessage = Arrays.stream(invocation.arguments(), 1, invocation.arguments().length)
             .collect(Collectors.joining(" "));
-    BungeeChatContext context = new Context(invocation.source(), finalMessage, serverName);
+    BungeeChatContext context = new Context(invocation.source(), finalMessage, server.get());
     MessagesService.parseMessage(context, false);
 
     MessagesService.sendLocalMessage(context);
