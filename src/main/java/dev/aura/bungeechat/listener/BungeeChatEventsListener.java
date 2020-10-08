@@ -4,7 +4,7 @@ import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
-import com.velocitypowered.api.event.player.ServerConnectedEvent;
+import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.proxy.Player;
 import dev.aura.bungeechat.BungeeChat;
 import dev.aura.bungeechat.event.BungeeChatJoinEvent;
@@ -20,19 +20,18 @@ public class BungeeChatEventsListener {
   }
 
   @Subscribe(order = PostOrder.LATE)
-  public void onPlayerServerSwitch(ServerConnectedEvent e) {
+  public void onPlayerServerSwitch(ServerPostConnectEvent e) {
     Player player = e.getPlayer();
 
-    if(e.getPlayer().getCurrentServer().isPresent()) {
-      BungeeChat.getInstance().getProxy().getEventManager().fireAndForget(new BungeeChatServerSwitchEvent(player, e.getPlayer().getCurrentServer().get().getServer()));
-    }
+    BungeeChat.getInstance().getProxy().getEventManager().fireAndForget(
+            new BungeeChatServerSwitchEvent(player, player.getCurrentServer().get().getServer()));
   }
 
   @Subscribe(order = PostOrder.LATE)
   public void onPlayerLeave(DisconnectEvent e) {
     Player player = e.getPlayer();
 
-    if(e.getPlayer().getCurrentServer().isPresent()) {
+    if(e.getLoginStatus() != DisconnectEvent.LoginStatus.SUCCESSFUL_LOGIN) {
       BungeeChat.getInstance().getProxy().getEventManager().fireAndForget(new BungeeChatLeaveEvent(player));
     }
   }
