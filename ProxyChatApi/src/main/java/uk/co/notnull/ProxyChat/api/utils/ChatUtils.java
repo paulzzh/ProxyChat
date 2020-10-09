@@ -1,0 +1,38 @@
+/*
+ * ProxyChat, a Velocity chat solution
+ * Copyright (C) 2020 James Lyne
+ *
+ * Based on BungeeChat2 (https://github.com/AuraDevelopmentTeam/BungeeChat2)
+ * Copyright (C) 2020 Aura Development Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package uk.co.notnull.ProxyChat.api.utils;
+
+import lombok.experimental.UtilityClass;
+
+/** Simple util class to check wither a entered message is a command or not. */
+@UtilityClass
+public class ChatUtils {
+  /**
+   * method to check if a message is a command. Which means it starts with a "/".
+   *
+   * @param message The message to check
+   * @return Whether the passed message is a command or not.
+   */
+  public static boolean isCommand(String message) {
+    return message.startsWith("/");
+  }
+}

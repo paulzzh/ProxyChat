@@ -21,7 +21,7 @@ ____
 #### Affected Versions: <!-- Do *not* use "latest"! -->
 
 - Minecraft: 1.12
-- BungeeChat:  
+- ProxyChat:  
 - Other related plugins: 
 
 #### Your most recent log or stack trace file where the issue was present: 
