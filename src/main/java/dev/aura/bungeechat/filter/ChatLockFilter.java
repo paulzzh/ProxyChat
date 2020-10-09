@@ -24,7 +24,7 @@ public class ChatLockFilter implements BungeeChatPreParseFilter {
     }
 
     if(!((globalLock && MessagesService.getGlobalPredicate().test(sender)) ||
-            sender.getServer().isPresent() && !lockedServers.contains(sender.getServer().get()))) {
+            (sender.getServer().isPresent() && lockedServers.contains(sender.getServer().get())))) {
       return message;
     }
 
