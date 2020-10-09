@@ -164,7 +164,7 @@ public class BungeeChat implements BungeeChatApi {
         defaultHookName,
         new DefaultHook(
             prefixDefaults.getString("defaultPrefix"), prefixDefaults.getString("defaultSuffix")));
-    ServerNameUtil.loadAliases();
+    ServerNameUtil.init();
 
     if (prinLoadScreen) {
       loadScreen();

@@ -14,10 +14,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 @UtilityClass
 public class ServerNameUtil {
   private static Map<String, String> aliasMapping = new HashMap<>();
+  private static Map<RegisteredServer, Component> serverComponents = new HashMap<>();
 
   public static Optional<ServerInfo> getServerInfo(String serverName) {
     Optional<RegisteredServer> server = BungeeChat.getInstance().getProxy().getAllServers().stream()
@@ -64,7 +68,11 @@ public class ServerNameUtil {
     return aliasMapping.getOrDefault(name, name);
   }
 
-  public static void loadAliases() {
+  public static Component getServerComponent(RegisteredServer server) {
+    return serverComponents.getOrDefault(server, Component.empty());
+  }
+
+  public static void init() {
     Config section = Configuration.get().getConfig("ServerAlias");
 
     aliasMapping =
@@ -72,5 +80,19 @@ public class ServerNameUtil {
             .collect(
                 Collectors.toMap(
                     Map.Entry::getKey, entry -> entry.getValue().unwrapped().toString()));
+
+    serverComponents = BungeeChat.getInstance().getProxy().getAllServers().stream()
+            .collect(Collectors.toMap(server -> server, server -> {
+              String name = server.getServerInfo().getName();
+              return Component.text().content(name)
+                      .hoverEvent(
+                                  Component.text().content(getServerAlias(name))
+                                          .append(Component.newline())
+                                          .append(Component.text("Click to join")
+                                                          .color(NamedTextColor.YELLOW)).build()
+                      )
+                      .clickEvent(ClickEvent.runCommand("/server " + name))
+                      .build();
+            }));
   }
 }

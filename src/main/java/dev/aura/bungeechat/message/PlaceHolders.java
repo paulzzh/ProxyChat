@@ -92,17 +92,8 @@ public class PlaceHolders {
         new PlaceHolder(
                 "servername",
                 context -> context.getSender().get().getServer().map(server -> server.getServerInfo().getName()).orElse("unknown"),
-                (ComponentReplacementSupplier) context -> {
-                  String serverName = context.getSender().get().getServer().map(server -> server.getServerInfo().getName()).orElse("unknown");
-                  return Component.text().content(serverName)
-                          .hoverEvent(
-                                  Component.text().content(serverName).color(NamedTextColor.YELLOW)
-                                          .append(Component.newline())
-                                          .append(Component.text("Click to join")).build()
-                          )
-                          .clickEvent(ClickEvent.runCommand("/server " + serverName))
-                          .build();
-                },
+                (ComponentReplacementSupplier) context -> context.getSender().get()
+                        .getServer().map(ServerNameUtil::getServerComponent).orElse(Component.empty()),
                 BungeeChatContext.HAS_SENDER)
             .createAliases("sender_servername", "to_servername"));
     PlaceHolderManager.registerPlaceholder(
