@@ -16,13 +16,12 @@ import java.net.SocketAddress;
 import java.text.SimpleDateFormat;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 
 @UtilityClass
 public class PlaceHolders {
   private static final String dateFormat = "yyyy-MM-dd HH:mm:ss";
 
+  @SuppressWarnings("OptionalGetWithoutIsPresent")
   public static void registerPlaceHolders() {
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder("timestamp", context -> TimeUtil.getLongTimeStamp()));
@@ -91,9 +90,11 @@ public class PlaceHolders {
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
                 "servername",
-                context -> context.getSender().get().getServer().map(server -> server.getServerInfo().getName()).orElse("unknown"),
+                context -> context.getSender().get().getServer()
+                        .map(server -> server.getServerInfo().getName()).orElse(BungeeChatAccount.unknownServer),
                 (ComponentReplacementSupplier) context -> context.getSender().get()
-                        .getServer().map(ServerNameUtil::getServerComponent).orElse(Component.empty()),
+                        .getServer().map(ServerNameUtil::getServerComponent)
+                        .orElse(Component.text(BungeeChatAccount.unknownServer)),
                 BungeeChatContext.HAS_SENDER)
             .createAliases("sender_servername", "to_servername"));
     PlaceHolderManager.registerPlaceholder(
@@ -114,6 +115,8 @@ public class PlaceHolders {
             context ->
                 context.getServer().map(server -> server.getServerInfo().getName())
                     .orElse(BungeeChatAccount.unknownServer),
+            (ComponentReplacementSupplier) context -> context.getServer()
+                    .map(ServerNameUtil::getServerComponent).orElse(Component.text(BungeeChatAccount.unknownServer)),
             BungeeChatContext.HAS_SERVER));
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
