@@ -21,6 +21,8 @@
 
 package uk.co.notnull.ProxyChat.filter;
 
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.TextDecoration;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.api.filter.ProxyChatPostParseFilter;
 import uk.co.notnull.ProxyChat.api.filter.FilterManager;
@@ -31,24 +33,43 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class EmoteFilter implements ProxyChatPostParseFilter {
 	private final static Pattern emotePattern = Pattern.compile(":(\\w+):");
-	private final static char emoteCharacter = '\ue110';
-	private final List<String> emotes;
-	private final boolean noPermissions;
-	private final String prefix;
 
-	public EmoteFilter(List<String> emotes, String prefix) {
-		this(emotes, prefix, false);
+	private final Map<String, Emote> emotesByName;
+	private final Map<String, Emote> emotesByCharacter;
+
+	private final boolean noPermissions;
+	private final Pattern characterPattern;
+
+	public EmoteFilter(Map<String, Map<String, List<String>>> categories) {
+		this(categories, false);
 	}
 
-	public EmoteFilter(List<String> emotes, String prefix, boolean noPermissions) {
-		this.prefix = prefix;
-		this.emotes = emotes.stream().map(String::toLowerCase).collect(Collectors.toList());
+	public EmoteFilter(Map<String, Map<String, List<String>>> categories, boolean noPermissions) {
+		StringBuilder characterRegex = new StringBuilder("[");
+		this.emotesByName = new HashMap<>();
+		this.emotesByCharacter = new HashMap<>();
+
+		categories.forEach((String category, Map<String, List<String>> emotes) -> {
+			emotes.forEach((String character, List<String> names) -> {
+				characterRegex.append(character);
+				Emote emote = new Emote(character, names, category);
+
+				names.forEach(name -> this.emotesByName.put(name, emote));
+				this.emotesByCharacter.put(character, emote);
+			});
+		});
+
+		characterRegex.append("]");
+
+		characterPattern = Pattern.compile(characterRegex.toString());
+
 		this.noPermissions = noPermissions;
 	}
 
@@ -58,28 +79,85 @@ public class EmoteFilter implements ProxyChatPostParseFilter {
 			return message;
 		}
 
-		return message.replaceText(emotePattern, (TextComponent.Builder result) -> {
+		message = message.replaceText(emotePattern, (TextComponent.Builder result) -> {
 			String content = result.content();
-			String emote = content.substring(1, content.length() - 1).replace(prefix, "").toLowerCase();
-			int emoteIndex = emotes.indexOf(emote);
-			String emoteChar = new String(Character.toChars(emoteCharacter + emoteIndex));
+			String emoteName = content.substring(1, content.length() - 1).toLowerCase();
 
-			if(emoteIndex > -1) {
-				result.content(emoteChar);
-				result.hoverEvent(Component.text(emoteChar + " " + emote)
-										  .append(Component.newline())
-										  .append(Component.text("Shift + Click to use",
-																 Style.style().color(NamedTextColor.YELLOW).build()
-										  )));
-				result.insertion(":" + emote + ":");
+			Emote emote = emotesByName.get(emoteName);
+
+			if(emote != null) {
+				return emote.getComponent();
 			}
 
 			return result;
 		});
+
+		return message.replaceText(characterPattern, (TextComponent.Builder result) ->
+				emotesByCharacter.get(result.content()).getComponent());
 	}
 
 	@Override
 	public int getPriority() {
 		return FilterManager.EMOTE_FILTER_PRIORITY;
+	}
+
+	static class Emote {
+		private final List<String> names;
+		private final String category;
+		private final String character;
+		private Component component;
+
+		Emote(String character, List<String> names, String category) {
+			this.character = character;
+			this.names = names;
+			this.category = category;
+		}
+
+		public List<String> getNames() {
+			return names;
+		}
+
+		public String getCategory() {
+			return category;
+		}
+
+		public String getCharacter() {
+			return character;
+		}
+
+		private Component getComponent() {
+			if(component != null) {
+				return component;
+			}
+
+			this.component = Component.text().content(character)
+					.hoverEvent(Component.text()
+										.content(character + " " + names.get(0))
+										.append(Component.newline())
+										.append(Component.text(category,
+											 Style.style().color(NamedTextColor.BLUE).build())
+										)
+										.append(Component.newline())
+										.append(Component.text()
+														.content(String.join(", ", names))
+														.color(NamedTextColor.GRAY)
+														.decoration(TextDecoration.ITALIC, TextDecoration.State.TRUE)
+														.build())
+										.append(Component.newline())
+										.append(Component.text("Click to copy",
+											 Style.style().color(NamedTextColor.YELLOW).build())
+										)
+										.append(Component.newline())
+										.append(Component.text("Shift + Click to use",
+											 Style.style().color(NamedTextColor.YELLOW).build())
+										)
+										.build()
+					)
+					.clickEvent(ClickEvent.copyToClipboard(":" + names.get(0) + ":"))
+					.insertion(":" + names.get(0) + ":")
+					.build();
+
+			return component;
+		}
 	}
 }

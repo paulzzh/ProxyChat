@@ -44,6 +44,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Cleanup;
@@ -275,6 +276,38 @@ public class Configuration implements Config {
                 .withValue("Modules.AutoBroadcast.broadcasts", ConfigValueFactory.fromIterable(broadcasts))
                 .withValue("Modules.AutoBroadcast.enabled", enabled);
 
+      case "11.7":
+        Map<String, List<String>> emotes = new HashMap<>();
+
+        if(config.hasPath("Modules.Emotes.emoteNames")) {
+          List<String> emoteNames = config.getStringList("Modules.Emotes.emoteNames");
+          String prefix = null;
+
+          if(config.hasPath("Modules.Emotes.prefix")) {
+            prefix = config.getString("Modules.Emotes.prefix").toLowerCase();
+          }
+
+          char emoteCharacter = '\ue110';
+          AtomicInteger index = new AtomicInteger();
+          String finalPrefix = prefix;
+
+          emoteNames.forEach(emote -> {
+            String emoteName = emote.toLowerCase();
+            String character = new String(Character.toChars(emoteCharacter + index.getAndIncrement()));
+
+            List<String> names = new ArrayList<>();
+            names.add(emoteName);
+
+            if(finalPrefix != null) {
+              names.add(finalPrefix + emoteName);
+            }
+
+            emotes.put(character, names);
+          });
+
+          config = config.withoutPath("Modules.Emotes.prefix").withoutPath("Modules.Emotes.emoteNames")
+                  .withValue("Modules.Emotes.emotes.General", ConfigValueFactory.fromAnyRef(emotes));
+        }
       default:
         // Unknow Version or old version
         // -> Update version
@@ -282,7 +315,7 @@ public class Configuration implements Config {
             config.withValue(
                 "Version", ConfigValueFactory.fromAnyRef(ProxyChatApi.CONFIG_VERSION));
 
-      case "11.7":
+      case "11.8":
         // Up to date
         // -> No action needed
     }

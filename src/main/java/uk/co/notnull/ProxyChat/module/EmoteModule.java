@@ -24,6 +24,9 @@ package uk.co.notnull.ProxyChat.module;
 import uk.co.notnull.ProxyChat.api.filter.FilterManager;
 import uk.co.notnull.ProxyChat.filter.EmoteFilter;
 
+import java.util.List;
+import java.util.Map;
+
 public class EmoteModule extends Module {
 	@Override
 	public String getName() {
@@ -32,8 +35,8 @@ public class EmoteModule extends Module {
 
 	@Override
 	public void onEnable() {
-		FilterManager.addPostParseFilter(getName(), new EmoteFilter(getModuleSection().getStringList("emoteNames"),
-																	getModuleSection().getString("prefix")));
+		FilterManager.addPostParseFilter(getName(), new EmoteFilter(
+				(Map<String, Map<String, List<String>>>) getModuleSection().getAnyRef("emotes")));
 	}
 
 	@Override
