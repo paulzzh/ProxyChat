@@ -21,44 +21,35 @@
 
 package uk.co.notnull.ProxyChat.command;
 
-import uk.co.notnull.ProxyChat.message.Messages;
-import uk.co.notnull.ProxyChat.message.MessagesService;
-import uk.co.notnull.ProxyChat.module.HelpOpModule;
-import uk.co.notnull.ProxyChat.module.ProxyChatModuleManager;
+import uk.co.notnull.ProxyChat.module.EmoteModule;
 import uk.co.notnull.ProxyChat.permission.Permission;
 import uk.co.notnull.ProxyChat.permission.PermissionManager;
+import uk.co.notnull.ProxyChat.util.ServerNameUtil;
 
 import java.util.Collections;
 import java.util.List;
 
-public class HelpOpCommand extends BaseCommand {
-  public HelpOpCommand(HelpOpModule helpOpModule) {
-    super(
-			"helpop",
-			Permission.COMMAND_HELPOP,
-			helpOpModule.getModuleSection().getStringList("aliases"));
+public class EmotesCommand extends BaseCommand {
+  private final EmoteModule emoteModule;
+
+  public EmotesCommand(EmoteModule emoteModule) {
+    super("emotes", Permission.COMMAND_EMOTES, Collections.emptyList());
+    this.emoteModule = emoteModule;
   }
 
   @Override
   public void execute(Invocation invocation) {
-    if (PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_HELPOP)) {
-      if (invocation.arguments().length < 1) {
-        MessagesService.sendMessage(
-				invocation.source(), Messages.INCORRECT_USAGE.get(invocation.source(), "/helpop <message>"));
-      } else {
-        String finalMessage = String.join(" ", invocation.arguments());
+    if (!PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_EMOTES)) return;
 
-        MessagesService.sendHelpMessage(invocation.source(), finalMessage);
-      }
-    }
+    invocation.source().sendMessage(emoteModule.getEmotesListComponent());
   }
 
   @Override
   public List<String> suggest(Invocation invocation) {
     if(invocation.arguments().length == 0) {
-      return Collections.emptyList();
+      return ServerNameUtil.getServerNames();
     }
 
-    return ProxyChatModuleManager.EMOTE_MODULE.getEmoteSuggestions(invocation);
+    return super.suggest(invocation);
   }
 }

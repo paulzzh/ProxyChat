@@ -27,10 +27,13 @@ import uk.co.notnull.ProxyChat.message.Format;
 import uk.co.notnull.ProxyChat.message.Messages;
 import uk.co.notnull.ProxyChat.message.MessagesService;
 import uk.co.notnull.ProxyChat.module.AlertModule;
+import uk.co.notnull.ProxyChat.module.ProxyChatModuleManager;
 import uk.co.notnull.ProxyChat.permission.Permission;
 import uk.co.notnull.ProxyChat.permission.PermissionManager;
 import net.kyori.adventure.text.Component;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class AlertCommand extends BaseCommand {
@@ -53,5 +56,14 @@ public class AlertCommand extends BaseCommand {
         MessagesService.sendToMatchingPlayers(message, MessagesService.getGlobalPredicate());
       }
     }
+  }
+
+  @Override
+  public List<String> suggest(Invocation invocation) {
+    if(invocation.arguments().length == 0) {
+      return Collections.emptyList();
+    }
+
+    return ProxyChatModuleManager.EMOTE_MODULE.getEmoteSuggestions(invocation);
   }
 }

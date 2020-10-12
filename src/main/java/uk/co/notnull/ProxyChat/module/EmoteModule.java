@@ -21,13 +21,21 @@
 
 package uk.co.notnull.ProxyChat.module;
 
+import lombok.experimental.Delegate;
 import uk.co.notnull.ProxyChat.api.filter.FilterManager;
+import uk.co.notnull.ProxyChat.api.filter.ProxyChatFilter;
+import uk.co.notnull.ProxyChat.command.EmotesCommand;
 import uk.co.notnull.ProxyChat.filter.EmoteFilter;
 
 import java.util.List;
 import java.util.Map;
 
 public class EmoteModule extends Module {
+	@Delegate(excludes = ProxyChatFilter.class)
+  	private EmoteFilter emoteFilter;
+
+	private EmotesCommand emotesCommand;
+
 	@Override
 	public String getName() {
 		return "Emotes";
@@ -35,12 +43,19 @@ public class EmoteModule extends Module {
 
 	@Override
 	public void onEnable() {
-		FilterManager.addPostParseFilter(getName(), new EmoteFilter(
-				(Map<String, Map<String, List<String>>>) getModuleSection().getAnyRef("emotes")));
+		emotesCommand = new EmotesCommand(this);
+
+		emoteFilter = new EmoteFilter(
+				(Map<String, Map<String, List<String>>>) getModuleSection().getAnyRef("emotes"));
+
+		FilterManager.addPostParseFilter(getName(), emoteFilter);
+
+		emotesCommand.register();
 	}
 
 	@Override
 	public void onDisable() {
+		emotesCommand.unregister();
 		FilterManager.removePostParseFilter(getName());
 	}
 }

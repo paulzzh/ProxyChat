@@ -29,10 +29,13 @@ import uk.co.notnull.ProxyChat.api.enums.ChannelType;
 import uk.co.notnull.ProxyChat.message.Messages;
 import uk.co.notnull.ProxyChat.message.MessagesService;
 import uk.co.notnull.ProxyChat.module.GlobalChatModule;
+import uk.co.notnull.ProxyChat.module.ProxyChatModuleManager;
 import uk.co.notnull.ProxyChat.permission.Permission;
 import uk.co.notnull.ProxyChat.permission.PermissionManager;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class GlobalChatCommand extends BaseCommand {
@@ -87,5 +90,14 @@ public class GlobalChatCommand extends BaseCommand {
 
       MessagesService.sendGlobalMessage(invocation.source(), finalMessage);
     }
+  }
+
+  @Override
+  public List<String> suggest(Invocation invocation) {
+    if(invocation.arguments().length == 0) {
+      return Collections.emptyList();
+    }
+
+    return ProxyChatModuleManager.EMOTE_MODULE.getEmoteSuggestions(invocation);
   }
 }

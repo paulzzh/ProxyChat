@@ -25,9 +25,11 @@ import com.velocitypowered.api.command.CommandSource;
 import uk.co.notnull.ProxyChat.account.ProxyChatAccountManager;
 import uk.co.notnull.ProxyChat.api.account.AccountManager;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
+import uk.co.notnull.ProxyChat.api.module.ModuleManager;
 import uk.co.notnull.ProxyChat.message.Messages;
 import uk.co.notnull.ProxyChat.message.MessagesService;
 import uk.co.notnull.ProxyChat.module.MessengerModule;
+import uk.co.notnull.ProxyChat.module.ProxyChatModuleManager;
 import uk.co.notnull.ProxyChat.permission.Permission;
 import uk.co.notnull.ProxyChat.permission.PermissionManager;
 
@@ -99,6 +101,6 @@ public class MessageCommand extends BaseCommand {
           .collect(Collectors.toList());
     }
 
-    return super.suggest(invocation);
+    return ProxyChatModuleManager.EMOTE_MODULE.getEmoteSuggestions(invocation);
   }
 }

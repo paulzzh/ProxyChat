@@ -95,6 +95,7 @@ public enum Permission {
   COMMAND_CHAT_LOCK("command.chatlock"),
   COMMAND_CLEAR_CHAT("command.clearchat"),
   COMMAND_LOCALTO("command.localto"),
+  COMMAND_EMOTES("command.emotes"),
 
   MESSAGE_JOIN("message.join"),
   MESSAGE_JOIN_VIEW("message.join.view"),
@@ -104,7 +105,7 @@ public enum Permission {
   MESSAGE_SWITCH_VIEW("message.switch.view"),
   MESSAGE_MOTD("message.motd");
 
-  @Getter private final String stringedPermission;
+	@Getter private final String stringedPermission;
   @Getter private final boolean warnOnLackingPermission;
 
   private Permission(String stringedPermission, boolean warnOnLackingPermission) {

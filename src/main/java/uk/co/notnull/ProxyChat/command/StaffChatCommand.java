@@ -26,11 +26,14 @@ import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.api.enums.ChannelType;
 import uk.co.notnull.ProxyChat.message.Messages;
 import uk.co.notnull.ProxyChat.message.MessagesService;
+import uk.co.notnull.ProxyChat.module.ProxyChatModuleManager;
 import uk.co.notnull.ProxyChat.module.StaffChatModule;
 import uk.co.notnull.ProxyChat.permission.Permission;
 import uk.co.notnull.ProxyChat.permission.PermissionManager;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class StaffChatCommand extends BaseCommand {
@@ -66,5 +69,14 @@ public class StaffChatCommand extends BaseCommand {
 
       MessagesService.sendStaffMessage(invocation.source(), finalMessage);
     }
+  }
+
+  @Override
+  public List<String> suggest(Invocation invocation) {
+    if(invocation.arguments().length == 0) {
+      return Collections.emptyList();
+    }
+
+    return ProxyChatModuleManager.EMOTE_MODULE.getEmoteSuggestions(invocation);
   }
 }

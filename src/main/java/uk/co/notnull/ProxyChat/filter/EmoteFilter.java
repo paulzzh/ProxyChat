@@ -21,8 +21,10 @@
 
 package uk.co.notnull.ProxyChat.filter;
 
+import com.velocitypowered.api.command.SimpleCommand;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextDecoration;
+import uk.co.notnull.ProxyChat.ProxyChat;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.api.filter.ProxyChatPostParseFilter;
 import uk.co.notnull.ProxyChat.api.filter.FilterManager;
@@ -33,16 +35,19 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class EmoteFilter implements ProxyChatPostParseFilter {
 	private final static Pattern emotePattern = Pattern.compile(":(\\w+):");
+	private Pattern incompleteEmotePattern = Pattern.compile("(.*):(\\w+)$");
 
-	private final Map<String, Emote> emotesByName;
+	private final TreeMap<String, Emote> emotesByName;
 	private final Map<String, Emote> emotesByCharacter;
+	private final Map<String, List<Emote>> emotesByCategory;
+	private Component emotesList;
 
 	private final boolean noPermissions;
 	private final Pattern characterPattern;
@@ -53,21 +58,26 @@ public class EmoteFilter implements ProxyChatPostParseFilter {
 
 	public EmoteFilter(Map<String, Map<String, List<String>>> categories, boolean noPermissions) {
 		StringBuilder characterRegex = new StringBuilder("[");
-		this.emotesByName = new HashMap<>();
-		this.emotesByCharacter = new HashMap<>();
+		emotesByName = new TreeMap<>();
+		emotesByCharacter = new HashMap<>();
+		emotesByCategory = new HashMap<>();
 
 		categories.forEach((String category, Map<String, List<String>> emotes) -> {
+			ArrayList<Emote> categoryEmotes = new ArrayList<>();
+
 			emotes.forEach((String character, List<String> names) -> {
 				characterRegex.append(character);
 				Emote emote = new Emote(character, names, category);
 
 				names.forEach(name -> this.emotesByName.put(name, emote));
-				this.emotesByCharacter.put(character, emote);
+				emotesByCharacter.put(character, emote);
+				categoryEmotes.add(emote);
 			});
+
+			emotesByCategory.put(category, categoryEmotes);
 		});
 
 		characterRegex.append("]");
-
 		characterPattern = Pattern.compile(characterRegex.toString());
 
 		this.noPermissions = noPermissions;
@@ -96,12 +106,66 @@ public class EmoteFilter implements ProxyChatPostParseFilter {
 				emotesByCharacter.get(result.content()).getComponent());
 	}
 
+	public List<String> getEmoteSuggestions(SimpleCommand.Invocation invocation) {
+		String lastWord = invocation.arguments()[invocation.arguments().length - 1].toLowerCase();
+		Matcher matcher = incompleteEmotePattern.matcher(lastWord);
+
+		if(!matcher.find()) {
+		  	return Collections.emptyList();
+		}
+
+		String prefix = matcher.group(1);
+
+		List<String> results = searchEmotes(matcher.group(2))
+				.stream()
+				.map(emote -> prefix + emote.getCharacter())
+				.collect(Collectors.toList());
+
+		return results;
+	}
+
+	public List<Emote> searchEmotes(String search) {
+		Map<String, Emote> results = emotesByName.subMap(search, search + Character.MAX_VALUE);
+
+		return results.values().stream().distinct().collect(Collectors.toList());
+	}
+
+	public Component getEmotesListComponent() {
+		if(emotesList != null) {
+			return emotesList;
+		}
+
+		TextComponent.Builder list = Component.text().append(
+				Component.text().content("Available Emotes")
+						.color(NamedTextColor.YELLOW)
+						.decoration(TextDecoration.UNDERLINED, TextDecoration.State.TRUE)
+						.decoration(TextDecoration.BOLD, TextDecoration.State.TRUE))
+				.append(Component.newline());
+
+		emotesByCategory.forEach((String category, List<Emote> emotes) -> {
+			if(emotes.isEmpty()) {
+				return;
+			}
+
+			list.append(Component.text().content(category).color(NamedTextColor.BLUE));
+			list.append(Component.newline());
+			list.append(Component.space());
+
+			emotes.forEach(emote -> list.append(emote.getComponent()).append(Component.space()));
+			list.append(Component.newline());
+		});
+
+		emotesList = list.build();
+
+		return emotesList;
+	}
+
 	@Override
 	public int getPriority() {
 		return FilterManager.EMOTE_FILTER_PRIORITY;
 	}
 
-	static class Emote {
+	public static class Emote {
 		private final List<String> names;
 		private final String category;
 		private final String character;

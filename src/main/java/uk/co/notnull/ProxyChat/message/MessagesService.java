@@ -24,6 +24,7 @@ package uk.co.notnull.ProxyChat.message;
 import com.typesafe.config.Config;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import uk.co.notnull.ProxyChat.ProxyChat;
 import uk.co.notnull.ProxyChat.account.ProxyChatAccountManager;
 import uk.co.notnull.ProxyChat.api.account.AccountManager;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
