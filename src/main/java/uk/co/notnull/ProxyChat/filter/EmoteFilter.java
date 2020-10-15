@@ -217,8 +217,8 @@ public class EmoteFilter implements ProxyChatPostParseFilter {
 										)
 										.build()
 					)
-					.clickEvent(ClickEvent.copyToClipboard(":" + names.get(0) + ":"))
-					.insertion(":" + names.get(0) + ":")
+					.clickEvent(ClickEvent.copyToClipboard(character))
+					.insertion(character)
 					.build();
 
 			return component;
