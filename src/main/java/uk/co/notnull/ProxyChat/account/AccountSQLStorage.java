@@ -181,8 +181,6 @@ public class AccountSQLStorage implements ProxyChatAccountStorage {
       saveAccount.setBoolean(6, account.hasSocialSpyEnabled());
       saveAccount.setBoolean(7, account.hasLocalSpyEnabled());
       saveAccount.setTimestamp(8, account.getMutedUntil());
-      saveAccount.setString(9, account.getStoredPrefix().orElse(null));
-      saveAccount.setString(10, account.getStoredSuffix().orElse(null));
 
       saveAccount.executeUpdate();
       saveAccount.clearParameters();

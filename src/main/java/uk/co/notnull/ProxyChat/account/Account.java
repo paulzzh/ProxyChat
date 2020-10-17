@@ -69,8 +69,6 @@ public class Account implements ProxyChatAccount {
 
   private final BlockingQueue<UUID> ignored;
   private Timestamp mutedUntil;
-  private Optional<String> storedPrefix;
-  private Optional<String> storedSuffix;
 
   protected Account(Player player) {
     this(player.getUniqueId());
@@ -85,8 +83,6 @@ public class Account implements ProxyChatAccount {
     localSpy = false;
     ignored = new LinkedBlockingQueue<>();
     mutedUntil = new Timestamp(0);
-    storedPrefix = Optional.empty();
-    storedSuffix = Optional.empty();
   }
 
   protected Account(
@@ -108,8 +104,6 @@ public class Account implements ProxyChatAccount {
     this.localSpy = localSpy;
     this.ignored = ignored;
     this.mutedUntil = mutedUntil;
-    this.storedPrefix = storedPrefix;
-    this.storedSuffix = storedSuffix;
   }
 
   @Override

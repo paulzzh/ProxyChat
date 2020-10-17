@@ -70,8 +70,6 @@ public class AccountFileStorage implements ProxyChatAccountStorage {
       save.writeObject(account.hasLocalSpyEnabled());
       save.writeObject(account.getIgnored());
       save.writeObject(account.getMutedUntil());
-      save.writeObject(account.getStoredPrefix().orElse(null));
-      save.writeObject(account.getStoredSuffix().orElse(null));
     } catch (IOException e) {
       LoggerHelper.warning("Could not save player " + account.getUniqueId(), e);
     }

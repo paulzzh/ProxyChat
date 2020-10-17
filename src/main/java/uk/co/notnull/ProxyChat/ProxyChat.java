@@ -47,7 +47,6 @@ import uk.co.notnull.ProxyChat.api.utils.ProxyChatInstaceHolder;
 import uk.co.notnull.ProxyChat.command.ProxyChatCommand;
 import uk.co.notnull.ProxyChat.config.Configuration;
 import uk.co.notnull.ProxyChat.hook.DefaultHook;
-import uk.co.notnull.ProxyChat.hook.StoredDataHook;
 import uk.co.notnull.ProxyChat.listener.ProxyChatEventsListener;
 import uk.co.notnull.ProxyChat.listener.ChannelTypeCorrectorListener;
 import uk.co.notnull.ProxyChat.listener.CommandTabCompleteListener;
@@ -180,7 +179,6 @@ public class ProxyChat implements ProxyChatApi {
 
     ProxyChatModuleManager.registerPluginModules();
     ModuleManager.enableModules();
-    HookManager.addHook(storedDataHookName, new StoredDataHook());
     HookManager.addHook(
         defaultHookName,
         new DefaultHook(

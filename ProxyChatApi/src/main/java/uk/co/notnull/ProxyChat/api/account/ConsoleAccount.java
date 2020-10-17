@@ -29,19 +29,12 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import lombok.Getter;
-import lombok.Setter;
 
 public class ConsoleAccount implements ProxyChatAccount {
   private static final UUID uuid = new UUID(0, 0);
   private static final BlockingQueue<UUID> ignoreList = new LinkedBlockingQueue<>();
 
-  @Getter @Setter private Optional<String> storedPrefix;
-  @Getter @Setter private Optional<String> storedSuffix;
-
   protected ConsoleAccount() {
-    storedPrefix = Optional.empty();
-    storedSuffix = Optional.empty();
   }
 
   @Override

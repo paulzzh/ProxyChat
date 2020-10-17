@@ -152,8 +152,4 @@ public interface ProxyChatAccount {
   default void unmute() {
     setMutedUntil(0L);
   }
-
-  public void setStoredPrefix(Optional<String> newPrefix);
-
-  public void setStoredSuffix(Optional<String> newSuffix);
 }

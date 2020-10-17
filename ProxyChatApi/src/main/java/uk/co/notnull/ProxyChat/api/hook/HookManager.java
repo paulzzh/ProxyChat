@@ -37,7 +37,6 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 public class HookManager {
   public static final int DEFAULT_PREFIX_PRIORITY = 100;
   public static final int PERMISSION_PLUGIN_PREFIX_PRIORITY = 200;
-  public static final int ACCOUNT_PREFIX_PRIORITY = 300;
   private static final LegacyComponentSerializer legacySerializer = LegacyComponentSerializer.builder()
           .character('&').extractUrls().hexColors().useUnusualXRepeatedCharacterHexFormat().build();
 

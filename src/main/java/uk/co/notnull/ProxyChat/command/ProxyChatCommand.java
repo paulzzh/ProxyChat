@@ -39,13 +39,12 @@ import java.io.StreamTokenizer;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ProxyChatCommand extends BaseCommand {
   private final String prefix = "&9Proxy Chat &8// ";
   private static final List<String> arg1Completetions =
-      Arrays.asList("modules", "reload", "setprefix", "setsuffix");
+      Arrays.asList("modules", "reload");
 
   public ProxyChatCommand() {
     super("proxychat");
@@ -69,69 +68,6 @@ public class ProxyChatCommand extends BaseCommand {
                   MessagesService.sendMessage(
                       invocation.source(), prefix + "&aThe plugin has been reloaded!");
                 }).schedule();
-
-        return;
-      } else if (invocation.arguments()[0].equalsIgnoreCase("setprefix")
-          && PermissionManager.hasPermission(invocation.source(), Permission.PROXYCHAT_SETPREFIX)) {
-
-        if (invocation.arguments().length < 2) {
-          MessagesService.sendMessage(
-                  invocation.source(),
-                  Messages.INCORRECT_USAGE.get(invocation.source(), "/proxychat setprefix <player> [new prefix]"));
-        } else {
-          Optional<ProxyChatAccount> targetAccount = AccountManager.getAccount(invocation.arguments()[1]);
-
-          if (targetAccount.isEmpty()) {
-            MessagesService.sendMessage(invocation.source(), Messages.PLAYER_NOT_FOUND.get());
-          } else {
-            CommandSource target =
-                ProxyChatAccountManager.getCommandSource(targetAccount.get()).get();
-
-            if (invocation.arguments().length < 3) {
-              targetAccount.get().setStoredPrefix(Optional.empty());
-              MessagesService.sendMessage(invocation.source(), prefix + Messages.PREFIX_REMOVED.get(target));
-            } else {
-              String newPrefix =
-                  getUnquotedString(
-                      Arrays.stream(invocation.arguments(), 2, invocation.arguments().length)
-                              .collect(Collectors.joining(" ")));
-
-              targetAccount.get().setStoredPrefix(Optional.of(newPrefix));
-              MessagesService.sendMessage(invocation.source(), prefix + Messages.PREFIX_SET.get(target));
-            }
-          }
-        }
-        return;
-      } else if (invocation.arguments()[0].equalsIgnoreCase("setsuffix")
-          && PermissionManager.hasPermission(invocation.source(), Permission.PROXYCHAT_SETSUFFIX)) {
-
-        if (invocation.arguments().length < 2) {
-          MessagesService.sendMessage(
-              invocation.source(),
-              Messages.INCORRECT_USAGE.get(invocation.source(), "/proxychat setsuffix <player> [new suffix]"));
-        } else {
-          Optional<ProxyChatAccount> targetAccount = AccountManager.getAccount(invocation.arguments()[1]);
-
-          if (targetAccount.isEmpty()) {
-            MessagesService.sendMessage(invocation.source(), Messages.PLAYER_NOT_FOUND.get());
-          } else {
-            CommandSource target =
-                ProxyChatAccountManager.getCommandSource(targetAccount.get()).get();
-
-            if (invocation.arguments().length < 3) {
-              targetAccount.get().setStoredSuffix(Optional.empty());
-              MessagesService.sendMessage(invocation.source(), prefix + Messages.SUFFIX_REMOVED.get(target));
-            } else {
-              String newSuffix =
-                  getUnquotedString(
-                      Arrays.stream(invocation.arguments(), 2, invocation.arguments().length)
-                              .collect(Collectors.joining(" ")));
-
-              targetAccount.get().setStoredSuffix(Optional.of(newSuffix));
-              MessagesService.sendMessage(invocation.source(), prefix + Messages.SUFFIX_SET.get(target));
-            }
-          }
-        }
 
         return;
       } else if (invocation.arguments()[0].equalsIgnoreCase("modules")
