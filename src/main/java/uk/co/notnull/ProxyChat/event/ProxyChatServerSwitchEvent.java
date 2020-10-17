@@ -36,8 +36,8 @@ import lombok.ToString;
  */
 @Data
 @RequiredArgsConstructor
-@ToString(callSuper = false)
-@EqualsAndHashCode(callSuper = false)
+@ToString()
+@EqualsAndHashCode()
 public class ProxyChatServerSwitchEvent {
   /** Player whom the server is for. */
   private final Player player;

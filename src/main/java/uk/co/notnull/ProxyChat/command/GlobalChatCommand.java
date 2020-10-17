@@ -86,7 +86,7 @@ public class GlobalChatCommand extends BaseCommand {
             invocation.source(), Messages.INCORRECT_USAGE.get(invocation.source(), "/global <message>"));
       }
     } else {
-      String finalMessage = Arrays.stream(invocation.arguments()).collect(Collectors.joining(" "));
+      String finalMessage = String.join(" ", invocation.arguments());
 
       MessagesService.sendGlobalMessage(invocation.source(), finalMessage);
     }

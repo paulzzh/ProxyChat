@@ -34,8 +34,8 @@ import lombok.EqualsAndHashCode;
  * issues.
  */
 @Data
-@ToString(callSuper = false)
-@EqualsAndHashCode(callSuper = false)
+@ToString()
+@EqualsAndHashCode()
 public class ProxyChatLeaveEvent {
   /** Player disconnecting. */
   private final Player player;

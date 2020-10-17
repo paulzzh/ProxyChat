@@ -24,5 +24,5 @@ package uk.co.notnull.ProxyChat.api.placeholder;
 import net.kyori.adventure.text.Component;
 
 public interface ComponentReplacementSupplier {
-  public Component get(ProxyChatContext context);
+  Component get(ProxyChatContext context);
 }

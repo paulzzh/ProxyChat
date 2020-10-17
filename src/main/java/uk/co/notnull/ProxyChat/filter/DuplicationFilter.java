@@ -98,7 +98,7 @@ public class DuplicationFilter implements ProxyChatPreParseFilter {
 
   @Value
   private static class TimePointMessage {
-    private final long timePoint;
-    private final String message;
+    long timePoint;
+    String message;
   }
 }

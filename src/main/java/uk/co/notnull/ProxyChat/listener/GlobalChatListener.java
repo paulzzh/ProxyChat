@@ -100,6 +100,5 @@ public class GlobalChatListener {
     e.setResult(passToBackendServer ? PlayerChatEvent.ChatResult.allowed() : PlayerChatEvent.ChatResult.denied());
     MessagesService.sendGlobalMessage(sender, message);
 
-    return;
   }
 }

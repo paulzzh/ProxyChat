@@ -24,7 +24,6 @@ package uk.co.notnull.ProxyChat.filter;
 import com.velocitypowered.api.command.SimpleCommand;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextDecoration;
-import uk.co.notnull.ProxyChat.ProxyChat;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.api.filter.ProxyChatPostParseFilter;
 import uk.co.notnull.ProxyChat.api.filter.FilterManager;
@@ -42,7 +41,7 @@ import java.util.stream.Collectors;
 
 public class EmoteFilter implements ProxyChatPostParseFilter {
 	private final static Pattern emotePattern = Pattern.compile(":(\\w+):");
-	private Pattern incompleteEmotePattern = Pattern.compile("(.*):(\\w+)$");
+	private final Pattern incompleteEmotePattern = Pattern.compile("(.*):(\\w+)$");
 
 	private final TreeMap<String, Emote> emotesByName;
 	private final Map<String, Emote> emotesByCharacter;

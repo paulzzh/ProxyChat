@@ -19,24 +19,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.co.notnull.ProxyChat.module.perms;
+package uk.co.notnull.ProxyChat.event;
 
-import uk.co.notnull.ProxyChat.api.hook.HookManager;
-import uk.co.notnull.ProxyChat.hook.PowerfulPermsHook;
+import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
+import uk.co.notnull.ProxyChat.api.placeholder.ProxyChatContext;
 
-public class PowerfulPermsModule extends PermissionPluginModule {
-  @Override
-  public String getName() {
-    return "PowerfulPerms";
-  }
+public class ProxyChatMessageEvent {
+	private final ProxyChatContext context;
 
-  @Override
-  public void onEnable() {
-    HookManager.addHook(getName(), new PowerfulPermsHook());
-  }
+	public ProxyChatMessageEvent(ProxyChatContext context) {
+		this.context = context;
+	}
 
-  @Override
-  public void onDisable() {
-    HookManager.removeHook(getName());
-  }
+	public ProxyChatContext getContext() {
+		return context;
+	}
+
+	public String getChannel() {
+		return context.getChannel().orElse(null);
+	}
+
+	public ProxyChatAccount getSender() {
+		return context.getSender().get();
+	}
+
+	public ProxyChatAccount getRecipient() {
+		return context.getSender().get();
+	}
 }

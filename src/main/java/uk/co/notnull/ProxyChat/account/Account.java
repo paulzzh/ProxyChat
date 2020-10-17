@@ -93,9 +93,7 @@ public class Account implements ProxyChatAccount {
       boolean socialSpy,
       boolean localSpy,
       BlockingQueue<UUID> ignored,
-      Timestamp mutedUntil,
-      Optional<String> storedPrefix,
-      Optional<String> storedSuffix) {
+      Timestamp mutedUntil) {
     this.uuid = uuid;
     this.channelType = channelType;
     this.vanished = vanished;

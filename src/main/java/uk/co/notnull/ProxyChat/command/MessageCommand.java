@@ -25,7 +25,6 @@ import com.velocitypowered.api.command.CommandSource;
 import uk.co.notnull.ProxyChat.account.ProxyChatAccountManager;
 import uk.co.notnull.ProxyChat.api.account.AccountManager;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
-import uk.co.notnull.ProxyChat.api.module.ModuleManager;
 import uk.co.notnull.ProxyChat.message.Messages;
 import uk.co.notnull.ProxyChat.message.MessagesService;
 import uk.co.notnull.ProxyChat.module.MessengerModule;
@@ -56,7 +55,7 @@ public class MessageCommand extends BaseCommand {
     } else {
       Optional<ProxyChatAccount> targetAccount = AccountManager.getAccount(invocation.arguments()[0]);
 
-      if (!targetAccount.isPresent()
+      if (targetAccount.isEmpty()
           || (targetAccount.get().isVanished()
               && !PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_VANISH_VIEW))) {
         MessagesService.sendMessage(invocation.source(), Messages.PLAYER_NOT_FOUND.get());

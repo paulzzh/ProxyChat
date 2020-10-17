@@ -21,6 +21,7 @@
 
 package uk.co.notnull.ProxyChat.command;
 
+import net.kyori.adventure.identity.Identity;
 import uk.co.notnull.ProxyChat.module.EmoteModule;
 import uk.co.notnull.ProxyChat.permission.Permission;
 import uk.co.notnull.ProxyChat.permission.PermissionManager;
@@ -41,7 +42,7 @@ public class EmotesCommand extends BaseCommand {
   public void execute(Invocation invocation) {
     if (!PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_EMOTES)) return;
 
-    invocation.source().sendMessage(emoteModule.getEmotesListComponent());
+    invocation.source().sendMessage(Identity.nil(), emoteModule.getEmotesListComponent());
   }
 
   @Override

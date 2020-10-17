@@ -99,7 +99,7 @@ public class ConsoleAccount implements ProxyChatAccount {
 
   @Override
   public Optional<RegisteredServer> getServer() {
-    return null;
+    return Optional.empty();
   }
 
   @Override

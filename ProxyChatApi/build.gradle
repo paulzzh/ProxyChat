@@ -54,10 +54,6 @@ repositories {
         url "https://repo.lucko.me/"
     }
     maven {
-        name "cloudnet-repo"
-        url "https://cloudnetservice.eu/repositories/"
-    }
-    maven {
         name "jitpack.io"
         url "https://jitpack.io"
     }
@@ -78,9 +74,7 @@ dependencies {
     compileOnly 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
     compileOnly 'org.spongepowered:configurate-hocon:3.6'
     compileOnly 'org.spongepowered:configurate-yaml:3.6'
-    compileOnly "de.dytanic.cloudnet:cloudnet-api-bridge:${cloudnetapi_version}"
     compileOnly "net.luckperms:api:${luckperms5_version}"
-    compileOnly "com.github.CheeseSoftware:PowerfulPermsAPI:${powerfulperms_version}"
 
     annotationProcessor 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
 

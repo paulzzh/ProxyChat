@@ -85,7 +85,7 @@ public class LocalChatCommand extends BaseCommand {
             invocation.source(), Messages.INCORRECT_USAGE.get(invocation.source(), "/local <message>"));
       }
     } else {
-      String finalMessage = Arrays.stream(invocation.arguments()).collect(Collectors.joining(" "));
+      String finalMessage = String.join(" ", invocation.arguments());
 
       MessagesService.sendLocalMessage(invocation.source(), finalMessage);
     }

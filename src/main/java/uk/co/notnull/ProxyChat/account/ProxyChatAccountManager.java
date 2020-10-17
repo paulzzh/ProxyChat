@@ -38,6 +38,8 @@ import com.velocitypowered.api.util.GameProfile;
 import com.velocitypowered.api.util.MessagePosition;
 import com.velocitypowered.api.util.ModInfo;
 import com.velocitypowered.api.util.title.Title;
+import net.kyori.adventure.identity.Identity;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import uk.co.notnull.ProxyChat.ProxyChat;
 import uk.co.notnull.ProxyChat.api.account.AccountInfo;
 import uk.co.notnull.ProxyChat.api.account.AccountManager;
@@ -49,7 +51,6 @@ import net.kyori.text.Component;
 import java.net.InetSocketAddress;
 import uk.co.notnull.ProxyChat.permission.Permission;
 import uk.co.notnull.ProxyChat.permission.PermissionManager;
-import uk.co.notnull.ProxyChat.api.enums.AccountType;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -309,6 +310,11 @@ public class ProxyChatAccountManager extends AccountManager {
     @Override
     public boolean sendPluginMessage(ChannelIdentifier identifier, byte[] data) {
       return false;
+    }
+
+    @Override
+    public @NonNull Identity identity() {
+      return null;
     }
   }
 }

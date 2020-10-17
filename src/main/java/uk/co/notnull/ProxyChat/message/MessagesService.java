@@ -24,7 +24,7 @@ package uk.co.notnull.ProxyChat.message;
 import com.typesafe.config.Config;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
-import uk.co.notnull.ProxyChat.ProxyChat;
+import net.kyori.adventure.identity.Identity;
 import uk.co.notnull.ProxyChat.account.ProxyChatAccountManager;
 import uk.co.notnull.ProxyChat.api.account.AccountManager;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
@@ -368,11 +368,7 @@ public class MessagesService {
 
 		ProxyChatAccount playerAccount = account.get();
 		CommandSource player = ProxyChatAccountManager.getCommandSource(playerAccount).get();
-		Component message = context.getParsedMessage().get();
-
-		if(account.isPresent()) {
-			message = PlaceHolderUtil.filterFormatting(context.getParsedMessage().get(), account.get());
-		}
+		Component message = PlaceHolderUtil.filterFormatting(context.getParsedMessage().get(), account.get());
 
 		if (runFilters) {
 			try {
@@ -516,13 +512,13 @@ public class MessagesService {
 	public void sendMessage(CommandSource recipient, String message) {
 		if ((message == null) || message.isEmpty()) return;
 
-		recipient.sendMessage(LegacyComponentSerializer.builder().extractUrls().hexColors().build()
+		recipient.sendMessage(Identity.nil(), LegacyComponentSerializer.builder().extractUrls().hexColors().build()
 									  .deserialize(message));
 	}
 
 	public void sendMessage(CommandSource recipient, Component message) {
 		if ((message == null)) return;
 
-		recipient.sendMessage(message);
+		recipient.sendMessage(Identity.nil(), message);
 	}
 }

@@ -73,7 +73,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.slf4j.Logger;
 
 @Plugin(id = "proxychat", name = "ProxyChat", version = "0.1-SNAPSHOT",
-        description = "", authors = {"Jim (NotKatuen)", "BrainStone", "shawn_ian"}, dependencies = {
+        authors = {"Jim (NotKatuen)", "BrainStone", "shawn_ian"}, dependencies = {
   @Dependency(id = "luckperms", optional = true)
 })
 public class ProxyChat implements ProxyChatApi {
@@ -97,7 +97,6 @@ public class ProxyChat implements ProxyChatApi {
   private ProxyChatAccountManager proxyChatAccountManager;
   private ChannelTypeCorrectorListener channelTypeCorrectorListener;
   private ProxyChatEventsListener proxyChatEventsListener;
-  private CommandTabCompleteListener commandTabCompleteListener;
 
   @Inject
   public ProxyChat(ProxyServer proxy, Logger logger) {
@@ -167,7 +166,7 @@ public class ProxyChat implements ProxyChatApi {
     proxyChatAccountManager = new ProxyChatAccountManager();
     channelTypeCorrectorListener = new ChannelTypeCorrectorListener();
     proxyChatEventsListener = new ProxyChatEventsListener();
-    commandTabCompleteListener = new CommandTabCompleteListener();
+    CommandTabCompleteListener commandTabCompleteListener = new CommandTabCompleteListener();
 
     proxyChatCommand.register();
     proxy.getEventManager().register(this, proxyChatAccountManager);

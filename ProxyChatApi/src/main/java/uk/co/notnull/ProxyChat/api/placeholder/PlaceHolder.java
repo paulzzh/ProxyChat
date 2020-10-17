@@ -32,7 +32,7 @@ import net.kyori.adventure.text.Component;
 @EqualsAndHashCode(of = "placeholder")
 public class PlaceHolder implements ProxyChatPlaceHolder {
   @Getter private final String placeholder;
-  private ReplacementSupplier replacementSupplier;
+  private final ReplacementSupplier replacementSupplier;
   private ComponentReplacementSupplier componentReplacementSupplier = context -> Component.text(replacementSupplier.get(context));
   private final List<Predicate<? super ProxyChatContext>> requirements = new LinkedList<>();
 

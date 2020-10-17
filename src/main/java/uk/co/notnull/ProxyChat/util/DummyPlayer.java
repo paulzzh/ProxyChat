@@ -40,7 +40,9 @@ import com.velocitypowered.api.util.MessagePosition;
 import com.velocitypowered.api.util.ModInfo;
 import com.velocitypowered.api.util.title.Title;
 import lombok.RequiredArgsConstructor;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.text.Component;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 @RequiredArgsConstructor
 public class DummyPlayer implements Player {
@@ -185,5 +187,10 @@ public class DummyPlayer implements Player {
   @Override
   public boolean sendPluginMessage(ChannelIdentifier identifier, byte[] data) {
     return false;
+  }
+
+  @Override
+  public @NonNull Identity identity() {
+    return null;
   }
 }

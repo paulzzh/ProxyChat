@@ -39,19 +39,17 @@ public class PlatformModule extends Module {
 		PlaceHolderManager.registerPlaceholder(
 			new PlaceHolder("platform",
 							context -> PlatformUtil.getPlatformIcon(context.getSender().get()),
-							(ComponentReplacementSupplier) context -> {
-								return Component.text(PlatformUtil.getPlatformIcon(context.getSender().get()))
-										.hoverEvent(PlatformUtil.getHover(context.getSender().get()));
-							},
+							(ComponentReplacementSupplier) context ->
+									Component.text(PlatformUtil.getPlatformIcon(context.getSender().get()))
+									.hoverEvent(PlatformUtil.getHover(context.getSender().get())),
 							ProxyChatContext.HAS_SENDER));
 
 		PlaceHolderManager.registerPlaceholder(
 			new PlaceHolder("target_platform",
 							context -> PlatformUtil.getPlatformIcon(context.getTarget().get()),
-							(ComponentReplacementSupplier) context -> {
-								return Component.text(PlatformUtil.getPlatformIcon(context.getTarget().get()))
-										.hoverEvent(PlatformUtil.getHover(context.getTarget().get()));
-							},
+							(ComponentReplacementSupplier) context ->
+									Component.text(PlatformUtil.getPlatformIcon(context.getTarget().get()))
+									.hoverEvent(PlatformUtil.getHover(context.getTarget().get())),
 							ProxyChatContext.HAS_TARGET));
 	}
 

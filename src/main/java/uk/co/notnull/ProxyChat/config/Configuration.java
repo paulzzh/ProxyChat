@@ -127,7 +127,7 @@ public class Configuration implements Config {
   private static Collection<String> getPaths(ConfigValue config) {
     if (config instanceof ConfigObject) {
       return ((ConfigObject) config)
-          .entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList());
+          .keySet().stream().collect(Collectors.toList());
     } else {
       return Collections.emptyList();
     }

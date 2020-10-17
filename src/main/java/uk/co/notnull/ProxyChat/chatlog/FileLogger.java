@@ -41,8 +41,6 @@ public class FileLogger implements ChatLogger, AutoCloseable {
   private static final File pluginDir = ProxyChat.getInstance().getConfigFolder();
 
   private final String logFile;
-  private String oldFile = "";
-  private File saveTo;
   private Writer fw;
   private PrintWriter pw;
 
@@ -63,10 +61,11 @@ public class FileLogger implements ChatLogger, AutoCloseable {
   private void initLogFile() {
     String newFile = PlaceHolderManager.processMessage(logFile, context);
 
+    String oldFile = "";
     if (oldFile.equals(newFile)) return;
 
     try {
-      saveTo = new File(pluginDir, newFile);
+      File saveTo = new File(pluginDir, newFile);
       Optional.ofNullable(saveTo.getParentFile()).ifPresent(File::mkdirs);
 
       if (!saveTo.exists() && !saveTo.createNewFile()) {

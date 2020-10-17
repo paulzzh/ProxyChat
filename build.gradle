@@ -54,10 +54,6 @@ repositories {
         url "https://repo.lucko.me/"
     }
     maven {
-        name "cloudnet-repo"
-        url "https://cloudnetservice.eu/repositories/"
-    }
-    maven {
         name "jitpack.io"
         url "https://jitpack.io"
     }
@@ -90,11 +86,9 @@ dependencies {
     compile name: "MessagesTranslator-1.4.3.41-DEV"
     compileOnly 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
     compileOnly 'org.spongepowered:configurate-yaml:3.6'
-    compile "de.dytanic.cloudnet:cloudnet-api-bridge:${cloudnetapi_version}"
     compileOnly "net.luckperms:api:${luckperms5_version}"
     compileOnly group: 'org.geysermc', name: 'floodgate-common', version:'1.0-SNAPSHOT'
     compileOnly group: 'org.geysermc', name: 'floodgate-velocity', version:'1.0-SNAPSHOT'
-    compileOnly "com.github.CheeseSoftware:PowerfulPermsAPI:${powerfulperms_version}"
     compileOnly name: "vivecraft-velocity-extensions-1.1"
 
     annotationProcessor 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'

@@ -24,6 +24,7 @@ package uk.co.notnull.ProxyChat.hook;
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
+import net.kyori.adventure.identity.Identity;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.api.hook.ProxyChatHook;
 import uk.co.notnull.ProxyChat.api.hook.HookManager;
@@ -48,12 +49,12 @@ public class LuckPerms5Hook implements ProxyChatHook {
 
   @Override
   public Optional<String> getPrefix(ProxyChatAccount account) {
-    return getMetaData(account).map(CachedMetaData::getPrefix).filter(Objects::nonNull);
+    return getMetaData(account).map(CachedMetaData::getPrefix);
   }
 
   @Override
   public Optional<String> getSuffix(ProxyChatAccount account) {
-    return getMetaData(account).map(CachedMetaData::getSuffix).filter(Objects::nonNull);
+    return getMetaData(account).map(CachedMetaData::getSuffix);
   }
 
   private Optional<CachedMetaData> getMetaData(ProxyChatAccount account) {
@@ -93,8 +94,8 @@ public class LuckPerms5Hook implements ProxyChatHook {
   public void onPlayerChat(PlayerChatEvent e) {
     if(e.getPlayer().hasPermission("proxychat.muted")) {
       e.setResult(PlayerChatEvent.ChatResult.denied());
-      e.getPlayer().sendMessage(
-              LegacyComponentSerializer.builder()
+      e.getPlayer().sendMessage(Identity.nil(),
+                                LegacyComponentSerializer.builder()
                       .extractUrls().character('&').hexColors().build()
                       .deserialize("&cYou have been muted and cannot chat right now. Please see &ehttps://minecraft.rtgame.co.uk/bans &rfor more information"));
     }

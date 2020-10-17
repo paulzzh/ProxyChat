@@ -30,15 +30,15 @@ import java.io.File;
 
 /** This is the base Interface for the ProxyChatApi. The central methods will be found here */
 public interface ProxyChatApi {
-  public static final String ID = "proxychat";
-  public static final String NAME = "Proxy Chat";
-  public static final String DESCRIPTION = "Proxy Chat Plugin";
-  public static final String URL = "https://github.com/JLyne/ProxyChat";
-  public static final String AUTHOR_JIM = "Jim";
-  public static final String AUTHOR_BRAINSTONE = "BrainStone";
-  public static final String AUTHOR_SHAWN = "shawn_ian";
-  public static final String[] AUTHORS = new String[] {AUTHOR_JIM, AUTHOR_BRAINSTONE, AUTHOR_SHAWN};
-  public static final String[] CONTRIBUTORS =
+  String ID = "proxychat";
+  String NAME = "Proxy Chat";
+  String DESCRIPTION = "Proxy Chat Plugin";
+  String URL = "https://github.com/JLyne/ProxyChat";
+  String AUTHOR_JIM = "Jim";
+  String AUTHOR_BRAINSTONE = "BrainStone";
+  String AUTHOR_SHAWN = "shawn_ian";
+  String[] AUTHORS = new String[] {AUTHOR_JIM, AUTHOR_BRAINSTONE, AUTHOR_SHAWN};
+  String[] CONTRIBUTORS =
       new String[] {
         "AwesomestGamer",
         "Brianetta",
@@ -49,7 +49,7 @@ public interface ProxyChatApi {
         "MineTech13",
         "n0dai"
       };
-  public static final String[] TRANSLATORS =
+  String[] TRANSLATORS =
       new String[] {
         "DardBrinza",
         "Fantasenf",
@@ -61,15 +61,15 @@ public interface ProxyChatApi {
         "Maxime_74",
         "povsister"
       };
-  public static final String[] DONATORS = new String[] {"Breantique", "NickT"};
-  public static final double CONFIG_VERSION = 11.8;
+  String[] DONATORS = new String[] {"Breantique", "NickT"};
+  double CONFIG_VERSION = 11.8;
 
   /**
    * Method to retrieve the instance of the API
    *
    * @return The ProxyChatApi instance
    */
-  public static ProxyChatApi getInstance() {
+  static ProxyChatApi getInstance() {
     return ProxyChatInstaceHolder.getInstance();
   }
 
@@ -78,7 +78,7 @@ public interface ProxyChatApi {
    *
    * @return The existing config folder
    */
-  public File getConfigFolder();
+  File getConfigFolder();
 
   /**
    * Send a private message. The context contains the sender, the target and the message!
@@ -87,7 +87,7 @@ public interface ProxyChatApi {
    * @throws InvalidContextError Throws and {@link InvalidContextError} if either a sender, target
    *     or message is missing in this context.
    */
-  public void sendPrivateMessage(ProxyChatContext context) throws InvalidContextError;
+  void sendPrivateMessage(ProxyChatContext context) throws InvalidContextError;
 
   /**
    * Sends a message from the sender in the context to the specified channel. The message has to be
@@ -98,7 +98,7 @@ public interface ProxyChatApi {
    * @throws InvalidContextError Throws and {@link InvalidContextError} if either a sender or
    *     message is missing in this context.
    */
-  public void sendChannelMessage(ProxyChatContext context, ChannelType channel)
+  void sendChannelMessage(ProxyChatContext context, ChannelType channel)
       throws InvalidContextError;
 
   /**
@@ -109,7 +109,7 @@ public interface ProxyChatApi {
    * @throws InvalidContextError Throws and {@link InvalidContextError} if either a sender or
    *     message is missing in this context.
    */
-  public default void sendChannelMessage(ProxyChatContext context) throws InvalidContextError {
+  default void sendChannelMessage(ProxyChatContext context) throws InvalidContextError {
     if (context.hasSender()) {
       sendChannelMessage(context, context.getSender().get().getChannelType());
     } else {

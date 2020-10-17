@@ -24,5 +24,5 @@ package uk.co.notnull.ProxyChat.chatlog;
 import uk.co.notnull.ProxyChat.api.placeholder.ProxyChatContext;
 
 public interface ChatLogger {
-  public void log(ProxyChatContext context);
+  void log(ProxyChatContext context);
 }

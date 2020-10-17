@@ -32,11 +32,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import lombok.Data;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-
 
 /**
  * This class represents a context for a message or other chat related action.<br>
@@ -45,10 +40,6 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
  */
 @Data
 public class ProxyChatContext {
-  private static final LegacyComponentSerializer legacySerializer = LegacyComponentSerializer.builder()
-          .extractUrls(Style.style().color(TextColor.fromHexString("#8194e4")).decoration(TextDecoration.UNDERLINED, true).build())
-          .character('&').hexColors().useUnusualXRepeatedCharacterHexFormat().build();
-
   /**
    * Predefined Predicate to check if a context has a sender.
    *

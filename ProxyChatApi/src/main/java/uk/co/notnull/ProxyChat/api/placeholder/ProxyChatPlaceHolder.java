@@ -24,14 +24,14 @@ package uk.co.notnull.ProxyChat.api.placeholder;
 import net.kyori.adventure.text.Component;
 
 public interface ProxyChatPlaceHolder {
-  public boolean isContextApplicable(ProxyChatContext context);
+  boolean isContextApplicable(ProxyChatContext context);
 
-  public default boolean matchesName(String name) {
+  default boolean matchesName(String name) {
     return getName().equals(name);
   }
 
-  public Component getReplacementComponent(String name, ProxyChatContext context);
-  public String getReplacement(String name, ProxyChatContext context);
+  Component getReplacementComponent(String name, ProxyChatContext context);
+  String getReplacement(String name, ProxyChatContext context);
 
-  public String getName();
+  String getName();
 }

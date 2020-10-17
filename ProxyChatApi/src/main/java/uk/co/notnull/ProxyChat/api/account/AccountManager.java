@@ -100,9 +100,7 @@ public class AccountManager {
   public static void unloadAccount(UUID uuid) {
     Optional<ProxyChatAccount> account = getAccount(uuid);
 
-    if (account.isPresent()) {
-      unloadAccount(account.get());
-    }
+    account.ifPresent(AccountManager::unloadAccount);
   }
 
   public static void unloadAccount(ProxyChatAccount account) {

@@ -51,7 +51,7 @@ public class MapUtils {
       Collector<T, ImmutableMap.Builder<K, V>, ImmutableMap<K, V>> immutableMapCollector(
           Function<? super T, ? extends K> keyMapper, Function<? super T, ? extends V> valueMapper)
           throws IllegalArgumentException {
-    return new Collector<T, ImmutableMap.Builder<K, V>, ImmutableMap<K, V>>() {
+    return new Collector<>() {
       public Supplier<ImmutableMap.Builder<K, V>> supplier() {
         return ImmutableMap.Builder<K, V>::new;
       }

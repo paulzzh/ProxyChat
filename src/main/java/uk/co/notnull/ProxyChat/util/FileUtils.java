@@ -145,13 +145,10 @@ public class FileUtils {
       final byte[] buf = new byte[1024];
       int len = 0;
 
-      try {
+      try (is; os) {
         while ((len = is.read(buf)) > 0) {
           os.write(buf, 0, len);
         }
-      } finally {
-        is.close();
-        os.close();
       }
 
       return true;

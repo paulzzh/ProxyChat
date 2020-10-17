@@ -33,7 +33,7 @@ public interface ProxyChatHook extends Comparable<ProxyChatHook> {
    * @param account Account to get the prefix for
    * @return Prefix of the Account, if it exists, else {@link Optional#empty}
    */
-  public Optional<String> getPrefix(ProxyChatAccount account);
+  Optional<String> getPrefix(ProxyChatAccount account);
 
   /**
    * Get the active suffix for the passed account.
@@ -41,14 +41,14 @@ public interface ProxyChatHook extends Comparable<ProxyChatHook> {
    * @param account Account to get the suffix for
    * @return Suffix of the Account, if it exists, else {@link Optional#empty}
    */
-  public Optional<String> getSuffix(ProxyChatAccount account);
+  Optional<String> getSuffix(ProxyChatAccount account);
 
   /**
    * Retrieves the priority of this hook. Higher priority means the hook is checked earlier.
    *
    * @return Numeric priority of this hook
    */
-  public int getPriority();
+  int getPriority();
 
   @Override
   default int compareTo(ProxyChatHook other) {

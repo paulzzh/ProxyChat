@@ -43,7 +43,7 @@ public class AutomaticBroadcastTask implements Runnable {
   private final boolean random;
   private int current;
 
-  private static Random rand = new Random();
+  private static final Random rand = new Random();
   private static final LegacyComponentSerializer legacySerializer = LegacyComponentSerializer.builder()
           .extractUrls(
                   Style.style().color(TextColor.fromHexString("#8194e4")).decoration(TextDecoration.UNDERLINED, true).build())

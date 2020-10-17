@@ -22,11 +22,11 @@
 package uk.co.notnull.ProxyChat.api.module;
 
 public interface ProxyChatModule {
-  public String getName();
+  String getName();
 
-  public boolean isEnabled();
+  boolean isEnabled();
 
-  public void onEnable();
+  void onEnable();
 
-  public void onDisable();
+  void onDisable();
 }

@@ -65,7 +65,7 @@ public class StaffChatCommand extends BaseCommand {
         MessagesService.sendMessage(invocation.source(), Messages.ENABLE_STAFFCHAT.get());
       }
     } else {
-      String finalMessage = Arrays.stream(invocation.arguments()).collect(Collectors.joining(" "));
+      String finalMessage = String.join(" ", invocation.arguments());
 
       MessagesService.sendStaffMessage(invocation.source(), finalMessage);
     }

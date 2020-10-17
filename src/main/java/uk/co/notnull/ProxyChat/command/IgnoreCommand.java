@@ -91,7 +91,7 @@ public class IgnoreCommand extends BaseCommand {
 
       Optional<ProxyChatAccount> targetAccount = AccountManager.getAccount(invocation.arguments()[1]);
 
-      if (!targetAccount.isPresent()
+      if (targetAccount.isEmpty()
           || (targetAccount.get().isVanished()
               && !PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_VANISH_VIEW))) {
         MessagesService.sendMessage(invocation.source(), Messages.PLAYER_NOT_FOUND.get());
@@ -121,7 +121,7 @@ public class IgnoreCommand extends BaseCommand {
 
       Optional<ProxyChatAccount> targetAccount = AccountManager.getAccount(invocation.arguments()[1]);
 
-      if (!targetAccount.isPresent()
+      if (targetAccount.isEmpty()
           || (targetAccount.get().isVanished()
               && !PermissionManager.hasPermission(invocation.source(), Permission.COMMAND_VANISH_VIEW))) {
         MessagesService.sendMessage(invocation.source(), Messages.PLAYER_NOT_FOUND.get());

@@ -63,7 +63,7 @@ public class TempMuteCommand extends BaseCommand {
 
     Optional<ProxyChatAccount> targetAccount = AccountManager.getAccount(invocation.arguments()[0]);
 
-    if (!targetAccount.isPresent()) {
+    if (targetAccount.isEmpty()) {
       MessagesService.sendMessage(invocation.source(), Messages.PLAYER_NOT_FOUND.get());
       return;
     }

@@ -25,7 +25,7 @@ import lombok.Value;
 
 @Value
 public class AccountInfo {
-  private final ProxyChatAccount account;
-  private final boolean forceSave;
-  private final boolean newAccount;
+  ProxyChatAccount account;
+  boolean forceSave;
+  boolean newAccount;
 }

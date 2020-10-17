@@ -24,7 +24,7 @@ package uk.co.notnull.ProxyChat.api.account;
 import java.util.UUID;
 
 public interface ProxyChatAccountStorage {
-  public void save(ProxyChatAccount account);
+  void save(ProxyChatAccount account);
 
   /**
    * Load a player with the given UUID from the data source this class represents.
@@ -33,9 +33,9 @@ public interface ProxyChatAccountStorage {
    * @return A tuple of the player and a boolean that specifies whether it needs to be saved right
    *     after.
    */
-  public AccountInfo load(UUID uuid);
+  AccountInfo load(UUID uuid);
 
-  public default boolean requiresConsoleAccountSave() {
+  default boolean requiresConsoleAccountSave() {
     return false;
   }
 }

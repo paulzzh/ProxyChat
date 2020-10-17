@@ -22,5 +22,5 @@
 package uk.co.notnull.ProxyChat.api.placeholder;
 
 public interface ReplacementSupplier {
-  public String get(ProxyChatContext context);
+  String get(ProxyChatContext context);
 }
