@@ -24,7 +24,6 @@ package uk.co.notnull.ProxyChat.module;
 import uk.co.notnull.ProxyChat.api.module.ProxyChatModule;
 import uk.co.notnull.ProxyChat.api.module.ModuleManager;
 import uk.co.notnull.ProxyChat.module.perms.LuckPerms5Module;
-import uk.co.notnull.ProxyChat.module.perms.PowerfulPermsModule;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.Arrays;
@@ -34,8 +33,6 @@ import java.util.stream.Collectors;
 public class ProxyChatModuleManager extends ModuleManager {
   // PermissionHookModules
   public static final LuckPerms5Module LUCK_PERMS_5_MODULE = new LuckPerms5Module();
-  public static final PowerfulPermsModule POWERFUL_PERMS_MODULE = new PowerfulPermsModule();
-
   // Normal Modules
   public static final AlertModule ALERT_MODULE = new AlertModule();
   public static final AntiAdvertisingModule ANTI_ADVERTISING_MODULE = new AntiAdvertisingModule();
