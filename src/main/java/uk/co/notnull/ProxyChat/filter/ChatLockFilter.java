@@ -28,8 +28,7 @@ import uk.co.notnull.ProxyChat.api.filter.ProxyChatPreParseFilter;
 import uk.co.notnull.ProxyChat.api.filter.FilterManager;
 import uk.co.notnull.ProxyChat.message.Messages;
 import uk.co.notnull.ProxyChat.message.MessagesService;
-import uk.co.notnull.ProxyChat.permission.Permission;
-import uk.co.notnull.ProxyChat.permission.PermissionManager;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -40,7 +39,7 @@ public class ChatLockFilter implements ProxyChatPreParseFilter {
 
   @Override
   public String applyFilter(ProxyChatAccount sender, String message) throws BlockMessageException {
-    if (PermissionManager.hasPermission(sender, Permission.BYPASS_CHAT_LOCK)) {
+    if (sender.hasPermission(Permission.BYPASS_CHAT_LOCK)) {
       return message;
     }
 

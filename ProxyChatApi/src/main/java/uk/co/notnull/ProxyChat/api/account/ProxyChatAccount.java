@@ -24,6 +24,8 @@ package uk.co.notnull.ProxyChat.api.account;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import uk.co.notnull.ProxyChat.api.enums.AccountType;
 import uk.co.notnull.ProxyChat.api.enums.ChannelType;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
+
 import java.sql.Timestamp;
 import java.util.Optional;
 import java.util.UUID;
@@ -148,4 +150,8 @@ public interface ProxyChatAccount {
   default void unmute() {
     setMutedUntil(0L);
   }
+
+  boolean hasPermission(Permission permission);
+
+  boolean hasPermission(String permission);
 }

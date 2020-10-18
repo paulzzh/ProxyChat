@@ -49,7 +49,7 @@ import uk.co.notnull.ProxyChat.event.ProxyChatLeaveEvent;
 import net.kyori.text.Component;
 
 import java.net.InetSocketAddress;
-import uk.co.notnull.ProxyChat.permission.Permission;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
 import uk.co.notnull.ProxyChat.permission.PermissionManager;
 
 import java.util.LinkedList;

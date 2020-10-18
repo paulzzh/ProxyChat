@@ -26,7 +26,7 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.proxy.Player;
 import uk.co.notnull.ProxyChat.event.ProxyChatJoinEvent;
 import uk.co.notnull.ProxyChat.message.MessagesService;
-import uk.co.notnull.ProxyChat.permission.Permission;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
 import uk.co.notnull.ProxyChat.permission.PermissionManager;
 
 public class JoinMessageListener {

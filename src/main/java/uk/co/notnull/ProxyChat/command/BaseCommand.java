@@ -25,7 +25,7 @@ import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.command.SimpleCommand;
 import uk.co.notnull.ProxyChat.ProxyChat;
-import uk.co.notnull.ProxyChat.permission.Permission;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
 
 import java.util.*;
 

@@ -234,10 +234,7 @@ public class AccountSQLStorage implements ProxyChatAccountStorage {
 					  resultLoadAccount.getBoolean(tableAccountsColumnSocialSpy),
 					  resultLoadAccount.getBoolean(tableAccountsColumnLocalSpy),
 					  ignores,
-					  resultLoadAccount.getTimestamp(tableAccountsColumnMutedUntil),
-					  Optional.ofNullable(resultLoadAccount.getString(tableAccountsColumnStoredPrefix)),
-					  Optional.ofNullable(
-                      resultLoadAccount.getString(tableAccountsColumnStoredSuffix))),
+					  resultLoadAccount.getTimestamp(tableAccountsColumnMutedUntil)),
               true,
               false);
         }

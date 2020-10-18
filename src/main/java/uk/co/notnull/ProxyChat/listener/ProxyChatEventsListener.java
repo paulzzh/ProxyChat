@@ -52,7 +52,7 @@ public class ProxyChatEventsListener {
   public void onPlayerLeave(DisconnectEvent e) {
     Player player = e.getPlayer();
 
-    if(e.getLoginStatus() != DisconnectEvent.LoginStatus.SUCCESSFUL_LOGIN) {
+    if(e.getLoginStatus() == DisconnectEvent.LoginStatus.SUCCESSFUL_LOGIN) {
       ProxyChat.getInstance().getProxy().getEventManager().fireAndForget(new ProxyChatLeaveEvent(player));
     }
   }

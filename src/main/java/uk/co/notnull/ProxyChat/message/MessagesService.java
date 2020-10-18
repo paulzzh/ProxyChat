@@ -37,7 +37,7 @@ import uk.co.notnull.ProxyChat.api.placeholder.InvalidContextError;
 import uk.co.notnull.ProxyChat.chatlog.ChatLoggingManager;
 import uk.co.notnull.ProxyChat.module.ProxyChatModuleManager;
 import uk.co.notnull.ProxyChat.module.IgnoringModule;
-import uk.co.notnull.ProxyChat.permission.Permission;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
 import uk.co.notnull.ProxyChat.permission.PermissionManager;
 
 import java.util.Arrays;
@@ -110,7 +110,7 @@ public class MessagesService {
 			MessagesService.sendMessage(target, messageTarget);
 
 			if (ModuleManager.isModuleActive(ProxyChatModuleManager.SPY_MODULE)
-					&& !PermissionManager.hasPermission(account.get(), Permission.COMMAND_SOCIALSPY_EXEMPT)) {
+					&& !account.get().hasPermission(Permission.COMMAND_SOCIALSPY_EXEMPT)) {
 				Component socialSpyMessage =
 						preProcessMessage(context, account, Format.SOCIAL_SPY, false).get();
 
@@ -224,7 +224,7 @@ public class MessagesService {
 		ChatLoggingManager.logMessage(ChannelType.LOCAL, context);
 
 		if (ModuleManager.isModuleActive(ProxyChatModuleManager.SPY_MODULE)
-				&& !PermissionManager.hasPermission(account.get(), Permission.COMMAND_LOCALSPY_EXEMPT)) {
+				&& !account.get().hasPermission(Permission.COMMAND_LOCALSPY_EXEMPT)) {
 			Component localSpyMessage = preProcessMessage(context, account, Format.LOCAL_SPY, false).get();
 			Predicate<ProxyChatAccount> isNotLocal = isLocal.negate();
 
@@ -247,7 +247,7 @@ public class MessagesService {
 		Optional<Component> finalMessage = preProcessMessage(context, Format.STAFF_CHAT);
 
 		sendToMatchingPlayers(
-				finalMessage, pp -> PermissionManager.hasPermission(pp, Permission.COMMAND_STAFFCHAT_VIEW));
+				finalMessage, pp -> pp.hasPermission(Permission.COMMAND_STAFFCHAT_VIEW));
 
 		ChatLoggingManager.logMessage(ChannelType.STAFF, context);
 	}
@@ -270,7 +270,7 @@ public class MessagesService {
 		sendToMatchingPlayers(
 				finalMessage,
 				pp ->
-						PermissionManager.hasPermission(pp, Permission.COMMAND_HELPOP_VIEW)
+						pp.hasPermission(Permission.COMMAND_HELPOP_VIEW)
 								|| sender.equals(pp));
 
 		ChatLoggingManager.logMessage(ChannelType.HELP, context);
@@ -491,7 +491,7 @@ public class MessagesService {
 	}
 
 	public Predicate<ProxyChatAccount> getPermissionPredicate(Permission permission) {
-		return account -> PermissionManager.hasPermission(account, permission);
+		return account -> account.hasPermission(permission);
 	}
 
 	public Predicate<ProxyChatAccount> getNotIgnoredPredicate(
@@ -504,7 +504,7 @@ public class MessagesService {
 
 		return (ignoringModule.isEnabled()
 				&& ignoringModule.getModuleSection().getBoolean("ignoreChatMessages")
-				&& !PermissionManager.hasPermission(sender, Permission.BYPASS_IGNORE))
+				&& !sender.hasPermission(Permission.BYPASS_IGNORE))
 				? account -> !account.hasIgnored(sender)
 				: account -> true;
 	}

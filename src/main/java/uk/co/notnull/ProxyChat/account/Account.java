@@ -24,11 +24,13 @@ package uk.co.notnull.ProxyChat.account;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import net.kyori.adventure.identity.Identity;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import uk.co.notnull.ProxyChat.ProxyChat;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.api.enums.ChannelType;
 import uk.co.notnull.ProxyChat.module.ProxyChatModuleManager;
-import uk.co.notnull.ProxyChat.permission.Permission;
-import uk.co.notnull.ProxyChat.permission.PermissionManager;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
 import uk.co.notnull.ProxyChat.util.DummyPlayer;
 import java.sql.Timestamp;
 import java.util.Optional;
@@ -50,10 +52,8 @@ public class Account implements ProxyChatAccount {
   @Setter(AccessLevel.NONE)
   private UUID uuid;
 
-  @Getter(lazy = true)
-  private final Player player =
-      (Player)
-          ProxyChatAccountManager.getCommandSource(this).orElseGet(() -> new DummyPlayer(uuid));
+  @Getter
+  private final Player player;
 
   private ChannelType channelType;
   private boolean vanished;
@@ -70,12 +70,10 @@ public class Account implements ProxyChatAccount {
   private final BlockingQueue<UUID> ignored;
   private Timestamp mutedUntil;
 
-  protected Account(Player player) {
-    this(player.getUniqueId());
-  }
-
   protected Account(UUID uuid) {
     this.uuid = uuid;
+
+    player = (Player) ProxyChatAccountManager.getCommandSource(uuid).orElse(new DummyPlayer(uuid));
     channelType = defaultChannelType;
     vanished = false;
     messanger = true;
@@ -95,6 +93,7 @@ public class Account implements ProxyChatAccount {
       BlockingQueue<UUID> ignored,
       Timestamp mutedUntil) {
     this.uuid = uuid;
+    this.player = ProxyChat.getInstance().getProxy().getPlayer(uuid).orElse(new DummyPlayer(uuid));
     this.channelType = channelType;
     this.vanished = vanished;
     this.messanger = messanger;
@@ -121,7 +120,7 @@ public class Account implements ProxyChatAccount {
 
   @Override
   public boolean hasSocialSpyEnabled() {
-    if (socialSpy && !PermissionManager.hasPermission(this, Permission.COMMAND_SOCIALSPY)) {
+    if (socialSpy && !hasPermission(Permission.COMMAND_SOCIALSPY)) {
       setSocialSpy(false);
     }
 
@@ -130,7 +129,7 @@ public class Account implements ProxyChatAccount {
 
   @Override
   public boolean hasLocalSpyEnabled() {
-    if (localSpy && !PermissionManager.hasPermission(this, Permission.COMMAND_LOCALSPY)) {
+    if (localSpy && !hasPermission(Permission.COMMAND_LOCALSPY)) {
       setLocalSpy(false);
     }
 
@@ -209,5 +208,20 @@ public class Account implements ProxyChatAccount {
   @Override
   public String toString() {
     return getName();
+  }
+
+  @Override
+  public @NonNull Identity identity() {
+    return Identity.identity(uuid);
+  }
+
+  @Override
+  public boolean hasPermission(String permission) {
+    return player.hasPermission(permission);
+  }
+
+  @Override
+  public boolean hasPermission(Permission permission) {
+    return player.hasPermission(permission.getStringedPermission());
   }
 }

@@ -30,7 +30,7 @@ import uk.co.notnull.ProxyChat.api.placeholder.ProxyChatContext;
 import uk.co.notnull.ProxyChat.event.ProxyChatJoinEvent;
 import uk.co.notnull.ProxyChat.message.Format;
 import uk.co.notnull.ProxyChat.message.MessagesService;
-import uk.co.notnull.ProxyChat.permission.Permission;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
 import uk.co.notnull.ProxyChat.permission.PermissionManager;
 
 public class MOTDListener {

@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.co.notnull.ProxyChat.permission;
+package uk.co.notnull.ProxyChat.api.permission;
 
 import lombok.Getter;
 
@@ -105,8 +105,8 @@ public enum Permission {
   MESSAGE_SWITCH_VIEW("message.switch.view"),
   MESSAGE_MOTD("message.motd");
 
-	@Getter private final String stringedPermission;
   @Getter private final boolean warnOnLackingPermission;
+  @Getter private final String stringedPermission;
 
   Permission(String stringedPermission, boolean warnOnLackingPermission) {
     this.stringedPermission = "proxychat." + stringedPermission;

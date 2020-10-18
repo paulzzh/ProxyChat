@@ -48,7 +48,7 @@ public class GlobalChatModule extends Module {
 
     if (getModuleSection().getBoolean("default")
         || !ProxyChatModuleManager.LOCAL_CHAT_MODULE.isEnabled()) {
-      Account.staticSetDefaultChannelType(ChannelType.GLOBAL);
+      Account.setDefaultChannelType(ChannelType.GLOBAL);
     }
   }
 
@@ -59,6 +59,6 @@ public class GlobalChatModule extends Module {
         .getEventManager()
         .unregisterListener(ProxyChat.getInstance(), globalChatListener);
 
-    Account.staticSetDefaultChannelType(ChannelType.LOCAL);
+    Account.setDefaultChannelType(ChannelType.LOCAL);
   }
 }

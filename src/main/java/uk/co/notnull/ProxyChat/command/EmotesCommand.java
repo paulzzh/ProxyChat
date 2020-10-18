@@ -23,7 +23,7 @@ package uk.co.notnull.ProxyChat.command;
 
 import net.kyori.adventure.identity.Identity;
 import uk.co.notnull.ProxyChat.module.EmoteModule;
-import uk.co.notnull.ProxyChat.permission.Permission;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
 import uk.co.notnull.ProxyChat.permission.PermissionManager;
 import uk.co.notnull.ProxyChat.util.ServerNameUtil;
 

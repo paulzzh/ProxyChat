@@ -28,8 +28,7 @@ import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.api.placeholder.ProxyChatContext;
 import uk.co.notnull.ProxyChat.api.placeholder.PlaceHolderManager;
 import uk.co.notnull.ProxyChat.config.Configuration;
-import uk.co.notnull.ProxyChat.permission.Permission;
-import uk.co.notnull.ProxyChat.permission.PermissionManager;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
 import dev.aura.lib.messagestranslator.MessagesTranslator;
 import dev.aura.lib.messagestranslator.PluginMessagesTranslator;
 import java.io.File;
@@ -168,10 +167,10 @@ public class PlaceHolderUtil {
     style.font(message.style().font());
 
     if(color instanceof NamedTextColor) {
-      if(PermissionManager.hasPermission(account, permissionMap.get(color))) {
+      if(account.hasPermission(permissionMap.get(color))) {
         style.color(color);
       }
-    } else if(color != null && PermissionManager.hasPermission(account, Permission.USE_CHAT_FORMAT_RGB)) {
+    } else if(color != null && account.hasPermission(Permission.USE_CHAT_FORMAT_RGB)) {
       style.color(color);
     }
 
@@ -185,7 +184,7 @@ public class PlaceHolderUtil {
       if(entry.getValue() == TextDecoration.State.TRUE) {
         Permission perm = permissionMap.get(entry.getKey());
 
-        if(perm == null || PermissionManager.hasPermission(account, perm)) {
+        if(perm == null || account.hasPermission(perm)) {
           style.decoration(entry.getKey(), TextDecoration.State.TRUE);
         }
       } else {

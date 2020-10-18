@@ -21,6 +21,8 @@
 
 package uk.co.notnull.ProxyChat.account;
 
+import com.velocitypowered.api.proxy.Player;
+import uk.co.notnull.ProxyChat.ProxyChat;
 import uk.co.notnull.ProxyChat.api.ProxyChatApi;
 import uk.co.notnull.ProxyChat.api.account.AccountInfo;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
@@ -98,9 +100,7 @@ public class AccountFileStorage implements ProxyChatAccountStorage {
               (boolean) save.readObject(),
               (boolean) save.readObject(),
               (BlockingQueue<UUID>) save.readObject(),
-              (Timestamp) save.readObject(),
-              Optional.ofNullable((String) save.readObject()),
-              Optional.ofNullable((String) save.readObject())),
+              (Timestamp) save.readObject()),
           false,
           false);
     } catch (IOException | ClassNotFoundException | ClassCastException e) {

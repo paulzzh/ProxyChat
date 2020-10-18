@@ -25,11 +25,10 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import uk.co.notnull.ProxyChat.account.ProxyChatAccountManager;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
 import uk.co.notnull.ProxyChat.message.Messages;
 import uk.co.notnull.ProxyChat.message.MessagesService;
 import lombok.experimental.UtilityClass;
-
-import java.util.Optional;
 
 @UtilityClass
 public class PermissionManager {
@@ -50,7 +49,7 @@ public class PermissionManager {
   public static boolean hasPermission(Player player, Permission permission) {
     if (hasPermissionNoMessage(player, permission)) return true;
     else {
-      if (permission.getWarnOnLackingPermission()) {
+      if (permission.isWarnOnLackingPermission()) {
         MessagesService.sendMessage(player, Messages.NO_PERMISSION.get(player));
       }
 
@@ -60,10 +59,5 @@ public class PermissionManager {
 
   public static boolean hasPermission(CommandSource sender, Permission permission) {
     return !(sender instanceof Player) || hasPermission((Player) sender, permission);
-  }
-
-  public static boolean hasPermission(ProxyChatAccount account, Permission permission) {
-    Optional<CommandSource> player = ProxyChatAccountManager.getCommandSource(account);
-    return player.filter(value -> hasPermission(value, permission)).isPresent();
   }
 }

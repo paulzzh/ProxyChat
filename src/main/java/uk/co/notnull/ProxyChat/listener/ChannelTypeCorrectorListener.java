@@ -32,7 +32,7 @@ import uk.co.notnull.ProxyChat.api.module.ModuleManager;
 import uk.co.notnull.ProxyChat.message.Messages;
 import uk.co.notnull.ProxyChat.message.MessagesService;
 import uk.co.notnull.ProxyChat.module.ProxyChatModuleManager;
-import uk.co.notnull.ProxyChat.permission.Permission;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
 import uk.co.notnull.ProxyChat.permission.PermissionManager;
 
 public class ChannelTypeCorrectorListener {

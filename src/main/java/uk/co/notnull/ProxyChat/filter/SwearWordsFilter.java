@@ -25,8 +25,7 @@ import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.api.filter.ProxyChatPreParseFilter;
 import uk.co.notnull.ProxyChat.api.filter.FilterManager;
 import uk.co.notnull.ProxyChat.api.utils.RegexUtil;
-import uk.co.notnull.ProxyChat.permission.Permission;
-import uk.co.notnull.ProxyChat.permission.PermissionManager;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -60,7 +59,7 @@ public class SwearWordsFilter implements ProxyChatPreParseFilter {
 
   @Override
   public String applyFilter(ProxyChatAccount sender, String message) {
-    if (PermissionManager.hasPermission(sender, Permission.BYPASS_ANTI_SWEAR)) return message;
+    if (sender.hasPermission(Permission.BYPASS_ANTI_SWEAR)) return message;
 
     for (Pattern p : swearWords) {
       message = p.matcher(message).replaceAll(replacement);

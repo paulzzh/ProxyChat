@@ -22,8 +22,12 @@
 package uk.co.notnull.ProxyChat.api.account;
 
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import net.kyori.adventure.identity.Identity;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import uk.co.notnull.ProxyChat.api.enums.AccountType;
 import uk.co.notnull.ProxyChat.api.enums.ChannelType;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
+
 import java.sql.Timestamp;
 import java.util.Optional;
 import java.util.UUID;
@@ -160,6 +164,16 @@ public class ConsoleAccount implements ProxyChatAccount {
   @Override
   public void setMutedUntil(Timestamp mutedUntil) {
     // Do nothing
+  }
+
+  @Override
+  public boolean hasPermission(Permission bypassChatLock) {
+    return true;
+  }
+
+  @Override
+  public boolean hasPermission(String bypassChatLock) {
+    return true;
   }
 
   @Override

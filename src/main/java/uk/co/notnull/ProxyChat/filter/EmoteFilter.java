@@ -27,7 +27,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.api.filter.ProxyChatPostParseFilter;
 import uk.co.notnull.ProxyChat.api.filter.FilterManager;
-import uk.co.notnull.ProxyChat.permission.Permission;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
 import uk.co.notnull.ProxyChat.permission.PermissionManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -84,7 +84,7 @@ public class EmoteFilter implements ProxyChatPostParseFilter {
 
 	@Override
 	public Component applyFilter(ProxyChatAccount sender, Component message) {
-		if(!noPermissions && PermissionManager.hasPermission(sender, Permission.USE_EMOTES)) {
+		if(!noPermissions && sender.hasPermission(Permission.USE_EMOTES)) {
 			return message;
 		}
 

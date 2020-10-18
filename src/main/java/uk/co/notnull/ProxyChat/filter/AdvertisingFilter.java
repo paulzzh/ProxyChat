@@ -27,8 +27,7 @@ import uk.co.notnull.ProxyChat.api.filter.ProxyChatPreParseFilter;
 import uk.co.notnull.ProxyChat.api.filter.FilterManager;
 import uk.co.notnull.ProxyChat.api.utils.RegexUtil;
 import uk.co.notnull.ProxyChat.message.Messages;
-import uk.co.notnull.ProxyChat.permission.Permission;
-import uk.co.notnull.ProxyChat.permission.PermissionManager;
+import uk.co.notnull.ProxyChat.api.permission.Permission;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -70,7 +69,7 @@ public class AdvertisingFilter implements ProxyChatPreParseFilter {
   @Override
   public String applyFilter(ProxyChatAccount sender, String message) throws BlockMessageException {
     if (!noPermissions
-        && PermissionManager.hasPermission(sender, Permission.BYPASS_ANTI_ADVERTISEMENT))
+        && sender.hasPermission(Permission.BYPASS_ANTI_ADVERTISEMENT))
       return message;
 
     Matcher matches = url.matcher(message);
