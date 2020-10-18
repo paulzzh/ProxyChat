@@ -196,12 +196,7 @@ public class Account implements ProxyChatAccount {
     return getServer().map(server -> server.getServerInfo().getAddress().toString()).orElse(unknownServer);
   }
 
-  @Override
-  public void setDefaultChannelType(ChannelType channelType) {
-    defaultChannelType = channelType;
-  }
-
-  public static void staticSetDefaultChannelType(ChannelType channelType) {
+  public static void setDefaultChannelType(ChannelType channelType) {
     defaultChannelType = channelType;
   }
 

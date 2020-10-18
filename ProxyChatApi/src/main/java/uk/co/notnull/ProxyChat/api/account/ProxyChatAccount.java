@@ -22,6 +22,7 @@
 package uk.co.notnull.ProxyChat.api.account;
 
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import net.kyori.adventure.identity.Identity;
 import uk.co.notnull.ProxyChat.api.enums.AccountType;
 import uk.co.notnull.ProxyChat.api.enums.ChannelType;
 import uk.co.notnull.ProxyChat.api.permission.Permission;
@@ -90,13 +91,6 @@ public interface ProxyChatAccount {
 
   void setChannelType(ChannelType channelType);
 
-  /**
-   * Sets the <b>global</b> default channel type for <b>all players</b>!!
-   *
-   * @param channelType new default channel type
-   */
-  void setDefaultChannelType(ChannelType channelType);
-
   void setVanished(boolean vanished);
 
   void setMessanger(boolean messanger);
@@ -154,4 +148,6 @@ public interface ProxyChatAccount {
   boolean hasPermission(Permission permission);
 
   boolean hasPermission(String permission);
+
+  Identity identity();
 }

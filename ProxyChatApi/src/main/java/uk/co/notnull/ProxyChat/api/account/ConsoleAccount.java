@@ -127,11 +127,6 @@ public class ConsoleAccount implements ProxyChatAccount {
   }
 
   @Override
-  public void setDefaultChannelType(ChannelType channelType) {
-    // Do nothing
-  }
-
-  @Override
   public void setVanished(boolean vanished) {
     // Do nothing
   }
@@ -174,6 +169,10 @@ public class ConsoleAccount implements ProxyChatAccount {
   @Override
   public boolean hasPermission(String bypassChatLock) {
     return true;
+  }
+
+  public Identity identity() {
+    return Identity.nil();
   }
 
   @Override
