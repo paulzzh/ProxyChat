@@ -56,12 +56,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 public class ProxyChatAccountManager extends AccountManager {
-  private static final ConcurrentMap<UUID, CommandSource> nativeObjects = new ConcurrentHashMap<>();
   private static final List<UUID> newPlayers = new LinkedList<>();
 
   public static Optional<ProxyChatAccount> getAccount(CommandSource player) {
@@ -71,11 +68,33 @@ public class ProxyChatAccountManager extends AccountManager {
   }
 
   public static Optional<CommandSource> getCommandSource(UUID uuid) {
-    return Optional.ofNullable(nativeObjects.get(uuid));
+    ProxyServer instance = ProxyChat.getInstance().getProxy();
+
+    if(uuid == null) {
+      return Optional.empty();
+    }
+
+    if(uuid.equals(consoleAccount.getUniqueId())) {
+      return Optional.of(instance.getConsoleCommandSource());
+    } else {
+      return Optional.ofNullable(instance.getPlayer(uuid).orElse(null));
+    }
   }
 
   public static Optional<CommandSource> getCommandSource(ProxyChatAccount account) {
-    return getCommandSourceFromAccount(account);
+    ProxyServer instance = ProxyChat.getInstance().getProxy();
+
+    if(account == null) {
+      return Optional.empty();
+    }
+
+    switch (account.getAccountType()) {
+      case PLAYER:
+        return Optional.ofNullable(instance.getPlayer(account.getUniqueId()).orElse(null));
+      case CONSOLE:
+      default:
+        return Optional.ofNullable(instance.getConsoleCommandSource());
+    }
   }
 
   public static List<ProxyChatAccount> getAccountsForPartialName(
@@ -92,14 +111,13 @@ public class ProxyChatAccountManager extends AccountManager {
 
   public static List<ProxyChatAccount> getAccountsForPartialName(
       String partialName, ProxyChatAccount account) {
-    return getAccountsForPartialName(partialName, getCommandSourceFromAccount(account).orElse(null));
+    return getAccountsForPartialName(partialName, getCommandSource(account).orElse(null));
   }
 
   public static void loadAccount(UUID uuid) {
     AccountInfo loadedAccount = getAccountStorage().load(uuid);
 
     accounts.put(uuid, loadedAccount.getAccount());
-    nativeObjects.put(uuid, getCommandSourceFromAccount(loadedAccount.getAccount()).get());
 
     if (loadedAccount.isForceSave()) {
       saveAccount(loadedAccount.getAccount());
@@ -122,33 +140,10 @@ public class ProxyChatAccountManager extends AccountManager {
 
   public static void unloadAccount(ProxyChatAccount account) {
     AccountManager.unloadAccount(account);
-    nativeObjects.remove(account.getUniqueId());
   }
 
   public static boolean isNew(UUID uuid) {
     return newPlayers.contains(uuid);
-  }
-
-  private static Optional<CommandSource> getCommandSourceFromAccount(ProxyChatAccount account) {
-    if(ProxyChat.getInstance() == null || ProxyChat.getInstance().getProxy() == null) {
-      return Optional.of(new DummyConsole());
-    }
-
-    ProxyServer instance = ProxyChat.getInstance().getProxy();
-
-    if (instance == null) return Optional.of(new DummyConsole());
-
-    if(account == null) {
-      return Optional.empty();
-    }
-
-    switch (account.getAccountType()) {
-      case PLAYER:
-        return Optional.ofNullable(instance.getPlayer(account.getUniqueId()).orElse(null));
-      case CONSOLE:
-      default:
-        return Optional.ofNullable(instance.getConsoleCommandSource());
-    }
   }
 
   @Subscribe(order = PostOrder.FIRST)
@@ -159,10 +154,6 @@ public class ProxyChatAccountManager extends AccountManager {
   @Subscribe(order = PostOrder.LAST)
   public void onPlayerDisconnect(ProxyChatLeaveEvent event) {
     unloadAccount(event.getPlayer().getUniqueId());
-  }
-
-  static {
-    nativeObjects.put(consoleAccount.getUniqueId(), getCommandSourceFromAccount(consoleAccount).get());
   }
 
   private static class DummyConsole implements Player {

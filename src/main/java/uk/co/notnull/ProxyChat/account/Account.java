@@ -74,6 +74,11 @@ public class Account implements ProxyChatAccount {
     this.uuid = uuid;
 
     player = (Player) ProxyChatAccountManager.getCommandSource(uuid).orElse(new DummyPlayer(uuid));
+
+    if(player instanceof DummyPlayer) {
+      ProxyChat.getInstance().getLogger().error("Couldn't get player for uuid " + uuid + ". This is probably a bug!");
+    }
+
     channelType = defaultChannelType;
     vanished = false;
     messanger = true;
