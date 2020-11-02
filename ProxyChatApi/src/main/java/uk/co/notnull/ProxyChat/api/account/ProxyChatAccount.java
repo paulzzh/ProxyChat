@@ -22,6 +22,7 @@
 package uk.co.notnull.ProxyChat.api.account;
 
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import net.kyori.adventure.identity.Identified;
 import net.kyori.adventure.identity.Identity;
 import uk.co.notnull.ProxyChat.api.enums.AccountType;
 import uk.co.notnull.ProxyChat.api.enums.ChannelType;
@@ -33,7 +34,7 @@ import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-public interface ProxyChatAccount {
+public interface ProxyChatAccount extends Identified {
   String unknownServer = "unknown";
 
   UUID getUniqueId();

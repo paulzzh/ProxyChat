@@ -24,6 +24,7 @@ package uk.co.notnull.ProxyChat.message;
 import com.typesafe.config.Config;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import net.kyori.adventure.identity.Identified;
 import net.kyori.adventure.identity.Identity;
 import uk.co.notnull.ProxyChat.account.ProxyChatAccountManager;
 import uk.co.notnull.ProxyChat.api.account.AccountManager;
@@ -107,7 +108,7 @@ public class MessagesService {
 			Component messageTarget =
 					preProcessMessage(context, account, Format.MESSAGE_TARGET, filterPrivateMessages, true)
 							.get();
-			MessagesService.sendMessage(target, messageTarget);
+			MessagesService.sendMessage(target, senderAccount, messageTarget);
 
 			if (ModuleManager.isModuleActive(ProxyChatModuleManager.SPY_MODULE)
 					&& !account.get().hasPermission(Permission.COMMAND_SOCIALSPY_EXEMPT)) {
@@ -116,6 +117,7 @@ public class MessagesService {
 
 				sendToMatchingPlayers(
 						socialSpyMessage,
+						senderAccount,
 						acc ->
 								(!acc.getUniqueId().equals(senderAccount.getUniqueId()))
 										&& (!acc.getUniqueId().equals(targetAccount.getUniqueId()))
@@ -177,7 +179,7 @@ public class MessagesService {
 		Optional<ProxyChatAccount> account = context.getSender();
 		Optional<Component> finalMessage = preProcessMessage(context, Format.GLOBAL_CHAT);
 
-		sendToMatchingPlayers(finalMessage, getGlobalPredicate(), getNotIgnoredPredicate(account));
+		sendToMatchingPlayers(finalMessage, context.getSender().get(), getGlobalPredicate(), getNotIgnoredPredicate(account));
 
 		ChatLoggingManager.logMessage(ChannelType.GLOBAL, context);
 	}
@@ -201,7 +203,7 @@ public class MessagesService {
 		Predicate<ProxyChatAccount> isLocal = getLocalPredicate(localServer);
 		Predicate<ProxyChatAccount> notIgnored = getNotIgnoredPredicate(account);
 
-		sendToMatchingPlayers(finalMessage, isLocal, notIgnored);
+		sendToMatchingPlayers(finalMessage, context.getSender().get(), isLocal, notIgnored);
 
 		ChatLoggingManager.logMessage(ChannelType.LOCAL, context);
 
@@ -210,7 +212,7 @@ public class MessagesService {
 			Predicate<ProxyChatAccount> isNotLocal = isLocal.negate();
 
 			sendToMatchingPlayers(
-					localSpyMessage, ProxyChatAccount::hasLocalSpyEnabled, isNotLocal, notIgnored);
+					localSpyMessage, context.getSender().get(), ProxyChatAccount::hasLocalSpyEnabled, isNotLocal, notIgnored);
 		}
 	}
 
@@ -228,7 +230,7 @@ public class MessagesService {
 			Component localSpyMessage = preProcessMessage(context, account, Format.LOCAL_SPY, false).get();
 			Predicate<ProxyChatAccount> isNotLocal = isLocal.negate();
 
-			sendToMatchingPlayers(localSpyMessage, ProxyChatAccount::hasLocalSpyEnabled, isNotLocal);
+			sendToMatchingPlayers(localSpyMessage, context.getSender().get(), ProxyChatAccount::hasLocalSpyEnabled, isNotLocal);
 		}
 	}
 
@@ -247,7 +249,7 @@ public class MessagesService {
 		Optional<Component> finalMessage = preProcessMessage(context, Format.STAFF_CHAT);
 
 		sendToMatchingPlayers(
-				finalMessage, pp -> pp.hasPermission(Permission.COMMAND_STAFFCHAT_VIEW));
+				finalMessage, context.getSender().get(), pp -> pp.hasPermission(Permission.COMMAND_STAFFCHAT_VIEW));
 
 		ChatLoggingManager.logMessage(ChannelType.STAFF, context);
 	}
@@ -269,6 +271,7 @@ public class MessagesService {
 
 		sendToMatchingPlayers(
 				finalMessage,
+				sender,
 				pp ->
 						pp.hasPermission(Permission.COMMAND_HELPOP_VIEW)
 								|| sender.equals(pp));
@@ -428,6 +431,26 @@ public class MessagesService {
 																											  finalMessage)));
 	}
 
+	@SafeVarargs
+	public void sendToMatchingPlayers(Optional<Component> finalMessage, Identified sender, Predicate<ProxyChatAccount>... playerFilters) {
+		finalMessage.ifPresent(s -> sendToMatchingPlayers(s, sender, playerFilters));
+	}
+
+	@SafeVarargs
+	public void sendToMatchingPlayers(Component finalMessage, Identified sender, Predicate<ProxyChatAccount>... playerFilters) {
+		Predicate<ProxyChatAccount> playerFiler =
+				Arrays.stream(playerFilters).reduce(Predicate::and).orElse(acc -> true);
+
+		AccountManager.getPlayerAccounts().stream()
+				.filter(playerFiler)
+				.forEach(account ->
+								 ProxyChatAccountManager.getCommandSource(account).ifPresent(commandSource ->
+																									  MessagesService.sendMessage(
+																											  commandSource,
+																											  sender,
+																											  finalMessage)));
+	}
+
 	public Predicate<ProxyChatAccount> getServerListPredicate(Config section) {
 		if (!section.getBoolean("enabled")) return account -> true;
 		else {
@@ -520,5 +543,11 @@ public class MessagesService {
 		if ((message == null)) return;
 
 		recipient.sendMessage(Identity.nil(), message);
+	}
+
+	public void sendMessage(CommandSource recipient, Identified sender, Component message) {
+		if ((message == null)) return;
+
+		recipient.sendMessage(sender, message);
 	}
 }
