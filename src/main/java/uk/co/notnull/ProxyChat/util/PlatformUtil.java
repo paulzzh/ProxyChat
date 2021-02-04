@@ -21,6 +21,8 @@
 
 package uk.co.notnull.ProxyChat.util;
 
+import com.velocitypowered.api.plugin.PluginManager;
+import com.velocitypowered.api.proxy.ProxyServer;
 import uk.co.notnull.ProxyChat.ProxyChat;
 import uk.co.notnull.ProxyChat.account.Account;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
@@ -29,68 +31,68 @@ import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import uk.co.notnull.platformdetection.Platform;
+import uk.co.notnull.platformdetection.PlatformDetectionVelocity;
+
+import java.util.Optional;
 
 @UtilityClass
 public class PlatformUtil {
+	private static boolean initialised = false;
+	private static PlatformDetectionVelocity platformDetection = null;
+
+	private static void getPlatformAPI() {
+		if(initialised) {
+			return;
+		}
+
+		initialised = true;
+		PluginManager pluginManager = ProxyChat.getInstance().getProxy().getPluginManager();
+
+		if(pluginManager.isLoaded("platform-detection")) {
+			platformDetection = (PlatformDetectionVelocity) pluginManager.getPlugin("platform-detection").get()
+					.getInstance().get();
+		}
+	}
+
+	public Optional<Platform> getPlatform(ProxyChatAccount player) {
+		getPlatformAPI();
+		return Optional.ofNullable(platformDetection != null ? platformDetection.getPlatform(player.getUniqueId()) : null);
+	}
+
 	public String getPlatformIcon(ProxyChatAccount player) {
-		String icon = null;
-
-		if(FloodgateUtil.isBedrockPlayer(player)) {
-			icon = FloodgateUtil.getPlatformIcon(player);
-		}
-
-		if(icon == null && VivecraftUtil.isVivecraftPlayer(player)) {
-			icon = VivecraftUtil.getPlatformIcon(player);
-		}
-
-		return icon != null ? icon : String.valueOf('\uE1DD');
+		return getPlatform(player).map(Platform::getIcon).orElse("");
 	}
 
 	public static String getPlatformName(ProxyChatAccount player) {
-		if(player instanceof ConsoleAccount) {
-			return ProxyChat.getInstance().getProxy().getVersion().getName();
-		}
-
-		String name = null;
-
-		if(FloodgateUtil.isBedrockPlayer(player)) {
-			name = FloodgateUtil.getPlatformName(player);
-		}
-
-		if(name == null && VivecraftUtil.isVivecraftPlayer(player)) {
-			name = VivecraftUtil.getPlatformName(player);
-		}
-
-		return name != null ? name : "Java Edition";
+		return getPlatform(player).map(Platform::getLabel).orElse("");
 	}
 
 	public static String getPlatformVersion(ProxyChatAccount player) {
+		getPlatformAPI();
+
 		if(player instanceof ConsoleAccount) {
 			return ProxyChat.getInstance().getProxy().getVersion().getVersion();
 		}
 
-		String name = null;
-
-		if(FloodgateUtil.isBedrockPlayer(player)) {
-			name = FloodgateUtil.getPlatformVersion(player);
+		if(platformDetection == null) {
+			return "";
 		}
 
-		if(name == null && VivecraftUtil.isVivecraftPlayer(player)) {
-			name = VivecraftUtil.getPlatformVersion(player);
-		}
-
-		return name != null ? name : ((Account) player).getPlayer().getProtocolVersion().getName();
+		return platformDetection.getPlatformVersion(player.getUniqueId());
 	}
 
 	public static TextComponent getHover(ProxyChatAccount player) {
 		TextComponent.Builder result = Component.text().content(player.getDisplayName() + " is using:\n");
 
-		String icon = getPlatformIcon(player);
-		String platform = getPlatformName(player);
+		Optional<Platform> platform = getPlatform(player);
 		String version = getPlatformVersion(player);
 
+		String icon = platform.map(Platform::getIcon).orElse("");
+		String name = platform.map(Platform::getLabel).orElse("");
+
 		result.append(Component.text(icon))
-				.append(Component.text(" " + platform + "\n", NamedTextColor.YELLOW))
+				.append(Component.text(" " + name + "\n", NamedTextColor.YELLOW))
 				.append(Component.text(version, NamedTextColor.GRAY));
 
 		return result.build();

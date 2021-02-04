@@ -68,12 +68,6 @@ repositories {
     maven {
         url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
     }
-    maven {
-        url "https://repo.nukkitx.com/maven-snapshots"
-    }
-    maven {
-        url "https://repo.nukkitx.com/maven-releases"
-    }
     flatDir {
         dirs 'libs'
     }
@@ -87,9 +81,7 @@ dependencies {
     compileOnly 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
     compileOnly 'org.spongepowered:configurate-yaml:3.6'
     compileOnly "net.luckperms:api:${luckperms5_version}"
-    compileOnly group: 'org.geysermc', name: 'floodgate-common', version:'1.0-SNAPSHOT'
-    compileOnly group: 'org.geysermc', name: 'floodgate-velocity', version:'1.0-SNAPSHOT'
-    compileOnly name: "vivecraft-velocity-extensions-1.1"
+    compileOnly name: "PlatformDetection-velocity-1.0-SNAPSHOT"
 
     annotationProcessor 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
 

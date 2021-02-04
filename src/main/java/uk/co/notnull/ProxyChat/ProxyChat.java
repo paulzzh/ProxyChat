@@ -74,7 +74,8 @@ import org.slf4j.Logger;
 
 @Plugin(id = "proxychat", name = "ProxyChat", version = "0.1-SNAPSHOT",
         authors = {"Jim (NotKatuen)", "BrainStone", "shawn_ian"}, dependencies = {
-  @Dependency(id = "luckperms", optional = true)
+  @Dependency(id = "luckperms", optional = true),
+  @Dependency(id = "platform-detection", optional = true)
 })
 public class ProxyChat implements ProxyChatApi {
   private static final String storedDataHookName = "storedData";
