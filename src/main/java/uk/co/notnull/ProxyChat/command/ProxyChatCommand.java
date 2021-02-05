@@ -23,8 +23,8 @@ package uk.co.notnull.ProxyChat.command;
 
 import uk.co.notnull.ProxyChat.ProxyChat;
 import uk.co.notnull.ProxyChat.account.ProxyChatAccountManager;
-import uk.co.notnull.ProxyChat.api.ProxyChatApi;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
+import uk.co.notnull.ProxyChat.message.Messages;
 import uk.co.notnull.ProxyChat.message.MessagesService;
 import uk.co.notnull.ProxyChat.module.ProxyChatModuleManager;
 import uk.co.notnull.ProxyChat.api.permission.Permission;
@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ProxyChatCommand extends BaseCommand {
-  private final String prefix = "&9Proxy Chat &8// ";
   private static final List<String> arg1Completetions =
       Arrays.asList("modules", "reload");
 
@@ -62,30 +61,19 @@ public class ProxyChatCommand extends BaseCommand {
                   instance.onDisable();
                   instance.onEnable(false);
 
-                  MessagesService.sendMessage(
-                      invocation.source(), prefix + "&aThe plugin has been reloaded!");
+                  MessagesService.sendMessage(invocation.source(), Messages.PLUGIN_RELOAD.get());
                 }).schedule();
 
         return;
       } else if (invocation.arguments()[0].equalsIgnoreCase("modules")
           && PermissionManager.hasPermission(invocation.source(), Permission.PROXYCHAT_MODULES)) {
-        MessagesService.sendMessage(
-            invocation.source(),
-            prefix
-                + "&7Active Modules: &a"
-                + ProxyChatModuleManager.getActiveModuleString());
+        MessagesService.sendMessage(invocation.source(), Messages.PLUGIN_MODULES.get());
+        MessagesService.sendMessage(invocation.source(), ProxyChatModuleManager.getActiveModuleString());
         return;
       }
     }
 
-    MessagesService.sendMessage(
-        invocation.source(),
-        prefix
-            + "&7Coded by &6"
-            + ProxyChatApi.AUTHOR_BRAINSTONE
-            + "&7 and &6"
-            + ProxyChatApi.AUTHOR_SHAWN
-            + ".");
+    MessagesService.sendMessage(invocation.source(), Messages.PLUGIN_CREDITS.get());
   }
 
   @Override

@@ -118,9 +118,9 @@ disableChatlock: "&e聊天功能已启用！"
 chatIsLocked: "&c全员禁言中，只有管理员可以发言！"
 
 ####################################################################################################
-# Prefix/Suffix Messages
+# Misc plugin messages
 ####################################################################################################
-prefixRemoved: "&e已移除 %name% 的前缀！"
-prefixSet: "&e已设置 %name% 的前缀为 %prefix%。"
-suffixRemoved: "&e已移除 %name% 的后缀！"
-suffixSet: "&e已设置 %name% 的后缀为 %suffix%。"
+pluginPrefix: "&9Proxy Chat &8// "
+pluginReloaded: "%plugin_prefix%&aThe plugin has been reloaded!"
+pluginActiveModules: "%plugin_prefix%&7Active Modules: &a"
+pluginCredits: "%plugin_prefix%Ported to Velocity by Jim. Based on BungeeChat 2 by BrainStone and shawn_ian"

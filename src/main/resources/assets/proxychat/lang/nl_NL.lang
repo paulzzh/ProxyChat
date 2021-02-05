@@ -118,9 +118,9 @@ disableChatlock: "&eDe chat is nu niet meer op slot!"
 chatIsLocked: "&cJe kunt niet praten nu, de chat is op slot!"
 
 ####################################################################################################
-# Prefix/Suffix Messages
+# Misc plugin messages
 ####################################################################################################
-prefixRemoved: "&eDe prefix van %name% is verwijderd!"
-prefixSet: "&eDe prefix van %name% is nu %prefix%."
-suffixRemoved: "&eDe suffix van %name% is verwijderd!"
-suffixSet: "&eDe suffix van %name% is nu %suffix%."
+pluginPrefix: "&9Proxy Chat &8// "
+pluginReloaded: "%plugin_prefix%&aThe plugin has been reloaded!"
+pluginActiveModules: "%plugin_prefix%&7Active Modules: &a"
+pluginCredits: "%plugin_prefix%Ported to Velocity by Jim. Based on BungeeChat 2 by BrainStone and shawn_ian"

@@ -118,9 +118,9 @@ disableChatlock: "&eVous avez activé le chat !"
 chatIsLocked: "&cVous ne pouvez pas parler maintenant, le chat à été désactivé !"
 
 ####################################################################################################
-# Prefix/Suffix Messages
+# Misc plugin messages
 ####################################################################################################
-prefixRemoved: "&ePrefix de %name% à été enlevé !"
-prefixSet: "&ePrefix de %name% à été défini en %prefix%."
-suffixRemoved: "&eSuffix de %name% à été enlevé !"
-suffixSet: "&eSuffix de %name% à été défini en %suffix%."
+pluginPrefix: "&9Proxy Chat &8// "
+pluginReloaded: "%plugin_prefix%&aThe plugin has been reloaded!"
+pluginActiveModules: "%plugin_prefix%&7Active Modules: &a"
+pluginCredits: "%plugin_prefix%Ported to Velocity by Jim. Based on BungeeChat 2 by BrainStone and shawn_ian"

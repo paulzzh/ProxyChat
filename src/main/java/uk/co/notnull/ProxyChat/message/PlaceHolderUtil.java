@@ -132,6 +132,18 @@ public class PlaceHolderUtil {
     }
   }
 
+  public static String getMessageRaw(Messages message) {
+    try {
+      if (messageBase == null) {
+        loadMessageBase();
+      }
+
+      return messageBase.translateWithFallback(message);
+    } catch (RuntimeException e) {
+      return message.getStringPath();
+    }
+  }
+
   public static Component getFullFormatMessage(Format format, ProxyChatContext context) {
     return formatMessage(getFormat(format), context);
   }
@@ -144,8 +156,16 @@ public class PlaceHolderUtil {
     return formatMessage(getMessage(message), new ProxyChatContext());
   }
 
+  public static String getFullMessageRaw(Messages message) {
+    return formatMessageRaw(getMessageRaw(message), new ProxyChatContext());
+  }
+
   public static Component getFullMessage(Messages message, ProxyChatContext context) {
     return formatMessage(getMessage(message), context);
+  }
+
+   public static String getFullMessageRaw(Messages message, ProxyChatContext context) {
+    return formatMessageRaw(getMessageRaw(message), context);
   }
 
   public static Component formatMessage(Component message, ProxyChatContext context) {

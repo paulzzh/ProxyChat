@@ -103,16 +103,20 @@ public enum Messages implements Message {
   DISABLE_CHATLOCK("disableChatlock"),
   CHAT_IS_DISABLED("chatIsLocked"),
 
-  // Prefix/Suffix Messages
-  PREFIX_REMOVED("prefixRemoved"),
-  PREFIX_SET("prefixSet"),
-  SUFFIX_REMOVED("suffixRemoved"),
-  SUFFIX_SET("suffixSet");
+  // Misc Messages
+  PLUGIN_PREFIX("pluginPrefix"),
+  PLUGIN_RELOAD("pluginReloaded"),
+  PLUGIN_MODULES("pluginActiveModules"),
+  PLUGIN_CREDITS("pluginCredits");
 
   @Getter private final String stringPath;
 
   public Component get() {
     return PlaceHolderUtil.getFullMessage(this);
+  }
+
+  public String getRaw() {
+    return PlaceHolderUtil.getFullMessageRaw(this);
   }
 
   public Component get(ProxyChatAccount sender) {

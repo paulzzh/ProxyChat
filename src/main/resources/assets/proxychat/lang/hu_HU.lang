@@ -114,9 +114,9 @@ disableChatlock: "&eBeszélgetés újra engedélyezve!"
 chatIsLocked: "&cA beszélgetés le van tiltva, most nem szólalhatsz meg!"
 
 ####################################################################################################
-# Prefix/Suffix Messages
+# Misc plugin messages
 ####################################################################################################
-prefixRemoved: "&e%name% előtagja eltávolítva!"
-prefixSet: "&e%name% előtagja beállítva %prefix%-ra/re."
-suffixRemoved: "%name% utótagja eltávolítva!"
-suffixSet: "%name% utótagja beállítva %suffix%-ra/re."
+pluginPrefix: "&9Proxy Chat &8// "
+pluginReloaded: "%plugin_prefix%&aThe plugin has been reloaded!"
+pluginActiveModules: "%plugin_prefix%&7Active Modules: &a"
+pluginCredits: "%plugin_prefix%Ported to Velocity by Jim. Based on BungeeChat 2 by BrainStone and shawn_ian"

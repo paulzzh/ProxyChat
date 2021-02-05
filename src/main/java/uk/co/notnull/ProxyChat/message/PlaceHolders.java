@@ -246,6 +246,10 @@ public class PlaceHolders {
             .createAliases("command", "unknown_server"));
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder("network_online", context -> getTotalPlayerCount()));
+    PlaceHolderManager.registerPlaceholder(
+            new PlaceHolder("plugin_prefix",
+                            context -> Messages.PLUGIN_PREFIX.getRaw(),
+                            (ComponentReplacementSupplier) context -> Messages.PLUGIN_PREFIX.get()));
   }
 
   private static String getLocalPlayerCount(ProxyChatAccount player) {

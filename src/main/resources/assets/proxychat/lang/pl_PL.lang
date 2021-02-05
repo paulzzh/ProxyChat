@@ -114,9 +114,9 @@ disableChatlock: "&eChat został włączony!"
 chatIsLocked: "&cChat został wyłączony, nie możesz nic napisać!"
 
 ####################################################################################################
-# Prefix/Suffix Messages
+# Misc plugin messages
 ####################################################################################################
-prefixRemoved: "&eRanga gracza %name% została usunięta!"
-prefixSet: "&eRanga gracza %name% została ustawiona jako %prefix%."
-suffixRemoved: "&eSuffix gracza %name% został usunięty!"
-suffixSet: "&eSuffix gracza %name% został ustawiony jako %suffix%."
+pluginPrefix: "&9Proxy Chat &8// "
+pluginReloaded: "%plugin_prefix%&aThe plugin has been reloaded!"
+pluginActiveModules: "%plugin_prefix%&7Active Modules: &a"
+pluginCredits: "%plugin_prefix%Ported to Velocity by Jim. Based on BungeeChat 2 by BrainStone and shawn_ian"
