@@ -201,6 +201,11 @@ public class Account implements ProxyChatAccount {
     return getServer().map(server -> server.getServerInfo().getAddress().toString()).orElse(unknownServer);
   }
 
+  @Override
+  public boolean isMuted() {
+    return getPlayer().hasPermission("proxychat.muted") || getMutedUntil().after(new Timestamp(System.currentTimeMillis()));
+  }
+
   public static void setDefaultChannelType(ChannelType channelType) {
     defaultChannelType = channelType;
   }

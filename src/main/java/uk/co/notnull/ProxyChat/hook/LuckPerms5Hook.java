@@ -89,15 +89,4 @@ public class LuckPerms5Hook implements ProxyChatHook {
       return queryOptions;
     }
   }
-
-  @Subscribe(order = PostOrder.FIRST)
-  public void onPlayerChat(PlayerChatEvent e) {
-    if(e.getPlayer().hasPermission("proxychat.muted")) {
-      e.setResult(PlayerChatEvent.ChatResult.denied());
-      e.getPlayer().sendMessage(Identity.nil(),
-                                LegacyComponentSerializer.builder()
-                      .extractUrls().character('&').hexColors().build()
-                      .deserialize("&cYou have been muted and cannot chat right now. Please see &ehttps://minecraft.rtgame.co.uk/bans &rfor more information"));
-    }
-  }
 }

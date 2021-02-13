@@ -157,12 +157,6 @@ public class PlaceHolders {
                 ProxyChatContext.HAS_SERVER));
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
-                "muted_until",
-                context -> getDateFormat().format(context.getSender().get().getMutedUntil()),
-                ProxyChatContext.HAS_SENDER)
-            .createAliases("sender_muted_until"));
-    PlaceHolderManager.registerPlaceholder(
-        new PlaceHolder(
                 "server_online",
                 context -> getLocalPlayerCount(context.getSender().get()),
                 ProxyChatContext.HAS_SENDER)
@@ -222,11 +216,6 @@ public class PlaceHolders {
         new PlaceHolder(
                 "target_serverip",
             context -> context.getTarget().get().getServerIP(),
-                ProxyChatContext.HAS_TARGET));
-    PlaceHolderManager.registerPlaceholder(
-        new PlaceHolder(
-                "target_muted_until",
-            context -> getDateFormat().format(context.getSender().get().getMutedUntil()),
                 ProxyChatContext.HAS_TARGET));
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(

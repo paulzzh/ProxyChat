@@ -86,9 +86,7 @@ public interface ProxyChatAccount extends Identified {
 
   Timestamp getMutedUntil();
 
-  default boolean isMuted() {
-    return getMutedUntil().after(new Timestamp(System.currentTimeMillis()));
-  }
+  boolean isMuted();
 
   void setChannelType(ChannelType channelType);
 

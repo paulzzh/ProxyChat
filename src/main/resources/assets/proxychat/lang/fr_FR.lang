@@ -21,7 +21,7 @@
 ####################################################################################################
 
 ####################################################################################################
-# Inheritance
+# Inheritancem
 ####################################################################################################
 inherit: en_US
 
@@ -64,7 +64,7 @@ clearedGlobal: "&e%name% à effacé le chat global."
 ####################################################################################################
 # Mute Messages
 ####################################################################################################
-muted: "&cDésolé mais vous ne pouvez pas parler, vous êtes muté jusqu'au %muted_until%!"
+muted: "&c&lMuted > &eYou have been muted and cannot chat right now."
 unmuteNotMuted: "&cCe joueur n'est pas muté !"
 muteIsMuted: "Ce joueur est déjà muté !"
 unmute: "&eLe joueur &c%name% &eà été démuté !"

@@ -64,7 +64,7 @@ clearedGlobal: "&e%name% heeft de chat globaal leeggemaakt."
 ####################################################################################################
 # Mute Messages
 ####################################################################################################
-muted: "&cSorry, maar je kunt niet praten tot %muted_until%!"
+muted: "&c&lMuted > &eYou have been muted and cannot chat right now."
 unmuteNotMuted: "&cDeze speler is niet gedempt!"
 muteIsMuted: "Deze speler is al gedempt!"
 unmute: "&eDe speler &c%name% &ekan weer praten!"

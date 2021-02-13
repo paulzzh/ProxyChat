@@ -46,27 +46,11 @@ public class MutingListener {
 
     if (!account.isMuted()) return;
 
-    final String message = e.getMessage();
+    final ChannelType channel = account.getChannelType();
 
-    if (ChatUtils.isCommand(message)) {
-      List<String> blockCommand =
-          ProxyChatModuleManager.MUTING_MODULE.getModuleSection().getStringList("blockedcommands");
+    if (channel == ChannelType.STAFF) return;
 
-      for (String s : blockCommand) {
-        if (message.startsWith("/" + s + " ")) {
-          MessagesService.sendMessage(sender, Messages.MUTED.get(account));
-          e.setResult(PlayerChatEvent.ChatResult.denied());
-
-          return;
-        }
-      }
-    } else {
-      final ChannelType channel = account.getChannelType();
-
-      if (channel == ChannelType.STAFF) return;
-
-      e.setResult(PlayerChatEvent.ChatResult.denied());
-      MessagesService.sendMessage(sender, Messages.MUTED.get(account));
-    }
+    e.setResult(PlayerChatEvent.ChatResult.denied());
+    MessagesService.sendMessage(sender, Messages.MUTED.get(account));
   }
 }

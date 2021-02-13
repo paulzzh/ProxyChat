@@ -62,7 +62,7 @@ clearedGlobal: "&e%name% ha borrado el chat globalmente."
 ####################################################################################################
 # Mute Messages
 ####################################################################################################
-muted: "&c¡Lo sentimos pero no puedes hablar, estás silenciado hasta %muted_until%!"
+muted: "&c&lMuted > &eYou have been muted and cannot chat right now."
 unmuteNotMuted: "&c¡Este jugador no está silenciado!"
 muteIsMuted: "¡Este jugador ya está silenciado!"
 unmute: "&e¡El jugador &c%name% &eha sido desilenciado!"

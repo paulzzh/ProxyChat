@@ -524,7 +524,6 @@ public class Configuration implements Config {
       final ImmutableMap<String, Object> moduleMuting =
           ImmutableMap.<String, Object>builder()
               .put("aliases", moduleMutingAliases)
-              .put("blockedcommands", section.getNode("blockedcommands").getList(Object::toString))
               .put("disableWithOtherMutePlugins", section.getNode("disableWithOtherMutePlugins").getBoolean())
               .put("enabled", section.getNode("enabled").getBoolean())
               .build();

@@ -62,7 +62,7 @@ clearedGlobal: "&eGracz %name% wyczyścił Chat globalny."
 ####################################################################################################
 # Mute Messages
 ####################################################################################################
-muted: "&cTwoje usta zostały zaszyte, Twoje wyciszenie minie za %muted_until%!"
+muted: "&c&lMuted > &eYou have been muted and cannot chat right now."
 unmuteNotMuted: "&cTen gracz nie jest wyciszony!"
 muteIsMuted: "Ten gracz ma już aktywne wyciszenie!"
 unmute: "&ePomyślnie odciszono gracza &c%name%!"

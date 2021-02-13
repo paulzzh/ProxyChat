@@ -29,8 +29,6 @@ import lombok.Getter;
  */
 public enum Permission {
   PROXYCHAT_RELOAD("admin.reload"),
-  PROXYCHAT_SETPREFIX("admin.setprefix"),
-  PROXYCHAT_SETSUFFIX("admin.setsuffix"),
   PROXYCHAT_MODULES("admin.modules"),
   CHECK_VERSION("admin.checkversion", false),
 

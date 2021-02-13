@@ -122,6 +122,11 @@ public class ConsoleAccount implements ProxyChatAccount {
   }
 
   @Override
+  public boolean isMuted() {
+    return false;
+  }
+
+  @Override
   public void setChannelType(ChannelType channelType) {
     // Do nothing
   }

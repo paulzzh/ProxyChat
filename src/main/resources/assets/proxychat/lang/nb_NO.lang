@@ -62,7 +62,7 @@ clearedGlobal: "&e%name% har renset chatten globalt."
 ####################################################################################################
 # Mute Messages
 ####################################################################################################
-muted: "&cBeklager, men du kan ikke snakke, du har blitt mutet til %muted_until%!"
+muted: "&c&lMuted > &eYou have been muted and cannot chat right now."
 unmuteNotMuted: "&cDenne spilleren er ikke mutet!"
 muteIsMuted: "Denne spilleren er allerede mutet!"
 unmute: "&eSpilleren &c%name% &eer ikke lengre mutet!"

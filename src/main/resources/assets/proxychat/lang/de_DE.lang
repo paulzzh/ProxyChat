@@ -64,7 +64,7 @@ clearedGlobal: "&e%name% hat den Chat Global gelöscht."
 ####################################################################################################
 # Mute Messages
 ####################################################################################################
-muted: "&cSorry du kannst nicht schreiben, du bist bis %muted_until% gemutet!"
+muted: "&c&lMuted > &eYou have been muted and cannot chat right now."
 unmuteNotMuted: "&cDieser Spieler ist nicht gemutet!"
 muteIsMuted: "Dieser Spieler ist schon gemutet"
 unmute: "&eDer Spieler &c%name% &ewurde entmutet!"

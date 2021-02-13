@@ -47,6 +47,7 @@ import uk.co.notnull.ProxyChat.api.utils.ProxyChatInstaceHolder;
 import uk.co.notnull.ProxyChat.command.ProxyChatCommand;
 import uk.co.notnull.ProxyChat.config.Configuration;
 import uk.co.notnull.ProxyChat.hook.DefaultHook;
+import uk.co.notnull.ProxyChat.listener.MutingListener;
 import uk.co.notnull.ProxyChat.listener.ProxyChatEventsListener;
 import uk.co.notnull.ProxyChat.listener.ChannelTypeCorrectorListener;
 import uk.co.notnull.ProxyChat.listener.CommandTabCompleteListener;
@@ -98,6 +99,7 @@ public class ProxyChat implements ProxyChatApi {
   private ProxyChatAccountManager proxyChatAccountManager;
   private ChannelTypeCorrectorListener channelTypeCorrectorListener;
   private ProxyChatEventsListener proxyChatEventsListener;
+  private MutingListener mutingListener;
 
   @Inject
   public ProxyChat(ProxyServer proxy, Logger logger) {
@@ -166,11 +168,13 @@ public class ProxyChat implements ProxyChatApi {
     ProxyChatCommand proxyChatCommand = new ProxyChatCommand();
     proxyChatAccountManager = new ProxyChatAccountManager();
     channelTypeCorrectorListener = new ChannelTypeCorrectorListener();
+    mutingListener = new MutingListener();
     proxyChatEventsListener = new ProxyChatEventsListener();
     CommandTabCompleteListener commandTabCompleteListener = new CommandTabCompleteListener();
 
     proxyChatCommand.register();
     proxy.getEventManager().register(this, proxyChatAccountManager);
+    proxy.getEventManager().register(this, mutingListener);
     proxy.getEventManager().register(this, channelTypeCorrectorListener);
     proxy.getEventManager().register(this, proxyChatEventsListener);
     proxy.getEventManager().register(this, commandTabCompleteListener);
@@ -202,6 +206,7 @@ public class ProxyChat implements ProxyChatApi {
     //proxy.getEventManager().unregisterCommand(proxyChatCommand);
     proxy.getEventManager().unregisterListener(this, channelTypeCorrectorListener);
     proxy.getEventManager().unregisterListener(this, proxyChatEventsListener);
+    proxy.getEventManager().unregisterListener(this, mutingListener);
 
     //proxy.getScheduler().cancel(this);
 

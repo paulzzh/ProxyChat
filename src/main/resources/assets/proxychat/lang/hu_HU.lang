@@ -62,7 +62,7 @@ clearedGlobal: "&e%name% törölte a globális chat előzményeit."
 ####################################################################################################
 # Mute Messages
 ####################################################################################################
-muted: "&cSajnos nem beszélhetsz, némítva lettél eddig -> %muted_until%!"
+muted: "&c&lMuted > &eYou have been muted and cannot chat right now."
 unmuteNotMuted: "&cA játékos nincs némítva!"
 muteIsMuted: "A játékos már némítva van!"
 unmute: "&c%name% &eújra beszélhet!"
