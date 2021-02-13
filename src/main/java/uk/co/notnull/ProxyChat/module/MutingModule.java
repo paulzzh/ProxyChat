@@ -33,7 +33,6 @@ public class MutingModule extends Module {
   private MuteCommand muteCommand;
   private TempMuteCommand tempMuteCommand;
   private UnmuteCommand unmuteCommand;
-  private MutingListener mutingListener;
   private final String[] mutePlugins = {
     "AdvancedBan", "BungeeBan", "BungeeSystem", "BungeeAdminTools", "Banmanager"
   };
@@ -63,7 +62,6 @@ public class MutingModule extends Module {
     muteCommand = new MuteCommand(this);
     tempMuteCommand = new TempMuteCommand(this);
     unmuteCommand = new UnmuteCommand(this);
-    mutingListener = new MutingListener();
 
     ProxyChat plugin = ProxyChat.getInstance();
     ProxyServer proxy = plugin.getProxy();
@@ -71,8 +69,6 @@ public class MutingModule extends Module {
     muteCommand.register();
     tempMuteCommand.register();
     unmuteCommand.register();
-    proxy.getEventManager()
-        .register(ProxyChat.getInstance(), mutingListener);
   }
 
   @Override
@@ -80,6 +76,5 @@ public class MutingModule extends Module {
     muteCommand.unregister();
     tempMuteCommand.unregister();
     unmuteCommand.unregister();
-    ProxyChat.getInstance().getProxy().getEventManager().unregisterListener(ProxyChat.getInstance(), mutingListener);
   }
 }
