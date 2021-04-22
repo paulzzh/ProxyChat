@@ -22,9 +22,7 @@
 package uk.co.notnull.ProxyChat.util;
 
 import com.velocitypowered.api.plugin.PluginManager;
-import com.velocitypowered.api.proxy.ProxyServer;
 import uk.co.notnull.ProxyChat.ProxyChat;
-import uk.co.notnull.ProxyChat.account.Account;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.api.account.ConsoleAccount;
 import lombok.experimental.UtilityClass;
@@ -33,8 +31,6 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import uk.co.notnull.platformdetection.Platform;
 import uk.co.notnull.platformdetection.PlatformDetectionVelocity;
-
-import java.util.Optional;
 
 @UtilityClass
 public class PlatformUtil {
@@ -55,17 +51,33 @@ public class PlatformUtil {
 		}
 	}
 
-	public Optional<Platform> getPlatform(ProxyChatAccount player) {
+	private Platform getPlatform(ProxyChatAccount player) {
 		getPlatformAPI();
-		return Optional.ofNullable(platformDetection != null ? platformDetection.getPlatform(player.getUniqueId()) : null);
+		return platformDetection.getPlatform(player.getUniqueId());
 	}
 
 	public String getPlatformIcon(ProxyChatAccount player) {
-		return getPlatform(player).map(Platform::getIcon).orElse("");
+		getPlatformAPI();
+
+		if(platformDetection == null) {
+			return "";
+		}
+
+		return getPlatform(player).getIcon();
 	}
 
 	public static String getPlatformName(ProxyChatAccount player) {
-		return getPlatform(player).map(Platform::getLabel).orElse("");
+		getPlatformAPI();
+
+		if(player instanceof ConsoleAccount) {
+			return "Velocity";
+		}
+
+		if(platformDetection == null) {
+			return "Unknown";
+		}
+
+		return getPlatform(player).getLabel();
 	}
 
 	public static String getPlatformVersion(ProxyChatAccount player) {
@@ -76,20 +88,29 @@ public class PlatformUtil {
 		}
 
 		if(platformDetection == null) {
-			return "";
+			return "Unknown";
 		}
 
 		return platformDetection.getPlatformVersion(player.getUniqueId());
 	}
 
 	public static TextComponent getHover(ProxyChatAccount player) {
-		TextComponent.Builder result = Component.text().content(player.getDisplayName() + " is using:\n");
+		getPlatformAPI();
 
-		Optional<Platform> platform = getPlatform(player);
+		TextComponent.Builder result = Component.text().content(player.getDisplayName() + " is using:\n");
 		String version = getPlatformVersion(player);
 
-		String icon = platform.map(Platform::getIcon).orElse("");
-		String name = platform.map(Platform::getLabel).orElse("");
+		if(platformDetection == null) {
+			result.append().append(Component.text("Unknown\n", NamedTextColor.YELLOW))
+				.append(Component.text(version, NamedTextColor.GRAY));
+
+			return result.build();
+		}
+
+		Platform platform = getPlatform(player);
+
+		String icon = platform.getIcon();
+		String name = platform.getLabel();
 
 		result.append(Component.text(icon))
 				.append(Component.text(" " + name + "\n", NamedTextColor.YELLOW))
