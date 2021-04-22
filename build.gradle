@@ -48,6 +48,7 @@ sourceSets {
 repositories {
     jcenter()
     mavenCentral()
+    mavenLocal()
     maven { url "https://repo.velocitypowered.com/snapshots/" }
     maven {
         name "luck-repo"
@@ -81,7 +82,7 @@ dependencies {
     compileOnly 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
     compileOnly 'org.spongepowered:configurate-yaml:3.6'
     compileOnly "net.luckperms:api:${luckperms5_version}"
-    compileOnly name: "PlatformDetection-velocity-1.0-SNAPSHOT"
+    compileOnly name: "PlatformDetection-velocity-2.0-SNAPSHOT"
 
     annotationProcessor 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
 
