@@ -24,6 +24,7 @@ package uk.co.notnull.ProxyChat.util;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
+import net.kyori.adventure.text.TextComponent;
 import uk.co.notnull.ProxyChat.ProxyChat;
 import com.typesafe.config.Config;
 import uk.co.notnull.ProxyChat.config.Configuration;
@@ -42,7 +43,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 @UtilityClass
 public class ServerNameUtil {
   private static Map<String, String> aliasMapping = new HashMap<>();
-  private static Map<RegisteredServer, Component> serverComponents = new HashMap<>();
+  private static final Map<RegisteredServer, Component> serverComponents = new HashMap<>();
+  private static final Map<RegisteredServer, Component> serverAliasComponents = new HashMap<>();
 
   public static Optional<ServerInfo> getServerInfo(String serverName) {
     Optional<RegisteredServer> server = ProxyChat.getInstance().getProxy().getAllServers().stream()
@@ -93,27 +95,29 @@ public class ServerNameUtil {
     return serverComponents.getOrDefault(server, Component.empty());
   }
 
+  public static Component getServerAliasComponent(RegisteredServer server) {
+    return serverAliasComponents.getOrDefault(server, Component.empty());
+  }
+
   public static void init() {
     Config section = Configuration.get().getConfig("ServerAlias");
 
-    aliasMapping =
-        section.root().entrySet().stream()
-            .collect(
-                Collectors.toMap(
-                    Map.Entry::getKey, entry -> entry.getValue().unwrapped().toString()));
+    aliasMapping = section.root().entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().unwrapped().toString()));
 
-    serverComponents = ProxyChat.getInstance().getProxy().getAllServers().stream()
-            .collect(Collectors.toMap(server -> server, server -> {
-              String name = server.getServerInfo().getName();
-              return Component.text().content(name)
-                      .hoverEvent(
-                                  Component.text().content(getServerAlias(name))
-                                          .append(Component.newline())
-                                          .append(Component.text("Click to join")
-                                                          .color(NamedTextColor.YELLOW)).build()
-                      )
-                      .clickEvent(ClickEvent.runCommand("/server " + name))
-                      .build();
-            }));
+    ProxyChat.getInstance().getProxy().getAllServers().forEach(server -> {
+      String name = server.getServerInfo().getName();
+      TextComponent hoverEvent = Component.text().content(getServerAlias(name))
+              .append(Component.newline())
+              .append(Component.text("Click to join")
+                              .color(NamedTextColor.YELLOW)).build();
+      ClickEvent clickEvent = ClickEvent.runCommand("/server " + name);
+
+      serverComponents.put(server, Component.text().content(name)
+              .hoverEvent(hoverEvent).clickEvent(clickEvent).build());
+
+      serverAliasComponents.put(server, Component.text().content(getServerAlias(name))
+              .hoverEvent(hoverEvent).clickEvent(clickEvent).build());
+    });
   }
 }

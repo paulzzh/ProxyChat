@@ -122,6 +122,9 @@ public class PlaceHolders {
         new PlaceHolder(
                 "serveralias",
                 context -> ServerNameUtil.getServerAlias(context.getSender().get().getServer().get()),
+                (ComponentReplacementSupplier) context -> context.getSender().get()
+                        .getServer().map(ServerNameUtil::getServerAliasComponent)
+                        .orElse(Component.text(ProxyChatAccount.unknownServer)),
                 ProxyChatContext.HAS_SENDER)
             .createAliases("sender_serveralias", "to_serveralias"));
     PlaceHolderManager.registerPlaceholder(
@@ -145,6 +148,8 @@ public class PlaceHolders {
             context ->
                 context.getSender().get().getServer().map(ServerNameUtil::getServerAlias)
                     .orElse(ProxyChatAccount.unknownServer),
+                (ComponentReplacementSupplier) context -> context.getSender().get().getServer()
+                    .map(ServerNameUtil::getServerAliasComponent).orElse(Component.text(ProxyChatAccount.unknownServer)),
                 ProxyChatContext.HAS_SERVER));
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
@@ -206,11 +211,15 @@ public class PlaceHolders {
         new PlaceHolder(
                 "target_servername",
             context -> context.getTarget().get().getServerName(),
+            (ComponentReplacementSupplier) context -> context.getTarget().get().getServer()
+                    .map(ServerNameUtil::getServerComponent).orElse(Component.text(ProxyChatAccount.unknownServer)),
                 ProxyChatContext.HAS_TARGET));
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
                 "target_serveralias",
             context -> ServerNameUtil.getServerAlias(context.getTarget().get().getServerName()),
+            (ComponentReplacementSupplier) context -> context.getTarget().get().getServer()
+                    .map(ServerNameUtil::getServerAliasComponent).orElse(Component.text(ProxyChatAccount.unknownServer)),
                 ProxyChatContext.HAS_TARGET));
     PlaceHolderManager.registerPlaceholder(
         new PlaceHolder(
