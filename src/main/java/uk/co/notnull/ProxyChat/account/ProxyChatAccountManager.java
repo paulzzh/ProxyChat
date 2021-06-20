@@ -32,21 +32,21 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.player.PlayerSettings;
+import com.velocitypowered.api.proxy.player.ResourcePackInfo;
 import com.velocitypowered.api.proxy.player.TabList;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.util.GameProfile;
-import com.velocitypowered.api.util.MessagePosition;
 import com.velocitypowered.api.util.ModInfo;
-import com.velocitypowered.api.util.title.Title;
 import net.kyori.adventure.identity.Identity;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import net.kyori.adventure.text.Component;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.NotNull;
 import uk.co.notnull.ProxyChat.ProxyChat;
 import uk.co.notnull.ProxyChat.api.account.AccountInfo;
 import uk.co.notnull.ProxyChat.api.account.AccountManager;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.event.ProxyChatJoinEvent;
 import uk.co.notnull.ProxyChat.event.ProxyChatLeaveEvent;
-import net.kyori.text.Component;
 
 import java.net.InetSocketAddress;
 import uk.co.notnull.ProxyChat.api.permission.Permission;
@@ -193,16 +193,6 @@ public class ProxyChatAccountManager extends AccountManager {
     }
 
     @Override
-    public void sendMessage(Component message) {
-      // Do nothing
-    }
-
-    @Override
-    public void sendMessage(Component component, MessagePosition position) {
-
-    }
-
-    @Override
     public ConnectionRequestBuilder createConnectionRequest(
             RegisteredServer server) {
       return null;
@@ -224,13 +214,18 @@ public class ProxyChatAccountManager extends AccountManager {
     }
 
     @Override
-    public void setHeaderAndFooter(Component header, Component footer) {
+    public void clearHeaderAndFooter() {
 
     }
 
     @Override
-    public void clearHeaderAndFooter() {
+    public Component getPlayerListHeader() {
+      return null;
+    }
 
+    @Override
+    public Component getPlayerListFooter() {
+      return null;
     }
 
     @Override
@@ -239,17 +234,7 @@ public class ProxyChatAccountManager extends AccountManager {
     }
 
     @Override
-    public void disconnect(Component reason) {
-
-    }
-
-    @Override
     public void disconnect(net.kyori.adventure.text.Component reason) {
-
-    }
-
-    @Override
-    public void sendTitle(Title title) {
 
     }
 
@@ -266,6 +251,21 @@ public class ProxyChatAccountManager extends AccountManager {
     @Override
     public void sendResourcePack(String url, byte[] hash) {
 
+    }
+
+    @Override
+    public void sendResourcePackOffer(ResourcePackInfo packInfo) {
+
+    }
+
+    @Override
+    public @Nullable ResourcePackInfo getAppliedResourcePack() {
+      return null;
+    }
+
+    @Override
+    public @Nullable ResourcePackInfo getPendingResourcePack() {
+      return null;
     }
 
     @Override
@@ -304,8 +304,13 @@ public class ProxyChatAccountManager extends AccountManager {
     }
 
     @Override
-    public @NonNull Identity identity() {
+    public @Nullable String getClientBrand() {
       return null;
+    }
+
+    @Override
+    public @NotNull Identity identity() {
+      return Identity.nil();
     }
   }
 }

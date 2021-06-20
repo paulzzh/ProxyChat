@@ -21,10 +21,10 @@
 
 package uk.co.notnull.ProxyChat.chatlog;
 
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import uk.co.notnull.ProxyChat.ProxyChat;
 import uk.co.notnull.ProxyChat.api.placeholder.ProxyChatContext;
 import uk.co.notnull.ProxyChat.message.Format;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.slf4j.Logger;
 
 public class ConsoleLogger implements ChatLogger {
@@ -36,6 +36,6 @@ public class ConsoleLogger implements ChatLogger {
 
   @Override
   public void log(ProxyChatContext context) {
-    logger.info(PlainComponentSerializer.plain().serialize(Format.CHAT_LOGGING_CONSOLE.get(context)));
+    logger.info(PlainTextComponentSerializer.plainText().serialize(Format.CHAT_LOGGING_CONSOLE.get(context)));
   }
 }

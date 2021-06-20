@@ -22,13 +22,13 @@
 package uk.co.notnull.ProxyChat.filter;
 
 import com.velocitypowered.api.command.SimpleCommand;
+import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextDecoration;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.api.filter.ProxyChatPostParseFilter;
 import uk.co.notnull.ProxyChat.api.filter.FilterManager;
 import uk.co.notnull.ProxyChat.api.permission.Permission;
-import uk.co.notnull.ProxyChat.permission.PermissionManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -40,8 +40,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class EmoteFilter implements ProxyChatPostParseFilter {
-	private final static Pattern emotePattern = Pattern.compile(":(\\w+):");
 	private final Pattern incompleteEmotePattern = Pattern.compile("(.*):(\\w+)$");
+
+	private final TextReplacementConfig emoteReplacement;
+	private final TextReplacementConfig characterReplacement;
 
 	private final TreeMap<String, Emote> emotesByName;
 	private final Map<String, Emote> emotesByCharacter;
@@ -49,7 +51,6 @@ public class EmoteFilter implements ProxyChatPostParseFilter {
 	private Component emotesList;
 
 	private final boolean noPermissions;
-	private final Pattern characterPattern;
 
 	public EmoteFilter(Map<String, Map<String, List<String>>> categories) {
 		this(categories, false);
@@ -77,18 +78,11 @@ public class EmoteFilter implements ProxyChatPostParseFilter {
 		});
 
 		characterRegex.append("]");
-		characterPattern = Pattern.compile(characterRegex.toString());
+		Pattern characterPattern = Pattern.compile(characterRegex.toString());
+		Pattern emotePattern = Pattern.compile(":(\\w+):");
 
-		this.noPermissions = noPermissions;
-	}
-
-	@Override
-	public Component applyFilter(ProxyChatAccount sender, Component message) {
-		if(!noPermissions && sender.hasPermission(Permission.USE_EMOTES)) {
-			return message;
-		}
-
-		message = message.replaceText(emotePattern, (TextComponent.Builder result) -> {
+		emoteReplacement = TextReplacementConfig.builder().match(emotePattern)
+				.replacement((TextComponent.Builder result) -> {
 			String content = result.content();
 			String emoteName = content.substring(1, content.length() - 1).toLowerCase();
 
@@ -99,10 +93,22 @@ public class EmoteFilter implements ProxyChatPostParseFilter {
 			}
 
 			return result;
-		});
+		}).build();
 
-		return message.replaceText(characterPattern, (TextComponent.Builder result) ->
-				emotesByCharacter.get(result.content()).getComponent());
+		characterReplacement = TextReplacementConfig.builder().match(characterPattern)
+				.replacement((TextComponent.Builder result) ->
+									 emotesByCharacter.get(result.content()).getComponent()).build();
+
+		this.noPermissions = noPermissions;
+	}
+
+	@Override
+	public Component applyFilter(ProxyChatAccount sender, Component message) {
+		if(!noPermissions && sender.hasPermission(Permission.USE_EMOTES)) {
+			return message;
+		}
+
+		return message.replaceText(emoteReplacement).replaceText(characterReplacement);
 	}
 
 	public List<String> getEmoteSuggestions(SimpleCommand.Invocation invocation) {
@@ -115,12 +121,10 @@ public class EmoteFilter implements ProxyChatPostParseFilter {
 
 		String prefix = matcher.group(1);
 
-		List<String> results = searchEmotes(matcher.group(2))
+		return searchEmotes(matcher.group(2))
 				.stream()
 				.map(emote -> prefix + emote.getCharacter())
 				.collect(Collectors.toList());
-
-		return results;
 	}
 
 	public List<Emote> searchEmotes(String search) {

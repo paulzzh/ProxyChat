@@ -22,7 +22,7 @@
 package uk.co.notnull.ProxyChat.api.filter;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 /**
  * This exception is not really an exception. It is used in filters to indicate that the message
@@ -38,6 +38,6 @@ public class BlockMessageException extends Exception {
    * @param message The warning displayed to the user.
    */
   public BlockMessageException(Component message) {
-    super(PlainComponentSerializer.plain().serialize(message));
+    super(PlainTextComponentSerializer.plainText().serialize(message));
   }
 }
