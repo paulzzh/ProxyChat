@@ -32,7 +32,6 @@ public enum Format {
   CHAT_LOGGING_CONSOLE("chatLoggingConsole"),
   CHAT_LOGGING_FILE("chatLoggingFile"),
   GLOBAL_CHAT("globalChat"),
-  HELP_OP("helpOp"),
   JOIN_MESSAGE("joinMessage"),
   LEAVE_MESSAGE("leaveMessage"),
   LOCAL_CHAT("localChat"),

@@ -155,9 +155,6 @@ public class MessagesService {
 			case STAFF:
 				sendStaffMessage(context);
 				break;
-			case HELP:
-				sendHelpMessage(context);
-				break;
 			default:
 				// Ignore
 				break;
@@ -252,31 +249,6 @@ public class MessagesService {
 				finalMessage, context.getSender().get(), pp -> pp.hasPermission(Permission.COMMAND_STAFFCHAT_VIEW));
 
 		ChatLoggingManager.logMessage(ChannelType.STAFF, context);
-	}
-
-	public void sendHelpMessage(CommandSource sender, String message) throws InvalidContextError {
-		ProxyChatContext context = new Context(sender, message);
-		boolean allowed = parseMessage(context, true);
-
-		if(allowed) {
-			sendHelpMessage(context);
-		}
-	}
-
-	public void sendHelpMessage(ProxyChatContext context) throws InvalidContextError {
-		context.require(ProxyChatContext.HAS_SENDER, ProxyChatContext.HAS_MESSAGE, ProxyChatContext.IS_PARSED);
-
-		Optional<Component> finalMessage = preProcessMessage(context, Format.HELP_OP);
-		ProxyChatAccount sender = context.getSender().get();
-
-		sendToMatchingPlayers(
-				finalMessage,
-				sender,
-				pp ->
-						pp.hasPermission(Permission.COMMAND_HELPOP_VIEW)
-								|| sender.equals(pp));
-
-		ChatLoggingManager.logMessage(ChannelType.HELP, context);
 	}
 
 	public void sendJoinMessage(CommandSource sender) throws InvalidContextError {

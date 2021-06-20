@@ -45,7 +45,6 @@ public class ProxyChatModuleManager extends ModuleManager {
   public static final ChatLoggingModule CHAT_LOGGING_MODULE = new ChatLoggingModule();
   public static final ClearChatModule CLEAR_CHAT_MODULE = new ClearChatModule();
   public static final GlobalChatModule GLOBAL_CHAT_MODULE = new GlobalChatModule();
-  public static final HelpOpModule HELP_OP_MODULE = new HelpOpModule();
   public static final IgnoringModule IGNORING_MODULE = new IgnoringModule();
   public static final JoinMessageModule JOIN_MESSAGE_MODULE = new JoinMessageModule();
   public static final LeaveMessageModule LEAVE_MESSAGE_MODULE = new LeaveMessageModule();

@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `ProxyChat_Accounts`
   (
     UUID         BINARY(16) NOT NULL,
     UserName     VARCHAR(16) NOT NULL,
-    ChannelType  ENUM('GLOBAL', 'LOCAL', 'STAFF', 'HELP', 'GROUP') NOT NULL,
+    ChannelType  ENUM('GLOBAL', 'LOCAL', 'STAFF', 'GROUP') NOT NULL,
     Vanished     BOOLEAN NOT NULL,
     Messenger    BOOLEAN NOT NULL,
     SocialSpy    BOOLEAN NOT NULL,

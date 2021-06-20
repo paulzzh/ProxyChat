@@ -136,7 +136,7 @@ public class AccountSQLStorageTest {
 
       assertTrue("Should be new account", accountInfo.isNewAccount());
 
-      account.setChannelType(ChannelType.HELP);
+      account.setChannelType(ChannelType.LOCAL);
       account.addIgnore(account);
 
       accountStorage.save(account);

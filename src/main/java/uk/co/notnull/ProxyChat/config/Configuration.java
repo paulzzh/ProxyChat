@@ -349,7 +349,6 @@ public class Configuration implements Config {
               .put("chatLoggingConsole", section.getNode("chatLoggingConsole").getString(""))
               .put("chatLoggingFile", section.getNode("chatLoggingFile").getString(""))
               .put("globalChat", section.getNode("globalChat").getString(""))
-              .put("helpOp", section.getNode("helpOp").getString(""))
               .put("joinMessage", section.getNode("joinMessage").getString(""))
               .put("leaveMessage", section.getNode("leaveMessage").getString(""))
               .put("localChat", section.getNode("localChat").getString(""))
@@ -459,13 +458,6 @@ public class Configuration implements Config {
               .put("passToBackendServer", section.getNode("passToClientServer").getBoolean())
               .put("serverList", moduleGlobalChatServerList)
               .put("symbol", moduleGlobalChatSymbol)
-              .build();
-
-      section = modulesSection.getNode("HelpOp");
-      final ImmutableMap<String, Object> moduleHelpOp =
-          ImmutableMap.<String, Object>builder()
-              .put("aliases", section.getNode("aliases").getList(Object::toString))
-              .put("enabled", section.getNode("enabled").getBoolean())
               .build();
 
       section = modulesSection.getNode("Ignoring");
@@ -585,7 +577,6 @@ public class Configuration implements Config {
               .put("ChatLogging", moduleChatLogging)
               .put("ClearChat", moduleClearChat)
               .put("GlobalChat", moduleGlobalChat)
-              .put("HelpOp", moduleHelpOp)
               .put("Ignoring", moduleIgnoring)
               .put("JoinMessage", moduleJoinMessage)
               .put("LeaveMessage", moduleLeaveMessage)

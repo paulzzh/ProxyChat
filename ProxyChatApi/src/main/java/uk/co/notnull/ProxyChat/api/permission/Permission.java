@@ -75,8 +75,6 @@ public enum Permission {
   COMMAND_LOCAL_TOGGLE("command.local.toggle"),
   COMMAND_STAFFCHAT("command.staffchat"),
   COMMAND_STAFFCHAT_VIEW("command.staffchat.view"),
-  COMMAND_HELPOP("command.helpop"),
-  COMMAND_HELPOP_VIEW("command.helpop.view"),
   COMMAND_IGNORE("command.ignore"),
   COMMAND_MESSAGE("command.msg"),
   COMMAND_MUTE("command.mute"),
