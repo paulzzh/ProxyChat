@@ -36,7 +36,7 @@ import uk.co.notnull.ProxyChat.api.permission.Permission;
 import uk.co.notnull.ProxyChat.permission.PermissionManager;
 
 public class ChannelTypeCorrectorListener {
-  @Subscribe(order = PostOrder.LATE)
+  @Subscribe(order = PostOrder.NORMAL)
   public void onPlayerChat(PlayerChatEvent e) {
     if (!e.getResult().isAllowed()) return;
     if (e.getPlayer() == null) return;

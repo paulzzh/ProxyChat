@@ -47,7 +47,7 @@ public class GlobalChatListener {
   private final Config staffChatSymbolSection =
       ProxyChatModuleManager.STAFF_CHAT_MODULE.getModuleSection().getConfig("symbol");
 
-  @Subscribe(order = PostOrder.LAST)
+  @Subscribe(order = PostOrder.LATE)
   public void onPlayerChat(PlayerChatEvent e) {
     if (!e.getResult().isAllowed()) return;
     if (e.getPlayer() == null) return;

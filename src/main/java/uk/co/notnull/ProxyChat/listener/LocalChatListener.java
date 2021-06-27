@@ -52,7 +52,7 @@ public class LocalChatListener {
   private final boolean serverListDisabled = !serverListSection.getBoolean("enabled");
   private final List<String> passthruServers = serverListSection.getStringList("list");
 
-  @Subscribe(order = PostOrder.LAST)
+  @Subscribe(order = PostOrder.LATE)
   public void onPlayerChat(PlayerChatEvent e) {
     if (!e.getResult().isAllowed()) return;
     if (e.getPlayer() == null) return;
