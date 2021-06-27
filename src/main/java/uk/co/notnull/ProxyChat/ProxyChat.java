@@ -50,7 +50,6 @@ import uk.co.notnull.ProxyChat.hook.DefaultHook;
 import uk.co.notnull.ProxyChat.listener.MutingListener;
 import uk.co.notnull.ProxyChat.listener.ProxyChatEventsListener;
 import uk.co.notnull.ProxyChat.listener.ChannelTypeCorrectorListener;
-import uk.co.notnull.ProxyChat.listener.CommandTabCompleteListener;
 import uk.co.notnull.ProxyChat.message.MessagesService;
 import uk.co.notnull.ProxyChat.message.PlaceHolderUtil;
 import uk.co.notnull.ProxyChat.message.PlaceHolders;
@@ -170,14 +169,12 @@ public class ProxyChat implements ProxyChatApi {
     channelTypeCorrectorListener = new ChannelTypeCorrectorListener();
     mutingListener = new MutingListener();
     proxyChatEventsListener = new ProxyChatEventsListener();
-    CommandTabCompleteListener commandTabCompleteListener = new CommandTabCompleteListener();
 
     proxyChatCommand.register();
     proxy.getEventManager().register(this, proxyChatAccountManager);
     proxy.getEventManager().register(this, mutingListener);
     proxy.getEventManager().register(this, channelTypeCorrectorListener);
     proxy.getEventManager().register(this, proxyChatEventsListener);
-    proxy.getEventManager().register(this, commandTabCompleteListener);
 
     Config prefixDefaults = Configuration.get().getConfig("PrefixSuffixSettings");
 
@@ -192,9 +189,6 @@ public class ProxyChat implements ProxyChatApi {
     if (prinLoadScreen) {
       loadScreen();
     }
-
-    // Finally initialize ProxyChat command map
-    commandTabCompleteListener.updateProxyChatCommands();
   }
 
   public void onDisable() {

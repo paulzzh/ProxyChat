@@ -22,15 +22,11 @@
 package uk.co.notnull.ProxyChat.module;
 
 import com.typesafe.config.Config;
-import uk.co.notnull.ProxyChat.ProxyChat;
 import uk.co.notnull.ProxyChat.chatlog.ChatLoggingManager;
 import uk.co.notnull.ProxyChat.chatlog.ConsoleLogger;
 import uk.co.notnull.ProxyChat.chatlog.FileLogger;
-import uk.co.notnull.ProxyChat.listener.ChatLoggingListener;
 
 public class ChatLoggingModule extends Module {
-  private ChatLoggingListener chatLoggingListener;
-
   private ConsoleLogger consoleLogger;
   private FileLogger fileLogger;
 
@@ -55,19 +51,11 @@ public class ChatLoggingModule extends Module {
     }
 
     ChatLoggingManager.loadFilteredCommands(section.getStringList("filteredCommands"));
-
-    chatLoggingListener = new ChatLoggingListener();
-
-    ProxyChat.getInstance().getProxy()
-        .getEventManager()
-        .register(ProxyChat.getInstance(), chatLoggingListener);
   }
 
   @Override
   public void onDisable() {
-    ProxyChat.getInstance().getProxy().getEventManager().unregisterListener(ProxyChat.getInstance(), chatLoggingListener);
-
-    if (chatLoggingListener != null) {
+    if (consoleLogger != null) {
       ChatLoggingManager.removeLogger(consoleLogger);
     }
     if (fileLogger != null) {

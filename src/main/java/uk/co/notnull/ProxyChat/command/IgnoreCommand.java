@@ -172,6 +172,6 @@ public class IgnoreCommand extends BaseCommand {
                 .collect(Collectors.toList());
     }
 
-    return super.suggest(invocation.source(), invocation.arguments());
+    return super.suggest(invocation);
   }
 }
