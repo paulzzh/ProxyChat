@@ -83,6 +83,7 @@ dependencies {
     compileOnly 'org.spongepowered:configurate-yaml:3.6'
     compileOnly "net.luckperms:api:${luckperms5_version}"
     compileOnly name: "PlatformDetection-velocity-2.0-SNAPSHOT"
+    compileOnly name: "ProxyDiscordApi-RTGAME"
 
     annotationProcessor 'com.velocitypowered:velocity-api:3.0.0-SNAPSHOT'
 

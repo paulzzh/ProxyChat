@@ -61,7 +61,7 @@ public class LocalToCommand extends BaseCommand {
     String finalMessage = Arrays.stream(invocation.arguments(), 1, invocation.arguments().length)
             .collect(Collectors.joining(" "));
     ProxyChatContext context = new Context(invocation.source(), finalMessage, server.get());
-    MessagesService.parseMessage(context, false);
+    MessagesService.parseMessage(context, true);
 
     MessagesService.sendLocalMessage(context);
   }

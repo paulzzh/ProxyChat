@@ -99,6 +99,7 @@ public class ProxyChat implements ProxyChatApi {
   private ChannelTypeCorrectorListener channelTypeCorrectorListener;
   private ProxyChatEventsListener proxyChatEventsListener;
   private MutingListener mutingListener;
+  private ProxyDiscordHandler proxyDiscordHandler;
 
   @Inject
   public ProxyChat(ProxyServer proxy, Logger logger) {
@@ -120,6 +121,11 @@ public class ProxyChat implements ProxyChatApi {
   @Subscribe
   public void onProxyInitialized(ProxyInitializeEvent event) {
     onLoad();
+
+    if(proxy.getPluginManager().isLoaded("proxydiscord")) {
+      proxyDiscordHandler = new ProxyDiscordHandler(this);
+    }
+
     onEnable(true);
   }
 
@@ -313,6 +319,10 @@ public class ProxyChat implements ProxyChatApi {
 
   public ProxyServer getProxy() {
     return proxy;
+  }
+
+  public ProxyDiscordHandler getProxyDiscordHandler() {
+    return proxyDiscordHandler;
   }
 
   private enum StartupBannerSize {
