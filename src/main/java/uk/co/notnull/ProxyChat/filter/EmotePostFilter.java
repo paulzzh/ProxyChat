@@ -21,42 +21,45 @@
 
 package uk.co.notnull.ProxyChat.filter;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TextReplacementConfig;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.api.filter.FilterManager;
-import uk.co.notnull.ProxyChat.api.filter.ProxyChatPreParseFilter;
+import uk.co.notnull.ProxyChat.api.filter.ProxyChatPostParseFilter;
 import uk.co.notnull.ProxyChat.api.permission.Permission;
 import uk.co.notnull.ProxyChat.module.EmoteModule;
 
 import java.util.Locale;
+import java.util.regex.MatchResult;
 
-public class EmoteFilter implements ProxyChatPreParseFilter {
-	private final EmoteModule module;
+public class EmotePostFilter implements ProxyChatPostParseFilter {
+	private final TextReplacementConfig characterReplacement;
 	private final boolean noPermissions;
 
-	public EmoteFilter(EmoteModule module) {
+	public EmotePostFilter(EmoteModule module) {
 		this(module, false);
 	}
 
-	public EmoteFilter(EmoteModule module, boolean noPermissions) {
-		this.module = module;
+	public EmotePostFilter(EmoteModule module, boolean noPermissions) {
+		characterReplacement = TextReplacementConfig.builder()
+				.match(module.getEmotePattern())
+				.replacement((MatchResult result, TextComponent.Builder builder) -> module.getEmoteByName(
+						result.group(1).toLowerCase(Locale.ROOT))
+						.map(EmoteModule.Emote::getComponent)
+						.orElse(builder.build()))
+				.build();
+
 		this.noPermissions = noPermissions;
 	}
 
 	@Override
-	public String applyFilter(ProxyChatAccount sender, String message) {
+	public Component applyFilter(ProxyChatAccount sender, Component message) {
 		if(!noPermissions && sender.hasPermission(Permission.USE_EMOTES)) {
 			return message;
 		}
 
-		message = module.getEmotePattern().matcher(message).replaceAll(matcher -> {
-			String match = matcher.group(1).toLowerCase(Locale.ROOT);
-			return module.getEmoteByName(match).map(emote -> ":" + emote.getPrimaryName() + ":").orElse(matcher.group());
-		});
-
-		return module.getCharacterPattern().matcher(message)
-				.replaceAll(matcher -> module.getEmoteByCharacter(matcher.group())
-						.map(emote -> ":" + emote.getPrimaryName() + ":")
-						.orElse(matcher.group()));
+		return message.replaceText(characterReplacement);
 	}
 
 	@Override

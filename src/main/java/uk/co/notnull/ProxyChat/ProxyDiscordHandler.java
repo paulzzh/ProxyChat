@@ -28,6 +28,8 @@ import uk.co.notnull.ProxyChat.account.ProxyChatAccountManager;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.api.enums.ChannelType;
 import uk.co.notnull.ProxyChat.api.placeholder.ProxyChatContext;
+import uk.co.notnull.ProxyChat.module.EmoteModule;
+import uk.co.notnull.ProxyChat.module.ProxyChatModuleManager;
 import uk.co.notnull.proxydiscord.api.ProxyDiscord;
 import uk.co.notnull.proxydiscord.api.events.DiscordChatEvent;
 import uk.co.notnull.proxydiscord.api.events.DiscordLogEvent;
@@ -40,6 +42,7 @@ import java.util.Optional;
 public class ProxyDiscordHandler {
 	private final ProxyChat plugin;
 	private final ProxyDiscord proxyDiscord;
+	private final EmoteModule emoteModule = ProxyChatModuleManager.EMOTE_MODULE;
 
 	public ProxyDiscordHandler(ProxyChat plugin) {
 		this.plugin = plugin;
@@ -105,6 +108,10 @@ public class ProxyDiscordHandler {
 		} else {
 			if(channel == ChannelType.GLOBAL) {
 				//TODO: All servers
+			}
+
+			if(emoteModule.isEnabled()) {
+				unfiltered = emoteModule.getEmoteFilter().applyFilter(context.getSender().get(), unfiltered);
 			}
 
 			LogEntry privateEntry = LogEntry.builder(entry).visibility(LogVisibility.PRIVATE_ONLY)
