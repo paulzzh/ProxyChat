@@ -20,86 +20,80 @@
  */
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '4.0.4'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
     id 'java'
-    id 'maven'
-    id "io.freefair.lombok" version "5.0.0-rc2"
+    id 'maven-publish'
+    id 'io.freefair.lombok' version '6.1.0-m3'
 }
 
-group = 'uk.co.notnull.proxychat'
-version = 'RTGAME'
+rootProject.ext.mavenUserName=""
+rootProject.ext.mavenPassword=""
 
-description = """ProxyChat"""
-
-sourceCompatibility = 11
-targetCompatibility = 11
-
-sourceSets {
-    main {
-        java {
-            srcDirs= ["./src/main/java"]
-        }
-        resources {
-            srcDirs= ["./src/main/resources"]
-        }
-    }
+if (file("./build.gradle.local").exists()) {
+    apply from: "./build.gradle.local"
 }
 
-repositories {
-    jcenter()
-    mavenCentral()
-    mavenLocal()
-    maven { url "https://repo.velocitypowered.com/snapshots/" }
-    maven {
-        name "luck-repo"
-        url "https://repo.lucko.me/"
+allprojects {
+    group = 'uk.co.notnull'
+    version = '1.0-SNAPSHOT'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+
+        maven { url 'https://nexus.velocitypowered.com/repository/maven-public/' }
+        maven { url 'https://repo.not-null.co.uk/releases/' }
+        maven { url 'https://repo.lucko.me/' }
+        maven { url 'https://jitpack.io' }
+
+        flatDir {
+            dirs 'libs'
+        }
     }
-    maven {
-        name "jitpack.io"
-        url "https://jitpack.io"
-    }
-    maven {
-        name 'sponge'
-        url 'https://repo.spongepowered.org/maven/'
-    }
-    maven {
-        name 'velocity'
-        url 'https://repo.velocitypowered.com/snapshots/'
-    }
-    maven {
-        url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-    }
-    flatDir {
-        dirs 'libs'
+
+    compileJava {
+        options.compilerArgs += ["-Xlint:all", "-Xlint:-processing"]
+        options.encoding = 'UTF-8'
     }
 }
 
 dependencies {
+    implementation project(':ProxyChatApi')
+    implementation name: 'MessagesTranslator-1.4.3.41-DEV'
+    implementation 'com.typesafe:config:1.4.0'
 
-    compile project(":ProxyChatApi")
-
-    compile name: "MessagesTranslator-1.4.3.41-DEV"
     compileOnly 'com.velocitypowered:velocity-api:3.0.0-SNAPSHOT'
     compileOnly 'org.spongepowered:configurate-yaml:3.6'
-    compileOnly "net.luckperms:api:${luckperms5_version}"
-    compileOnly name: "PlatformDetection-velocity-2.0-SNAPSHOT"
-    compileOnly name: "ProxyDiscordApi-RTGAME"
+    compileOnly 'net.luckperms:api:5.0'
+    compileOnly 'uk.co.notnull:PlatformDetection-velocity:2.0'
+    compileOnly 'uk.co.notnull:ProxyDiscordAPI:1.0'
 
     annotationProcessor 'com.velocitypowered:velocity-api:3.0.0-SNAPSHOT'
 
-    shadow "com.typesafe:config:${hocon_version}"
-    shadow name: "MessagesTranslator-1.4.3.41-DEV"
-    shadow (project(":ProxyChatApi")) {
-        exclude module: "lombok"
+    testImplementation project(':ProxyChatApi')
+    testImplementation 'junit:junit:4.13'
+    testImplementation 'ch.vorburger.mariaDB4j:mariaDB4j:2.3.0'
+    testImplementation 'commons-io:commons-io:2.6'
+    testImplementation name: 'MessagesTranslator-1.4.3.41-DEV'
+    testImplementation 'com.velocitypowered:velocity-api:3.0.0-SNAPSHOT'
+
+    testCompileOnly 'com.velocitypowered:velocity-api:3.0.0-SNAPSHOT'
+
+    testRuntimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
+    testRuntimeOnly 'org.slf4j:slf4j-nop:1.7.30'
+}
+
+description = 'A velocity chat solution'
+
+java.sourceCompatibility = JavaVersion.VERSION_11
+java.targetCompatibility = JavaVersion.VERSION_11
+
+tasks {
+    build {
+        dependsOn(shadowJar)
     }
 
-    testCompileOnly('com.velocitypowered:velocity-api:3.0.0-SNAPSHOT')
-    testImplementation('junit:junit:4.13')
-    testImplementation "ch.vorburger.mariaDB4j:mariaDB4j:2.3.0"
-    testImplementation "commons-io:commons-io:2.6"
-    testImplementation name: "MessagesTranslator-1.4.3.41-DEV"
-    testImplementation "com.velocitypowered:velocity-api:3.0.0-SNAPSHOT"
-    testImplementation project(":ProxyChatApi")
-    testRuntimeOnly "org.mariadb.jdbc:mariadb-java-client:2.4.1"
-    testRuntimeOnly "org.slf4j:slf4j-nop:1.7.30"
+    shadowJar {
+        archiveClassifier.set('')
+    }
 }
