@@ -28,12 +28,8 @@ import com.velocitypowered.api.proxy.Player;
 import uk.co.notnull.ProxyChat.account.ProxyChatAccountManager;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.api.enums.ChannelType;
-import uk.co.notnull.ProxyChat.api.utils.ChatUtils;
 import uk.co.notnull.ProxyChat.message.Messages;
 import uk.co.notnull.ProxyChat.message.MessagesService;
-import uk.co.notnull.ProxyChat.module.ProxyChatModuleManager;
-
-import java.util.List;
 
 public class MutingListener {
   @Subscribe(order = PostOrder.FIRST)

@@ -72,6 +72,13 @@ public class ProxyChatContext {
   public static final Predicate<ProxyChatContext> HAS_SERVER = ProxyChatContext::hasServer;
 
   /**
+   * Predefined Predicate to check if a context has been filtered.
+   *
+   * @see ProxyChatContext#require(Predicate...)
+   */
+  public static final Predicate<ProxyChatContext> IS_FILTERED = ProxyChatContext::isFiltered;
+
+  /**
    * Predefined Predicate to check if a context has been parsed.
    *
    * @see ProxyChatContext#require(Predicate...)
@@ -115,15 +122,18 @@ public class ProxyChatContext {
   private ProxyChatAccount sender;
   private ProxyChatAccount target;
   private String message;
+  private String filteredMessage;
   private Component parsedMessage;
   private String channel;
   private RegisteredServer server;
   private boolean parsed = false;
+  private boolean filtered = false;
 
   public ProxyChatContext() {
     sender = null;
     target = null;
     message = null;
+    filteredMessage = null;
     parsedMessage = null;
     channel = null;
     server = null;
@@ -229,6 +239,10 @@ public class ProxyChatContext {
     return Optional.ofNullable(message);
   }
 
+  public Optional<String> getFilteredMessage() {
+    return Optional.ofNullable(filteredMessage);
+  }
+
   public Optional<Component> getParsedMessage() {
     return Optional.ofNullable(parsedMessage);
   }
@@ -239,6 +253,11 @@ public class ProxyChatContext {
 
   public Optional<RegisteredServer> getServer() {
     return Optional.ofNullable(server);
+  }
+
+  public void setFilteredMessage(String message) {
+    filtered = true;
+    filteredMessage = message;
   }
 
   public void setParsedMessage(Component message) {

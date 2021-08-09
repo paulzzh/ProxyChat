@@ -21,6 +21,7 @@
 
 package uk.co.notnull.ProxyChat.chatlog;
 
+import uk.co.notnull.ProxyChat.ProxyChat;
 import uk.co.notnull.ProxyChat.api.account.ProxyChatAccount;
 import uk.co.notnull.ProxyChat.api.enums.ChannelType;
 import uk.co.notnull.ProxyChat.api.placeholder.ProxyChatContext;
@@ -54,6 +55,10 @@ public class ChatLoggingManager {
 
   public static void logMessage(ChannelType channel, ProxyChatContext context) {
     logMessage(channel.name(), context);
+
+    if(ProxyChat.getInstance().getProxyDiscordHandler() != null) {
+      ProxyChat.getInstance().getProxyDiscordHandler().logMessage(channel, context);
+    }
   }
 
   public static void logMessage(String channel, ProxyChatContext context) {

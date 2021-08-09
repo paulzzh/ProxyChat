@@ -20,67 +20,71 @@
  */
 
 plugins {
-    id 'com.github.johnrengelman.shadow'
     id 'java'
-    id 'maven'
-    id "io.freefair.lombok"
-}
-
-group = 'uk.co.notnull.proxychat.api'
-version = 'RTGAME'
-
-description = """ProxyChatAPI"""
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-sourceSets {
-    main {
-        java {
-            srcDirs= ["./src/main/java"]
-        }
-        resources {
-            srcDirs= ["./src/main/resources"]
-        }
-    }
-}
-
-repositories {
-    jcenter()
-    mavenCentral()
-    maven { url "https://repo.velocitypowered.com/snapshots/" }
-    maven {
-        name "luck-repo"
-        url "https://repo.lucko.me/"
-    }
-    maven {
-        name "jitpack.io"
-        url "https://jitpack.io"
-    }
-    maven {
-        name 'velocity'
-        url 'https://repo.velocitypowered.com/snapshots/'
-    }
-    maven {
-        name 'sponge'
-        url 'https://repo.spongepowered.org/maven/'
-    }
-    flatDir {
-        dirs 'libs'
-    }
+    id 'maven-publish'
+    id 'io.freefair.lombok'
 }
 
 dependencies {
-    compileOnly 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
+    compileOnly 'com.velocitypowered:velocity-api:3.0.0-SNAPSHOT'
     compileOnly 'org.spongepowered:configurate-hocon:3.6'
     compileOnly 'org.spongepowered:configurate-yaml:3.6'
-    compileOnly "net.luckperms:api:${luckperms5_version}"
+    compileOnly 'net.luckperms:api:5.0'
 
-    annotationProcessor 'com.velocitypowered:velocity-api:1.1.0-SNAPSHOT'
+    annotationProcessor 'com.velocitypowered:velocity-api:3.0.0-SNAPSHOT'
 
-    testCompileOnly('com.velocitypowered:velocity-api:1.1.0-SNAPSHOT')
-    testImplementation('junit:junit:4.13')
-    testImplementation "ch.vorburger.mariaDB4j:mariaDB4j:2.3.0"
-    testImplementation "commons-io:commons-io:2.6"
-    testRuntimeOnly "org.mariadb.jdbc:mariadb-java-client:2.4.1"
+    testImplementation 'junit:junit:4.13'
+    testImplementation 'ch.vorburger.mariaDB4j:mariaDB4j:2.3.0'
+    testImplementation 'commons-io:commons-io:2.6'
+
+    testCompileOnly 'com.velocitypowered:velocity-api:3.0.0-SNAPSHOT'
+
+    testRuntimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
+}
+
+
+group = 'uk.co.notnull'
+version = '1.0-SNAPSHOT'
+
+description = 'ProxyChat API'
+
+java.sourceCompatibility = JavaVersion.VERSION_11
+java.targetCompatibility = JavaVersion.VERSION_11
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                description = 'ProxyChat API'
+                url = 'https://github.com/JLyne/ProxyChat'
+                developers {
+                    developer {
+                        id = 'jim'
+                        name = 'James Lyne'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/JLyne/ProxyChat.git'
+                    developerConnection = 'scm:git:ssh://github.com/JLyne/ProxyChat.git'
+                    url = 'https://github.com/JLyne/ProxyChat'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            credentials {
+                username = rootProject.ext.mavenUserName
+                password = rootProject.ext.mavenPassword
+            }
+            authentication {
+                basic(BasicAuthentication)
+            }
+
+            def releasesRepoUrl = "https://repo.not-null.co.uk/releases/" // gradle -Prelease publish
+            def snapshotsRepoUrl = "https://repo.not-null.co.uk/snapshots/"
+            url = project.hasProperty('release') ? releasesRepoUrl : snapshotsRepoUrl
+        }
+    }
 }

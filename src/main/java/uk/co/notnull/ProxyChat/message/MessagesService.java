@@ -372,6 +372,7 @@ public class MessagesService {
 		if(runFilters) {
 			try {
 				message = FilterManager.applyFilters(playerAccount, message);
+				context.setFilteredMessage(message);
 			} catch (BlockMessageException e) {
 				MessagesService.sendMessage(player, e.getMessage());
 
