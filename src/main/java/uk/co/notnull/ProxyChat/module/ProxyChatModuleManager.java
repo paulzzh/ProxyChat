@@ -60,7 +60,7 @@ public class ProxyChatModuleManager extends ModuleManager {
   public static final VanishModule VANISHER_MODULE = new VanishModule();
   public static final WelcomeMessageModule WELCOME_MESSAGE_MODULE = new WelcomeMessageModule();
   public static final EmoteModule EMOTE_MODULE = new EmoteModule();
-  public static final PlatformModule PLATFORM_MODULE = new PlatformModule();
+  //public static final PlatformModule PLATFORM_MODULE = new PlatformModule();
   public static final String MODULE_CONCATENATOR = NamedTextColor.WHITE + ", " + NamedTextColor.GREEN;
 
   private static boolean modulesAdded = false;
