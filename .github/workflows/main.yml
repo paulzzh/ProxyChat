@@ -38,4 +38,6 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Artifacts
-          path: build/
+          path: |
+            build/libs/
+            ProxyChatApi/build/libs/
