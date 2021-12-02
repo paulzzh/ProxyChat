@@ -65,7 +65,7 @@ dependencies {
     compileOnly 'com.velocitypowered:velocity-api:3.0.0-SNAPSHOT'
     compileOnly 'org.spongepowered:configurate-yaml:3.6'
     compileOnly 'net.luckperms:api:5.0'
-    compileOnly 'uk.co.notnull:PlatformDetection-velocity:2.0'
+    //compileOnly 'uk.co.notnull:PlatformDetection-velocity:2.0'
     compileOnly 'uk.co.notnull:ProxyDiscordAPI:1.0'
 
     annotationProcessor 'com.velocitypowered:velocity-api:3.0.0-SNAPSHOT'
